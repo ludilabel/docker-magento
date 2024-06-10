@@ -9,6 +9,7 @@
 ## If you changed the default Docker network, you may need to replace
 ## 172.17.0.1 in this file with the result of:
 ## docker network inspect bridge --format='{{(index .IPAM.Config 0).Gateway}}'
+## Version Ludilabel
 
 services:
   app:
