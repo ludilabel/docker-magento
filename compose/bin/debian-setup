@@ -1,0 +1,35 @@
+echo "Mise à jour des packages Debian"
+sudo apt-get update
+sudo apt-get upgrade -y
+
+echo "Installation de docker serveur"
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+# installer docker
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+echo "modification de /etc/wsl.conf pour que le serveur docker soit lancé au démarrage de la Debian"
+# Créer le fichier /etc/wsl.conf s'il n'existe pas
+sudo touch /etc/wsl.conf
+
+# Ajouter les lignes nécessaires au fichier
+sudo bash -c 'echo -e "[boot]\nsystemd=true" > /etc/wsl.conf'
+
+echo "Ajout des droits Docker pour l'utilisateur de la Debian"
+sudo usermod -aG docker $USER
+newgrp docker
+
+echo "Installation des programmes vim, rsync et bc"
+sudo apt-get install vim rsync bc
