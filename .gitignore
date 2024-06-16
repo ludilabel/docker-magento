@@ -1,3 +1,5 @@
 .idea/
-/src/
-/import/
+/src/*
+!/src/.gitkeep
+/import/*
+!/import/.gitkeep
