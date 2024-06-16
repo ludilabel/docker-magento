@@ -27,9 +27,10 @@ sudo touch /etc/wsl.conf
 # Ajouter les lignes nécessaires au fichier
 sudo bash -c 'echo -e "[boot]\nsystemd=true" > /etc/wsl.conf'
 
-echo "Ajout des droits Docker pour l'utilisateur de la Debian"
-sudo usermod -aG docker $USER
-newgrp docker
-
 echo "Installation des programmes vim, rsync et bc"
 sudo apt-get install vim rsync bc
+
+echo "Ajout des droits Docker pour l'utilisateur de la Debian"
+sudo usermod -aG docker $USER
+# ne pas mettre de commandes après newgrp car il termine la session shell
+newgrp docker
