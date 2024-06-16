@@ -8,4 +8,4 @@ fi
 git init -qqq
 git remote add origin https://github.com/ludilabel/docker-magento
 git fetch origin -qqq
-git checkout origin/master
+git checkout release/next
