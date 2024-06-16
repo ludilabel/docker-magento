@@ -1,18 +1,35 @@
 #!/usr/bin/env bash
-[ -z "$1" ] && echo "Please specify a directory or file to copy to container (ex. vendor, --all)" && exit
+[ -z "$1" ] && echo "Please specify a path directory (ex: app/etc) or path file (ex: app/etc/env.php) or -all to copy to container" && exit
 
-REAL_SRC=$(cd -P "src" && pwd)
+source env/dev-setup-config.env
+
+REAL_SRC=$(cd -P "../src" && pwd)
 if [ "$1" == "--all" ]; then
+    echo "Copy first from Windows to Debian"
+    rsync -av --delete "$OS_SRC" "../src/"
+
+    echo "Copy from Debian to docker container"
+  docker exec "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')" rm -rf /var/www/html/*
   docker cp "$REAL_SRC/./" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/
   echo "Completed copying all files from host to container"
   bin/fixowns
   bin/fixperms
 else
-  if [ -f "$REAL_SRC/$1" ]; then
-    docker cp "$REAL_SRC/${1}" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1"
+  echo "Copy first from Windows to Debian"
+
+  if [ -d "$OS_SRC/$1" ]; then
+    mkdir -p "../src/$1"
+    rsync -av --delete "$OS_SRC/$1/" "../src/$1/"
   else
-    docker cp "$REAL_SRC/${1}" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$(dirname "$1")"
+    mkdir -p "../src/$(dirname "$1")"
+    rsync -av --delete "$OS_SRC/$1" "../src/$1"
   fi
+
+  echo "Copy from Debian to docker container"
+  docker exec "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')" rm -rf /var/www/html/"$1"
+  docker exec "$(bin/docker-compose ps -q phpfpm | awk '{print $1}')" mkdir -p /var/www/html/"$(dirname "$1")"
+  docker cp "$REAL_SRC/${1}" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1"
+
   echo "Completed copying $1 from host to container"
   bin/fixowns "$1"
   bin/fixperms "$1"
