@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+source env/dev-setup-config.env
+
+FILENAME=$(basename "$OS_BDD_FILE_PATH")
+
+rsync -av "$OS_BDD_FILE_PATH" "../import/"
+bin/clinotty mysql -hdb -uroot -pmagento magento < "../import/$FILENAME"
