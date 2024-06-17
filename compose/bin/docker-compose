@@ -15,7 +15,8 @@ if [ "$1" == "--no-dev" ]; then
   shift 1
 else
   # The "--no-dev" argument wasn't passed in, so let's load the dev config.
-  COMPOSE_FILES+=("compose.dev.yaml")
+  # Ludilabel setup uses dev-ssh instead
+  COMPOSE_FILES+=("compose.dev-ssh.yaml")
 fi
 
 # Loop over the list of compose files, and prefix them with -f.
