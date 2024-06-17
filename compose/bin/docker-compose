@@ -13,10 +13,10 @@ COMPOSE_FILES=("compose.yaml" "compose.healthcheck.yaml")
 if [ "$1" == "--no-dev" ]; then
   # Remove the "--no-dev" argument so it isn't passed to docker compose
   shift 1
-else
+# else
   # The "--no-dev" argument wasn't passed in, so let's load the dev config.
   # Ludilabel setup uses dev-ssh instead
-  COMPOSE_FILES+=("compose.dev-ssh.yaml")
+  # COMPOSE_FILES+=("compose.dev-ssh.yaml")
 fi
 
 # Loop over the list of compose files, and prefix them with -f.
