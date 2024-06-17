@@ -7,7 +7,7 @@ services:
     volumes: *appvolumes
 
   ssh:
-    image: markoshust/ssh
+    build: ../images/ssh
     ports:
       - "22:22"
     volumes: *appvolumes
