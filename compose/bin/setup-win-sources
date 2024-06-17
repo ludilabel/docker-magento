@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+[ -z "$1" ] && echo "Please specify a win sources path (ex: /mnt/d/Clients/Ludilabel/magento2/)" && exit
+
+sed -i "s|^OS_SRC=.*|OS_SRC=\"$1\"|" env/dev-setup-config.env
