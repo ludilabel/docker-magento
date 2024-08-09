@@ -1,8 +1,10 @@
-echo "Mise à jour des packages Debian"
+####
+echo "Mise à jour des packages de la Debian"
 sudo apt-get update
 sudo apt-get upgrade -y
 
-echo "Installation de docker serveur"
+####
+echo "Installation de docker serveur et cli"
 # Add Docker's official GPG key:
 sudo apt-get update
 sudo apt-get install ca-certificates curl
@@ -17,16 +19,41 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
-# installer docker
+# installer les packages
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-echo "modification de /etc/wsl.conf pour que le serveur docker soit lancé au démarrage de la Debian"
+####
+echo "modification de /etc/wsl.conf pour activer le système de démarrage automatique de services de la Debian "
 # Créer le fichier /etc/wsl.conf s'il n'existe pas
 sudo touch /etc/wsl.conf
-
 # Ajouter les lignes nécessaires au fichier
 sudo bash -c 'echo -e "[boot]\nsystemd=true" > /etc/wsl.conf'
 
+####
+echo "Creation d'un service pour demarrer automatiquement les conteneurs Docker au démarrage de la Debian"
+# Create the docker-autostart.service file
+sudo bash -c 'cat <<EOF > /etc/systemd/system/docker-autostart.service
+[Unit]
+Description=Start Docker Containers at Boot
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "/usr/bin/docker start \$(/usr/bin/docker ps -a -q)"
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+# Reload systemd configuration to recognize the new service
+sudo systemctl daemon-reload
+
+# Enable the docker-autostart service so it starts on boot
+sudo systemctl enable docker-autostart.service
+
+####
 echo "Installation des programmes vim, rsync et bc"
 sudo apt-get install vim rsync bc
 
