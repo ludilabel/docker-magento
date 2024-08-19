@@ -57,6 +57,9 @@ sudo systemctl enable docker-autostart.service
 echo "Installation des programmes vim, rsync et bc"
 sudo apt-get install vim rsync bc
 
+echo "Installation du programme make"
+sudo apt-get install build-essential
+
 echo "Ajout des droits Docker pour l'utilisateur de la Debian"
 sudo usermod -aG docker $USER
 # ne pas mettre de commandes après newgrp car il termine la session shell
