@@ -1,4 +1,28 @@
 #!/usr/bin/env bash
-[ -z "$1" ] && echo "Please specify a win sources path (ex: /mnt/d/Clients/Ludilabel/magento2/)" && exit
 
-sed -i "s|^OS_SRC=.*|OS_SRC=\"$1\"|" env/dev-setup-config.env
+echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
+read -r -p "(ex : D:\Travail\Ludilabel\Magento2) : " win_sources_path
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$win_sources_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+        win_sources_path=$(echo "$win_sources_path" | sed 's|\\|/|g')
+    # Convertir le chemin au format WSL
+        win_sources_path=$(wslpath -a "$win_sources_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $win_sources_path"
+fi
+
+# Vérifier si le chemin existe
+if [ ! -d "$win_sources_path" ]; then
+    echo "Le chemin spécifié n'existe pas."
+    exit 1
+fi
+
+sed -i "s|^OS_SRC=.*|OS_SRC=\"$win_sources_path\"|" env/dev-setup-config.env
