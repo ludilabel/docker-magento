@@ -7,7 +7,7 @@ sudo apt-get upgrade -y
 echo "Installation de docker serveur et cli"
 # Add Docker's official GPG key:
 sudo apt-get update
-sudo apt-get install ca-certificates curl
+sudo apt-get install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -20,7 +20,7 @@ echo \
 sudo apt-get update
 
 # installer les packages
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 ####
 echo "modification de /etc/wsl.conf pour activer le système de démarrage automatique de services de la Debian "
@@ -55,10 +55,10 @@ sudo systemctl enable docker-autostart.service
 
 ####
 echo "Installation des programmes vim, rsync et bc"
-sudo apt-get install vim rsync bc
+sudo apt-get install -y vim rsync bc
 
 echo "Installation du programme make"
-sudo apt-get install build-essential
+sudo apt-get install -y build-essential
 
 echo "Ajout des droits Docker pour l'utilisateur de la Debian"
 sudo usermod -aG docker $USER
