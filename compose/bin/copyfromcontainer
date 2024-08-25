@@ -21,7 +21,7 @@ else
 
   else
     docker cp "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1" "$HOST_SRC/$(dirname "$1")"
-    rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1" "$OS_SRC"
+    rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1" "$OS_SRC/$1"
 
   fi
   echo "Completed copying from container to host"

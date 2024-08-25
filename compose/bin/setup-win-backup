@@ -1,4 +1,30 @@
 #!/usr/bin/env bash
-[ -z "$1" ] && echo "Please specify a sql backup file path (ex: /mnt/d/Clients/Ludilabel/franz/mysql/docker/franz_dev_dump.sql)" && exit
 
-sed -i "s|^OS_BDD_FILE_PATH=.*|OS_BDD_FILE_PATH=\"$1\"|" env/dev-setup-config.env
+echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
+read -r -p "(ex : D:\Ludilabel\recette\mysql\\recette_dump.sql) : " win_bdd_file_path
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$win_bdd_file_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+    win_bdd_file_path=$(echo "$win_bdd_file_path" | sed 's|\\|/|g')
+
+    # Convertir le chemin au format WSL
+    win_bdd_file_path=$(wslpath -a "$win_bdd_file_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $win_bdd_file_path"
+fi
+
+# Vérifier si le fichier existe
+if [ ! -f "$win_bdd_file_path" ]; then
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
+fi
+
+# Remplacer le chemin dans le fichier env/dev-setup-config.env
+sed -i "s|^OS_BDD_FILE_PATH=.*|OS_BDD_FILE_PATH=\"$win_bdd_file_path\"|" env/dev-setup-config.env
