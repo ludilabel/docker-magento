@@ -3,10 +3,13 @@
 
 source env/dev-setup-config.env
 
-HOST_SRC=$(cd -P "../src" && pwd)
+mkdir -p "$TRANSFERT_PATH"
+
+HOST_SRC=$(cd -P "$TRANSFERT_PATH" && pwd)
 if [ "$1" == "--all" ]; then
     echo "Copy first from Windows to Debian"
-    rsync -av --delete --exclude='.git' --exclude='.idea' "$OS_SRC" "$HOST_SRC/"
+
+    rsync -av --delete --exclude='.git' --exclude='.idea' "$OS_SRC/" "$HOST_SRC/"
 
     echo "Copy from Debian to docker container"
   docker exec "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')" rm -rf /var/www/html/*

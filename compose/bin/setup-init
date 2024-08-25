@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+source env/dev-setup-config.env
+
+# Resolve BIN PATH and TRANSFERT_PATH
+BIN_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TRANSFERT_PATH="$BIN_PATH/../../../transfert-docker-debian-windows"
+
+
+# Remplacer les chemins dans le fichier env/dev-setup-config.env
+sed -i "s|^BIN_PATH=.*|BIN_PATH=\"$BIN_PATH\"|" env/dev-setup-config.env
+sed -i "s|^TRANSFERT_PATH=.*|TRANSFERT_PATH=\"$TRANSFERT_PATH\"|" env/dev-setup-config.env
