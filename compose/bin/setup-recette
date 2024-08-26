@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Enable debugging
+# set -x
+
+echo "Veuillez coller l'IP du serveur recette"
+read -r -p "(ex : 125.58.165.95) : " recette_ip
+
+echo "Veuillez coller le nom de la session utilisateur sur serveur recette"
+read -r -p "(ex : bertrand) : " recette_user
+
+echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur recette"
+read -r -p "(ex : /var/www/html/magento/pub/media) : " recette_media_path
+
+# Mise a jour de la variable de configuration dans le fichier env/dev-setup-config.env
+sed -i "s|^RECETTE_IP=.*|RECETTE_IP=\"$recette_ip\"|" env/dev-setup-config.env
+# Mise a jour de la variable de configuration dans le fichier env/dev-setup-config.env
+sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config.env
+# Mise a jour de la variable de configuration dans le fichier env/dev-setup-config.env
+sed -i "s|^RECETTE_MEDIA_PATH=.*|RECETTE_MEDIA_PATH=\"$recette_media_path\"|" env/dev-setup-config.env
+
+echo "Veuillez coller le chemin Windows vers le fichier id_rsa qui permet de se connecter au serveur recette"
+read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$win_id_rsa_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+        win_id_rsa_path=$(echo "$win_id_rsa_path" | sed 's|\\|/|g')
+    # Convertir le chemin au format WSL
+        win_id_rsa_path=$(wslpath -a "$win_id_rsa_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $win_id_rsa_path"
+fi
+
+# Vérifier si le chemin existe
+if [ ! -f "$win_id_rsa_path" ]; then
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
+
+else
+  echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
+  read -e -i "id_rsa_" -r -p "(ex : id_rsa_recette) : " recette_rsa
+  debian_rsa_path="$HOME/.ssh/$recette_rsa"
+
+  cp "$win_id_rsa_path" "$debian_rsa_path"
+
+  chmod 600 "$debian_rsa_path"
+
+fi
+
+sed -i "s|^RECETTE_DEBIAN_RSA_PATH=.*|RECETTE_DEBIAN_RSA_PATH=\"$debian_rsa_path\"|" env/dev-setup-config.env
+
+
