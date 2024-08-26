@@ -2,7 +2,36 @@
 
 source env/dev-setup-config.env
 
-FILENAME=$(basename "$OS_BDD_FILE_PATH")
+echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
+read -r -p "(ex : D:\projets\magento\import\recette_dump.sql) : " win_bdd_file_path
 
-rsync -av "$OS_BDD_FILE_PATH" "../import/"
-bin/clinotty mysql -hdb -uroot -pmagento magento < "../import/$FILENAME"
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$win_bdd_file_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+    win_bdd_file_path=$(echo "$win_bdd_file_path" | sed 's|\\|/|g')
+
+    # Convertir le chemin au format WSL
+    win_bdd_file_path=$(wslpath -a "$win_bdd_file_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $win_bdd_file_path"
+fi
+
+# Vérifier si le fichier existe
+if [ ! -f "$win_bdd_file_path" ]; then
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
+fi
+
+FILENAME=$(basename "$win_bdd_file_path")
+
+echo "Téléchargement du fichier backup sur la Debian"
+rsync -av "$win_bdd_file_path" "$TRANSFER_PATH"
+
+echo "Importation de la base dans le service Docker"
+bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/$FILENAME"
