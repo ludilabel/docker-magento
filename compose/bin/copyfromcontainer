@@ -3,6 +3,9 @@
 
 source env/dev-setup-config.env
 
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
 mkdir -p "$TRANSFERT_PATH"
 
 HOST_SRC=$(cd -P "$TRANSFERT_PATH" && pwd)
@@ -10,7 +13,7 @@ if [ ! -d "$HOST_SRC" ]; then
   mkdir -p "$HOST_SRC"
 fi
 if [ "$1" == "--all" ]; then
-  docker cp "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/./ "$HOST_SRC/"
+  docker cp "$CONTAINER_ID":/var/www/html/./ "$HOST_SRC/"
   echo "Completed copying all files from container to host"
 
   rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/" "$OS_SRC"
@@ -18,11 +21,11 @@ if [ "$1" == "--all" ]; then
 
 else
   if [ -f "$1" ] ; then
-    docker cp "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1" "$HOST_SRC/$1"
+    docker cp "$CONTAINER_ID":/var/www/html/"$1" "$HOST_SRC/$1"
     rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1" "$OS_SRC"
 
   else
-    docker cp "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1" "$HOST_SRC/$(dirname "$1")"
+    docker cp "$CONTAINER_ID":/var/www/html/"$1" "$HOST_SRC/$(dirname "$1")"
     rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1/" "$OS_SRC/$1"
 
   fi

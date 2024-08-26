@@ -3,6 +3,9 @@
 
 source env/dev-setup-config.env
 
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
 mkdir -p "$TRANSFERT_PATH"
 
 HOST_SRC=$(cd -P "$TRANSFERT_PATH" && pwd)
@@ -12,8 +15,8 @@ if [ "$1" == "--all" ]; then
     rsync -av --delete --exclude='.git' --exclude='.idea' "$OS_SRC/" "$HOST_SRC/"
 
     echo "Copy from Debian to docker container"
-  docker exec "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')" rm -rf /var/www/html/*
-  docker cp "$HOST_SRC/./" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/
+  docker exec "$CONTAINER_ID" rm -rf /var/www/html/*
+  docker cp "$HOST_SRC/./" "$CONTAINER_ID":/var/www/html/
   echo "Completed copying all files from host to container"
   bin/fixowns
   bin/fixperms
@@ -29,9 +32,9 @@ else
   fi
 
   echo "Copy from Debian to docker container"
-  docker exec "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')" rm -rf /var/www/html/"$1"
-  docker exec "$(bin/docker-compose ps -q phpfpm | awk '{print $1}')" mkdir -p /var/www/html/"$(dirname "$1")"
-  docker cp "$HOST_SRC/${1}" "$(bin/docker-compose ps -q phpfpm|awk '{print $1}')":/var/www/html/"$1"
+  docker exec "$CONTAINER_ID" rm -rf /var/www/html/"$1"
+  docker exec "$CONTAINER_ID" mkdir -p /var/www/html/"$(dirname "$1")"
+  docker cp "$HOST_SRC/${1}" "$CONTAINER_ID":/var/www/html/"$1"
 
   echo "Completed copying $1 from host to container"
   bin/fixowns "$1"
