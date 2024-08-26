@@ -19,7 +19,7 @@ sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config
 # Mise a jour de la variable de configuration dans le fichier env/dev-setup-config.env
 sed -i "s|^RECETTE_MEDIA_PATH=.*|RECETTE_MEDIA_PATH=\"$recette_media_path\"|" env/dev-setup-config.env
 
-echo "Veuillez coller le chemin Windows vers le fichier id_rsa qui permet de se connecter au serveur recette"
+echo "Veuillez coller le chemin Windows vers le fichier id_rsa (format openSSH) qui permet de se connecter au serveur recette"
 read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
 
 
