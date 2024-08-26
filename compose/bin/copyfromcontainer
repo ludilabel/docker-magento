@@ -6,9 +6,9 @@ source env/dev-setup-config.env
 DOCKER_SERVICE="phpfpm"
 CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
 
-mkdir -p "$TRANSFERT_PATH"
+mkdir -p "$TRANSFER_PATH"
 
-HOST_SRC=$(cd -P "$TRANSFERT_PATH" && pwd)
+HOST_SRC=$(cd -P "$TRANSFER_PATH" && pwd)
 if [ ! -d "$HOST_SRC" ]; then
   mkdir -p "$HOST_SRC"
 fi
