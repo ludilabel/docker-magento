@@ -12,6 +12,9 @@ bin/setup-win-backup
 echo "Running bin/setup-recette..."
 bin/setup-recette
 
+echo "Running bin/setup-debian..."
+bin/setup-debian
+
 echo "All setup scripts completed."
 
 
