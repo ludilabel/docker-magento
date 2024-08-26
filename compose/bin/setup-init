@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 
-# Check if the model configuration file exists and move/rename it if it does
-if [ -f env/setup/model.dev-setup-config.env ]; then
-    mv env/setup/model.dev-setup-config.env env/dev-setup-config.env
-fi
+echo "Running bin/setup-docker..."
+bin/setup-docker
 
-source env/dev-setup-config.env
+echo "Running bin/setup-win-sources..."
+bin/setup-win-sources
 
-# Resolve BIN PATH and TRANSFERT_PATH
-BIN_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRANSFERT_PATH="$BIN_PATH/../../../transfer-docker-debian-windows"
+echo "Running bin/setup-win-backup..."
+bin/setup-win-backup
+
+echo "Running bin/setup-recette..."
+bin/setup-recette
+
+echo "All setup scripts completed."
 
 
-# Remplacer les chemins dans le fichier env/dev-setup-config.env
-sed -i "s|^BIN_PATH=.*|BIN_PATH=\"$BIN_PATH\"|" env/dev-setup-config.env
-sed -i "s|^TRANSFERT_PATH=.*|TRANSFERT_PATH=\"$TRANSFERT_PATH\"|" env/dev-setup-config.env
