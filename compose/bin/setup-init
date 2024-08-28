@@ -6,9 +6,6 @@ bin/setup-docker
 echo "Running bin/setup-win-sources..."
 bin/setup-win-sources
 
-echo "Running bin/setup-win-backup..."
-bin/setup-win-backup
-
 echo "Running bin/setup-recette..."
 bin/setup-recette
 
