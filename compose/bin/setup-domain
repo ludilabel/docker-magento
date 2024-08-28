@@ -12,11 +12,9 @@ done
 
 echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
 read -r -p "(ex : franz.docker.ludilabel) sans le suffixe du domaine de premier niveau (.fr,...) : " DN
-#DN="franz.docker.ludilabel"
 
 echo "Veuillez coller le chemin Windows complet du fichier host"
 read -r -p "(ex : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
-#WIN_HOST="C:\Windows\System32\drivers\etc\hosts"
 
 # Transformation du chemin Windows en chemin Debian WSL2
 if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
@@ -45,11 +43,14 @@ DEBIAN_IP=$(hostname -I | awk '{print $1}')
 
 # Initialize an array to hold entries that need to be added
 entries_to_add=()
+ALL_FQDN=()
 
 # Loop through each top-level domain and prepare the corresponding entry
 for TLD in "${!store_codes[@]}"; do
     # Define the entry for each TLD
     entry="$DEBIAN_IP $DN.$TLD"
+
+    ALL_FQDN+=("$DN.$TLD")
 
     # Check if the entry already exists in the hosts file
     if ! grep -q "$entry" "$WIN_HOST"; then
@@ -87,6 +88,5 @@ done
 bin/clinotty bin/magento config:set web/unsecure/base_url "https://$DN.fr/" --scope=default  > /dev/null
 
 
-# luditodo : essayer de gérer la création d’un certificat pour chaque domaine
-#echo "Generating SSL certificate..."
-#bin/setup-ssl "$DOMAIN"
+echo "Generating SSL certificates..."
+bin/setup-ssl "${ALL_FQDN[@]}"
