@@ -1,18 +1,82 @@
 #!/usr/bin/env bash
 set -o errexit
 
-[ -z "$1" ] && echo "Please specify a domain name (ex. magento.test)" && exit
+echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
+#read -r -p "(ex : franz.docker.ludilabel) sans le suffixe du domaine de premier niveau (.fr,...) : " FQDN
+FQDN="franz.docker.ludilabel"
 
-DOMAIN=$1
+echo "Veuillez coller le chemin Windows complet du fichier host"
+#read -r -p "(ex : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+WIN_HOST="C:\Windows\System32\drivers\etc\hosts"
 
-if ! grep -q "$DOMAIN" /etc/hosts; then
-    echo "Your system password is needed to add an entry to /etc/hosts..."
-    echo "127.0.0.1 ::1 $DOMAIN" | sudo tee -a /etc/hosts
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+    WIN_HOST=$(echo "$WIN_HOST" | sed 's|\\|/|g')
+
+    # Convertir le chemin au format WSL
+    WIN_HOST=$(wslpath -a "$WIN_HOST")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $WIN_HOST"
 fi
 
-echo "Set https://${DOMAIN}/ to web/secure/base_url and web/unsecure/base_url"
-bin/clinotty bin/magento config:set web/secure/base_url https://"$DOMAIN"/
-bin/clinotty bin/magento config:set web/unsecure/base_url https://"$DOMAIN"/
+# Vérifier si le fichier existe
+if [ ! -f "$WIN_HOST" ]; then
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
+fi
 
-echo "Generating SSL certificate..."
-bin/setup-ssl "$DOMAIN"
+DEBIAN_IP=$(hostname -I | awk '{print $1}')
+
+
+
+# Define the list of top-level domains
+TLDs=("fr" "it" "be" "es" "pt" "ch" "com")
+
+# Initialize an array to hold entries that need to be added
+entries_to_add=()
+
+# Loop through each top-level domain and prepare the corresponding entry
+for TLD in "${TLDs[@]}"; do
+    # Define the entry for each TLD
+    entry="$DEBIAN_IP $FQDN.$TLD"
+
+    # Check if the entry already exists in the hosts file
+    if ! grep -q "$entry" "$WIN_HOST"; then
+        echo "Preparing to add entry $entry to the Windows hosts file..."
+        entries_to_add+=("$entry")
+    else
+        echo "Entry $entry already exists in the hosts file."
+    fi
+done
+
+# If there are entries to add, run the PowerShell script
+if [ ${#entries_to_add[@]} -gt 0 ]; then
+    echo "Adding entries to the Windows hosts file..."
+    echo "Please accept PowerShell invitation"
+
+    # Convert the array to a PowerShell-compatible string
+    entries_ps="$(printf "'%s'; " "${entries_to_add[@]}")"
+
+    powershell.exe -Command "
+    \$entries = @($entries_ps);
+    \$entries | ForEach-Object { Add-Content -Path 'C:\Windows\System32\drivers\etc\hosts' -Value \$_ }
+    "
+else
+    echo "All entries already exist in the hosts file."
+fi
+
+
+# luditodo : essayer d'enregistrer tous les domaines de toutes les boutiques
+#echo "Set https://${DOMAIN}/ to web/secure/base_url and web/unsecure/base_url"
+#bin/clinotty bin/magento config:set web/secure/base_url https://"$DOMAIN"/
+
+# luditodo : essayer de gérer la création d’un certificat pour chaque domaine
+#echo "Generating SSL certificate..."
+#bin/setup-ssl "$DOMAIN"
