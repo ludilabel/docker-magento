@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source env/dev-setup-config.env
+
 if docker compose version > /dev/null 2>&1; then
   DOCKER_COMPOSE="docker compose"
 else
@@ -25,5 +27,9 @@ COMPOSE_FILES_PREFIXED=()
 for file in "${COMPOSE_FILES[@]}"; do
   COMPOSE_FILES_PREFIXED+=("-f" "$file")
 done
+
+# nécessaire car les fichiers yaml sont réévalués par la commande docker compose ci-dessous et il faut que les variables qui y sont utilisées soit définies juste avant
+# dans le contexte de la Debian WSL2 car c'est elle qui exécute les commandes Docker
+export OS_NGINX_CONF="$OS_SRC/nginx.conf.docker.sample"
 
 ${DOCKER_COMPOSE} "${COMPOSE_FILES_PREFIXED[@]}" "$@"
