@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -o errexit
+
+echo "Veuillez coller le chemin Windows vers le dossier où déposer le fichier rootCA.pem"
+read -r -p "(ex : D:\projets\Magento2\nginx) : " destination_win_path
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$destination_win_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+        destination_win_path=$(echo "$destination_win_path" | sed 's|\\|/|g')
+    # Convertir le chemin au format WSL
+        destination_win_path=$(wslpath -a "$destination_win_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $destination_win_path"
+fi
+
+# Vérifier si le chemin existe
+if [ ! -d "$destination_win_path" ]; then
+    echo "Le chemin spécifié n'existe pas."
+    exit 1
+fi
+
+
+echo "conversion du rootCA.pem en rootCA.crt pour Windows"
+docker cp "$(bin/docker-compose ps -q app|awk '{print $1}')":/root/.local/share/mkcert/rootCA.pem .
+openssl x509 -outform der -in rootCA.pem -out rootCA.crt
+rsync -av --delete "rootCA.crt" "$destination_win_path"
+rm rootCA.pem rootCA.crt
+
+echo "Le fichier a été téléchargé dans le dossier Windows. Double cliquer sur le fichier pour installer l'autorité de certification"
