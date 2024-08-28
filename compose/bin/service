@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+[ -z "$1" ] && echo "Please specify a service name to connect to (see names in compose.yaml)" && exit
+
+shell="bash"
+
+if [[ "$1" = "app" || "$1" = "redis" || "$1" = "mailcatcher" ]]; then
+  shell="ash"
+else
+  shell="bash"
+fi
+
+if [ "$2" = "root" ]; then
+  bin/docker-compose exec -u root "$1" $shell
+else
+  bin/docker-compose exec "$1" $shell
+fi
