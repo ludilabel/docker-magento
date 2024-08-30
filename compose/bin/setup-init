@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo "Running bin/setup-debian..."
+bin/setup-debian
+
 echo "Running bin/setup-docker..."
 bin/setup-docker
 
@@ -8,9 +11,6 @@ bin/setup-win-sources
 
 echo "Running bin/setup-recette..."
 bin/setup-recette
-
-echo "Running bin/setup-debian..."
-bin/setup-debian
 
 echo "All setup scripts completed."
 
