@@ -1,5 +1,4 @@
 .idea/
-/src/*
-!/src/.gitkeep
 /import/*
 !/import/.gitkeep
+/compose/env/dev-setup-config.env
