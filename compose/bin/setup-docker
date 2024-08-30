@@ -12,5 +12,11 @@ TRANSFER_PATH="$BIN_PATH/../../../transfer-docker-debian-windows"
 
 
 # Remplacer les chemins dans le fichier env/dev-setup-config.env
+echo "Configuration des variables BIN_PATH et TRANSFER_PATH"
 sed -i "s|^BIN_PATH=.*|BIN_PATH=\"$BIN_PATH\"|" env/dev-setup-config.env
 sed -i "s|^TRANSFER_PATH=.*|TRANSFER_PATH=\"$TRANSFER_PATH\"|" env/dev-setup-config.env
+
+# add write permission to all bin/ bash scripts
+# write permissions are missing when we git commit from Windows context
+chmod +x "$(dirname "$0")"/*
+
