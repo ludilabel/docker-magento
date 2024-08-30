@@ -19,7 +19,7 @@ services:
       - "443:8443"
     volumes: &appvolumes
       - ~/.composer:/var/www/.composer:cached
-      - ~/.ssh/id_rsa:/var/www/.ssh/id_rsa:cached
+      - ~/.ssh/id_rsa_recette:/var/www/.ssh/id_rsa_recette:cached
       - ~/.ssh/known_hosts:/var/www/.ssh/known_hosts:cached
       - ${OS_NGINX_CONF}:/var/www/html/nginx.conf:cached
       - appdata:/var/www/html
