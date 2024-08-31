@@ -2,9 +2,7 @@
 
 mkdir -p $HOME/docker-magento/ludilabel
 cd $HOME/docker-magento/ludilabel
-curl -sO https://raw.githubusercontent.com/ludilabel/docker-magento/master/lib/install
-bash install
+curl -s https://raw.githubusercontent.com/ludilabel/docker-magento/master/lib/install?$(date +%s) -o /tmp/install && bash /tmp/win-install && cd $HOME/docker-magento/ludilabel/compose
 
 # Se positionner ensuite dans le chemin /compose pour lancer les commandes bin/* du projet docker-magento (?)
-echo "Vous pouvez maintenant exécuter les commandes bin/*"
-cd $HOME/docker-magento/ludilabel/compose
+echo "NON Vous pouvez maintenant exécuter les commandes bin/*"
