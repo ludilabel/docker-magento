@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+############ WARNING ####################
+# ne pas mettre de commandes (même dans le scrip appelant) après newgrp car il termine la session shell
+echo "Ajout des droits Docker pour l'utilisateur de la Debian"
+sudo usermod -aG docker $USER
+newgrp docker

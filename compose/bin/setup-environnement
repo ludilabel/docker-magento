@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o errexit
 
 echo "Running bin/setup-debian..."
 bin/setup-debian
@@ -8,11 +9,10 @@ bin/setup-docker
 
 echo "All setup scripts completed."
 
-############ WARNING ####################
-# ne pas mettre de commandes après newgrp car il termine la session shell
-echo "Ajout des droits Docker pour l'utilisateur de la Debian"
-sudo usermod -aG docker $USER
-newgrp docker
+# !!! Doit toujours être mis en fin de session shell car contient un newgrp
+echo "Running bin/setup-docker-rights..."
+bin/setup-docker-rights
+
 
 
 

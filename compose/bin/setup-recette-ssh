@@ -30,6 +30,8 @@ else
   read -e -i "id_rsa_" -r -p "(ex : id_rsa_recette) : " recette_rsa
   debian_rsa_path="$HOME/.ssh/$recette_rsa"
 
+  mkdir -p ~/.ssh
+  chmod 700 ~/.ssh
   cp "$win_id_rsa_path" "$debian_rsa_path"
 
   chmod 600 "$debian_rsa_path"

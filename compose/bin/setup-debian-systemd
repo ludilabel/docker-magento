@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+####
+echo "modification de /etc/wsl.conf pour activer le système de démarrage automatique de services de la Debian "
+# Créer le fichier /etc/wsl.conf s'il n'existe pas
+sudo touch /etc/wsl.conf
+# Ajouter les lignes nécessaires au fichier
+sudo bash -c 'echo -e "[boot]\nsystemd=true" > /etc/wsl.conf'
+# un redémarrage Debian wsl2 est nécessaire si on veut que le systemd soit utilisable par d'autres programmes

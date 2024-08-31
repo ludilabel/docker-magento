@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+# Check if the model configuration file exists and move/rename it if it does
+if [ ! -f env/dev-setup-config.env ]; then
+    echo "Creation du fichier env/dev-setup-config.env"
+    cp env/setup/model.dev-setup-config.env env/dev-setup-config.env
+fi
+
+

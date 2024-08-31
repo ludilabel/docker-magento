@@ -1,26 +1,15 @@
 #!/usr/bin/env bash
+set -o errexit
 
-source env/dev-setup-config.env
-
-echo "Setup app/etc/env.php"
-read -r -p "Saisir votre prénom de développeur : " human_dev_name
-if [ -z "$human_dev_name" ]; then
-    echo "Rappel : le projet Magento 2 doit nécessairement avoir un fichier app/env.php correctement configuré."
-else
-    echo "Création du fichier app/etc.php dans Windows et Docker avec la configuration Docker propre au développeur"
-    cp "$OS_SRC/app/etc/env/dev.$human_dev_name.docker.env.php" "$OS_SRC/app/etc/env.php"
-    bin/copytocontainer app/etc/env.php
-fi
+echo "Running bin/setup-magento-env"
+bin/setup-magento-env
 
 echo "Running, Magento setup:install..."
-# depend de app/etc/env.php
+# depend de bin/setup-magento-env
 bin/setup-install
 
 echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
 bin/magento app:config:import
-
-echo "Exécuter les mises à jour de modules sur la base de données importées"
-bin/clinotty bin/magento setup:upgrade
 
 echo "Running bin/setup-domain..."
 bin/setup-domain

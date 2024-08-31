@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# A l'ouverture du shell, placer le développeur dans le bon répertoire pour lancer les commandes bin/* de docker-magento
+TARGET_DIR="$HOME/docker-magento/ludilabel/compose/"
+
+# Command to add
+COMMAND="cd $TARGET_DIR"
+
+# Files to modify
+FILES=("$HOME/.bashrc" "$HOME/.bash_profile")
+
+# Add the command to each file, creating the file if it doesn't exist
+for FILE in "${FILES[@]}"; do
+    if [ ! -f "$FILE" ]; then
+        touch "$FILE"
+        echo "Created $FILE"
+    fi
+    if ! grep -Fxq "$COMMAND" "$FILE"; then
+        echo "$COMMAND" >> "$FILE"
+        echo "Added to $FILE"
+    else
+        echo "$COMMAND already exists in $FILE"
+    fi
+done
+
+echo "Profil Bash modifié pour pouvoir lancer les commandes bin/* rapidement"

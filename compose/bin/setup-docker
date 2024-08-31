@@ -1,23 +1,11 @@
 #!/usr/bin/env bash
+set -o errexit
 
-# Check if the model configuration file exists and move/rename it if it does
-if [ ! -f env/dev-setup-config.env ]; then
-    echo "Creation du fichier env/dev-setup-config.env"
-    cp env/setup/model.dev-setup-config.env env/dev-setup-config.env
-fi
+echo "Running bin/setup-docker-env"
+bin/setup-docker-env
 
-# Resolve BIN PATH and TRANSFER_PATH
-BIN_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TRANSFER_PATH="$BIN_PATH/../../../transfer-docker-debian-windows"
+echo "Running bin/setup-docker-conf"
+bin/setup-docker-conf
 
-mkdir -p "$TRANSFER_PATH"
-
-# Remplacer les chemins dans le fichier env/dev-setup-config.env
-echo "Configuration des variables BIN_PATH et TRANSFER_PATH"
-sed -i "s|^BIN_PATH=.*|BIN_PATH=\"$BIN_PATH\"|" env/dev-setup-config.env
-sed -i "s|^TRANSFER_PATH=.*|TRANSFER_PATH=\"$TRANSFER_PATH\"|" env/dev-setup-config.env
-
-# add write permission to all bin/ bash scripts
-# write permissions are missing when we git commit from Windows context
-chmod +x "$(dirname "$0")"/*
-
+echo "Running bin/setup-docker-permissions"
+bin/setup-docker-permissions

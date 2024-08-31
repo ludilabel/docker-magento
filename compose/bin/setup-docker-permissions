@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# add write permission to all bin/ bash scripts
+# write permissions are missing when we git commit from Windows context
+chmod +x "$(dirname "$0")"/*
+
