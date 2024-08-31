@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -o errexit
 
+echo "Running bin/setup-docker-permissions"
+bin/setup-docker-permissions
+
 echo "Running bin/setup-docker-env"
 bin/setup-docker-env
 
 echo "Running bin/setup-docker-conf"
 bin/setup-docker-conf
 
-echo "Running bin/setup-docker-permissions"
-bin/setup-docker-permissions
