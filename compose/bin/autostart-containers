@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+echo "Si échec, vous avez oublié de redémarrer la Debian WSL2 depuis Windows"
+echo "Running bin/start..."
+bin/start
+
 ####
 echo "Creation d'un service pour demarrer automatiquement les conteneurs Docker au démarrage de la Debian"
 # Create the docker-autostart.service file

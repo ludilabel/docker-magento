@@ -4,6 +4,10 @@ bin/setup-win-sources
 echo "Running bin/setup-recette..."
 bin/setup-recette
 
+echo "Running bin/autostart-containers..."
+# depend de bin/setup-win-sources
+bin/autostart-containers
+
 echo "Running bin/copytocontainer -all..."
 bin/copytocontainer --all
 
