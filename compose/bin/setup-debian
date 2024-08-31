@@ -26,7 +26,7 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 echo "modification de /etc/wsl.conf pour activer le système de démarrage automatique de services de la Debian "
 # Créer le fichier /etc/wsl.conf s'il n'existe pas
 sudo touch /etc/wsl.conf
-# Ajouter les lignes nécessaires au fichier
+# Ajouter les lignes nécessaires au fichier - un redémarrage Debian nécessaire pour prise en compte
 sudo bash -c 'echo -e "[boot]\nsystemd=true" > /etc/wsl.conf'
 
 ####
