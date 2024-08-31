@@ -26,6 +26,3 @@ echo "Moving key and cert to /etc/nginx/certs/..."
 bin/docker-compose exec -T -u root app chown app:app nginx.key nginx.crt
 bin/docker-compose exec -T -u root app mv nginx.key nginx.crt /etc/nginx/certs/
 
-# Restart nginx to apply the updates
-echo "Restarting containers to apply updates..."
-bin/restart
