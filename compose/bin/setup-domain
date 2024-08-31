@@ -64,10 +64,10 @@ done
 # If there are entries to add, run the PowerShell script
 if [ ${#entries_to_add[@]} -gt 0 ]; then
     echo "Adding entries to the Windows hosts file..."
-    echo "Vous devez fermer provisoirement vos navigateurs web et sqlyog avant de continuer pour éviter un conflit sur le ficher Windows hosts"
+    echo "Vous devez fermer provisoirement vos navigateurs web, sqlyog et powershell avant de continuer pour éviter un conflit sur le ficher Windows hosts"
 
     # script is halted until user response
-    read -p "Appuyez sur entrée une fois que les navigateurs et sqlyog sont fermés."
+    read -p "Appuyez sur entrée une fois que les navigateurs, sqlyog et powershell sont fermés."
 
     echo "Please accept PowerShell invitation if any"
 
@@ -82,7 +82,7 @@ else
     echo "All entries already exist in the hosts file."
 fi
 
-echo "Vous pouvez rouvrir vos navigateurs web"
+echo "Vous pouvez rouvrir vos navigateurs web, sqlyog et powershell"
 
 echo "Ajout des noms de domaine pour toutes les boutiques dans core_config_data"
 # scope stores
