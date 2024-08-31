@@ -64,10 +64,10 @@ done
 # If there are entries to add, run the PowerShell script
 if [ ${#entries_to_add[@]} -gt 0 ]; then
     echo "Adding entries to the Windows hosts file..."
-    echo "Vous devez fermer provisoirement vos navigateurs web avant de continuer pour éviter un conflit sur le ficher Windows hosts"
+    echo "Vous devez fermer provisoirement vos navigateurs web et sqlyog avant de continuer pour éviter un conflit sur le ficher Windows hosts"
 
     # script is halted until user response
-    read -p "Appuyez sur entrée une fois que les navigateurs sont fermés."
+    read -p "Appuyez sur entrée une fois que les navigateurs et sqlyog sont fermés."
 
     echo "Please accept PowerShell invitation if any"
 
@@ -84,15 +84,15 @@ fi
 
 echo "Vous pouvez rouvrir vos navigateurs web"
 
-echo "Ajout des noms de domaine pour toutes les boutiques dans core_config_data"
-# scope stores
-for TLD in "${!store_codes[@]}"; do
-  bin/clinotty bin/magento config:set web/unsecure/base_url "https://$DN.$TLD/" --scope=stores --scope-code="${store_codes[$TLD]}" > /dev/null
-done
-
-# scope default
-bin/clinotty bin/magento config:set web/unsecure/base_url "https://$DN.fr/" --scope=default  > /dev/null
-
-
-echo "Generating SSL certificates..."
-bin/setup-ssl "${ALL_FQDN[@]}"
+#echo "Ajout des noms de domaine pour toutes les boutiques dans core_config_data"
+## scope stores
+#for TLD in "${!store_codes[@]}"; do
+#  bin/clinotty bin/magento config:set web/unsecure/base_url "https://$DN.$TLD/" --scope=stores --scope-code="${store_codes[$TLD]}" > /dev/null
+#done
+#
+## scope default
+#bin/clinotty bin/magento config:set web/unsecure/base_url "https://$DN.fr/" --scope=default  > /dev/null
+#
+#
+#echo "Generating SSL certificates..."
+#bin/setup-ssl "${ALL_FQDN[@]}"
