@@ -6,7 +6,7 @@ bin/setup-magento-env
 
 echo "Running, Magento setup:install..."
 # depend de bin/setup-magento-env
-bin/setup-install
+#bin/setup-install
 
 echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
 bin/magento app:config:import
