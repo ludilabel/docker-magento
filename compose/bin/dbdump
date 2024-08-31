@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+echo "Veuillez coller le chemin Windows où déposer le fichier de backup"
+read -r -p "(ex : D:\projects\magento\mysql\backups) : " mysqldump_win_path
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$mysqldump_win_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+        mysqldump_win_path=$(echo "$mysqldump_win_path" | sed 's|\\|/|g')
+    # Convertir le chemin au format WSL
+        mysqldump_win_path=$(wslpath -a "$mysqldump_win_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $mysqldump_win_path"
+fi
+
+# Vérifier si le chemin existe
+if [ ! -d "$mysqldump_win_path" ]; then
+    echo "Le chemin spécifié n'existe pas."
+    exit 1
+fi
+
+bin/n98-magerun2 db:dump --stdout > "$mysqldump_win_path/backup_docker_$(date +%Y%m%d_%H%M%S).sql"
