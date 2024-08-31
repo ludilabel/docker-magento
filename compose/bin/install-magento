@@ -4,9 +4,6 @@ bin/setup-win-sources
 echo "Running bin/setup-recette..."
 bin/setup-recette
 
-echo "Running bin/start..."
-bin/start
-
 echo "Running bin/copytocontainer -all..."
 bin/copytocontainer --all
 

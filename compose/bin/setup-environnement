@@ -8,6 +8,8 @@ bin/setup-docker
 
 echo "All setup scripts completed."
 
+echo "Running bin/start..."
+bin/start
 
 ############ WARNING ####################
 # ne pas mettre de commandes après newgrp car il termine la session shell
