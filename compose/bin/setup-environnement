@@ -6,12 +6,6 @@ bin/setup-debian
 echo "Running bin/setup-docker..."
 bin/setup-docker
 
-echo "Running bin/setup-win-sources..."
-bin/setup-win-sources
-
-echo "Running bin/setup-recette..."
-bin/setup-recette
-
 echo "All setup scripts completed."
 
 

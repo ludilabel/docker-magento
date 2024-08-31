@@ -1,0 +1,23 @@
+echo "Running bin/setup-win-sources..."
+bin/setup-win-sources
+
+echo "Running bin/setup-recette..."
+bin/setup-recette
+
+echo "Running bin/start..."
+bin/start
+
+echo "Running bin/copytocontainer -all..."
+bin/copytocontainer --all
+
+echo "Download /vendor..."
+bin/composer install
+
+echo "Running bin/import-db..."
+bin/import-db
+
+echo "Generate /generated"
+bin/magento setup:di:compile
+
+echo "Running bin/import-media..."
+bin/import-media

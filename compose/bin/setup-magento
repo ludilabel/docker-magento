@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+source env/dev-setup-config.env
+
+echo "Running, Magento setup:install..."
+bin/setup-install
+
+echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
+bin/magento app:config:import
+
+echo "Setup app/etc/env.php"
+read -r -p "Saisir votre prénom de développeur : " human_dev_name
+if [ -z "$human_dev_name" ]; then
+    echo "Rappel : le projet Magento 2 doit nécessairement avoir un fichier app/env.php correctement configuré."
+else
+    echo "Création du fichier app/etc.php dans Windows et Docker avec la configuration Docker propre au développeur"
+    cp "$OS_SRC/app/etc/env/dev.$human_dev_name.docker.env.php" "$OS_SRC/app/etc/env.php"
+    bin/copytocontainer app/etc/env.php
+fi
+
+echo "Running bin/setup-domain..."
+bin/setup-domain
+
+echo "Adding Magento modules to Composer allow-plugins directive..."
+bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer-installer true
+bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-composer-installer true
+bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
+
+echo "Forcing deploy of static content to speed up initial requests..."
+bin/clinotty bin/magento setup:static-content:deploy -f
+
+echo "Re-indexing with Elasticsearch..."
+bin/clinotty bin/magento indexer:reindex
+
+echo "Running bin/fixowns..."
+bin/fixowns
+
+echo "Running bin/fixperms..."
+bin/fixperms
+
+echo "Clearing the cache to apply updates..."
+bin/clinotty bin/magento cache:flush
+
+echo "Installing cron, run 'bin/cron start' to enable..."
+bin/clinotty bin/magento cron:install
+
+echo "Turning on developer mode..."
+bin/clinotty bin/magento deploy:mode:set developer
+
+echo "Vous pouvez maintenant accéder à la boutique depuis votre navigateur https://$DN.fr/ et les autres"
