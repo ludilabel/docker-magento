@@ -6,5 +6,5 @@ curl -sO https://raw.githubusercontent.com/ludilabel/docker-magento/master/lib/i
 source install
 #
 ## Se positionner ensuite dans le chemin /compose pour lancer les commandes bin/* du projet docker-magento (?)
-#echo "Vous pouvez maintenant exécuter les commandes bin/*"
+echo "Vous pouvez maintenant exécuter les commandes bin/*"
 cd $HOME/docker-magento/ludilabel/compose
