@@ -64,7 +64,12 @@ done
 # If there are entries to add, run the PowerShell script
 if [ ${#entries_to_add[@]} -gt 0 ]; then
     echo "Adding entries to the Windows hosts file..."
-    echo "Please accept PowerShell invitation"
+    echo "Vous devez fermer provisoirement vos navigateurs web avant de continuer pour éviter un conflit sur le ficher Windows hosts"
+
+    # script is halted until user response
+    read -p "Appuyez sur entrée une fois que les navigateurs sont fermés."
+
+    echo "Please accept PowerShell invitation if any"
 
     # Convert the array to a PowerShell-compatible string
     entries_ps="$(printf "'%s'; " "${entries_to_add[@]}")"
@@ -77,6 +82,7 @@ else
     echo "All entries already exist in the hosts file."
 fi
 
+echo "Vous pouvez rouvrir vos navigateurs web"
 
 echo "Ajout des noms de domaine pour toutes les boutiques dans core_config_data"
 # scope stores
