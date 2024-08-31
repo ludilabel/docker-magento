@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Veuillez coller le chemin Windows vers le fichier id_rsa (format openSSH) qui permet de se connecter au serveur recette"
+echo "Veuillez coller le chemin Windows vers le fichier id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur recette"
 read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
 
 

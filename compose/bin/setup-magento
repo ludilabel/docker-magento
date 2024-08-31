@@ -32,12 +32,6 @@ bin/clinotty bin/magento setup:static-content:deploy -f
 echo "Re-indexing with Elasticsearch..."
 bin/clinotty bin/magento indexer:reindex
 
-echo "Running bin/fixowns..."
-bin/fixowns
-
-echo "Running bin/fixperms..."
-bin/fixperms
-
 echo "Clearing the cache to apply updates..."
 bin/clinotty bin/magento cache:flush
 

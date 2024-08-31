@@ -17,7 +17,14 @@ bin/composer install
 echo "Running bin/import-db..."
 bin/import-db
 
+echo "Running bin/fixowns..."
+bin/fixowns
+
+echo "Running bin/fixperms..."
+bin/fixperms
+
 echo "Generate /generated"
+# dependency for
 bin/magento setup:di:compile
 
 echo "Running bin/import-media..."
