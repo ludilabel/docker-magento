@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+####
+echo "Creation d'un service pour demarrer automatiquement les conteneurs Docker au démarrage de la Debian"
+# Create the docker-autostart.service file
+sudo bash -c 'cat <<EOF > /etc/systemd/system/docker-autostart.service
+[Unit]
+Description=Start Docker Containers at Boot
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "/usr/bin/docker start \$(/usr/bin/docker ps -a -q)"
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOF'
+
+# Reload systemd configuration to recognize the new service
+sudo systemctl daemon-reload
+
+# Enable the docker-autostart service so it starts on boot
+sudo systemctl enable docker-autostart.service

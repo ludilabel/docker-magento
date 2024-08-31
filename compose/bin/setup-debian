@@ -1,4 +1,7 @@
+#!/usr/bin/env bash
+
 ####
+
 echo "Mise à jour des packages de la Debian"
 sudo apt-get update
 sudo apt-get upgrade -y
@@ -26,32 +29,9 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 echo "modification de /etc/wsl.conf pour activer le système de démarrage automatique de services de la Debian "
 # Créer le fichier /etc/wsl.conf s'il n'existe pas
 sudo touch /etc/wsl.conf
-# Ajouter les lignes nécessaires au fichier - un redémarrage Debian nécessaire pour prise en compte
+# Ajouter les lignes nécessaires au fichier
 sudo bash -c 'echo -e "[boot]\nsystemd=true" > /etc/wsl.conf'
-
-####
-echo "Creation d'un service pour demarrer automatiquement les conteneurs Docker au démarrage de la Debian"
-# Create the docker-autostart.service file
-sudo bash -c 'cat <<EOF > /etc/systemd/system/docker-autostart.service
-[Unit]
-Description=Start Docker Containers at Boot
-After=docker.service
-Requires=docker.service
-
-[Service]
-Type=oneshot
-ExecStart=/bin/bash -c "/usr/bin/docker start \$(/usr/bin/docker ps -a -q)"
-RemainAfterExit=true
-
-[Install]
-WantedBy=multi-user.target
-EOF'
-
-# Reload systemd configuration to recognize the new service
-sudo systemctl daemon-reload
-
-# Enable the docker-autostart service so it starts on boot
-sudo systemctl enable docker-autostart.service
+# un redémarrage Debian wsl2 est nécessaire si on veut que le systemd soit utilisable par d'autres programmes
 
 ####
 echo "Installation des programmes vim, rsync et bc"
@@ -60,16 +40,17 @@ sudo apt-get install -y vim rsync bc
 echo "Installation du programme make"
 sudo apt-get install -y build-essential
 
-echo "Ajout des droits Docker pour l'utilisateur de la Debian"
-sudo usermod -aG docker $USER
-# ne pas mettre de commandes après newgrp car il termine la session shell
-newgrp docker
+####
 
 # Gestion des connections ssh
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 touch ~/.ssh/known_hosts
 chmod 600 ~/.ssh/known_hosts
+
+echo "création de .ssh et .ssh/known_hosts pour compose.yaml"
+
+####
 
 # A l'ouverture du shell, placer le développeur dans le bon répertoire pour lancer les commandes bin/* de docker-magento
 TARGET_DIR="$HOME/docker-magento/ludilabel/compose/"
@@ -94,3 +75,6 @@ for FILE in "${FILES[@]}"; do
     fi
 done
 
+echo "Profil Bash modifié pour pouvoir lancer les commandes bin/* rapidement"
+
+####
