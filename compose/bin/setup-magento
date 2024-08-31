@@ -4,7 +4,7 @@ set -o errexit
 echo "Running bin/setup-magento-env"
 bin/setup-magento-env
 
-echo "Running, Magento setup:install..."
+#echo "Running, Magento setup:install..."
 # depend de bin/setup-magento-env
 #bin/setup-install
 
@@ -19,8 +19,8 @@ bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer
 bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-composer-installer true
 bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
 
-echo "Forcing deploy of static content to speed up initial requests..."
-bin/clinotty bin/magento setup:static-content:deploy -f
+#echo "Forcing deploy of static content to speed up initial requests..."
+#bin/clinotty bin/magento setup:static-content:deploy -f
 
 echo "Re-indexing with Elasticsearch..."
 bin/clinotty bin/magento indexer:reindex
