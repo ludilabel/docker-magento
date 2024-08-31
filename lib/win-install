@@ -9,4 +9,5 @@ source docker-magento-install
 echo "Vous pouvez maintenant exécuter les commandes bin/*"
 cd $HOME/docker-magento/ludilabel/compose
 
+# nettoyage
 rm $HOME/docker-magento/ludilabel/docker-magento-install
