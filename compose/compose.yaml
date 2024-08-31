@@ -25,6 +25,8 @@ services:
       - appdata:/var/www/html
       - sockdata:/sock
       - ssldata:/etc/nginx/certs
+    # important que les fichiers des bind mount ci-dessus existent avant le composer up
+    # à défaut, on se retrouve avec des placeholders dossier générés par Docker
     #extra_hosts: &appextrahosts
       ## Selenium support, replace "magento.test" with URL of your site
       #- "magento.test:172.17.0.1"
