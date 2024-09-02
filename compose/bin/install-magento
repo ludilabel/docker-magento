@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
+# depend on bin/setup-environnement
 set -o errexit
+
+
 
 echo "Running bin/setup-win-sources..."
 bin/setup-win-sources
@@ -7,8 +10,8 @@ bin/setup-win-sources
 echo "Running bin/setup-recette..."
 bin/setup-recette
 
+# dépend de bin/setup-win-sources
 echo "Running bin/autostart-containers..."
-# depend de bin/setup-win-sources
 bin/autostart-containers
 
 echo "Running bin/copytocontainer -all... (long)"
@@ -17,15 +20,19 @@ bin/copytocontainer --all
 echo "Download /vendor..."
 bin/composer install
 
+# dépend de bin/setup-recette
 echo "Running bin/import-db..."
 bin/import-db
 
+# dépend de bin/setup-recette
 echo "Running bin/import-media... (long)"
 bin/import-media
 
+# dépendance des commandes bin/magento M2
 echo "Running bin/fixowns..."
 bin/fixowns
 
+# dépendance des commandes bin/magento M2
 echo "Running bin/fixperms..."
 bin/fixperms
 
@@ -33,5 +40,4 @@ echo "Exécuter les mises à jour de modules sur la base de données importée"
 bin/clinotty bin/magento setup:upgrade
 
 echo "Generate /generated"
-# depend de bin/fixowns et bin/fixperms
 bin/magento setup:di:compile

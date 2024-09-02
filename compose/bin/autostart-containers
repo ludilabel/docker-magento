@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Si échec, vous avez oublié de redémarrer la Debian WSL2 depuis Windows"
+# dépend de bin/setup-win-sources
 echo "Running bin/start..."
 bin/start
 
