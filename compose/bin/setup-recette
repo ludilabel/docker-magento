@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
-
-# Enable debugging
-# set -x
+set -o errexit
 
 echo "Running bin/setup-recette-server"
 bin/setup-recette-server
 
+echo "Running bin/setup-recette-db"
+bin/setup-recette-db
+
 echo "Running bin/setup-recette-ssh"
 bin/setup-recette-ssh
 
-echo "Running bin/setup-recette-db"
-bin/setup-recette-db

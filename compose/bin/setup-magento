@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -o errexit
+# Enable debugging
+# set -x
 
 echo "Running bin/setup-magento-env"
 bin/setup-magento-env

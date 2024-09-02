@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # depend on bin/setup-environnement
 set -o errexit
+# Enable debugging
+# set -x
 
 
 
