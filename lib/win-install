@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Pour faire une installation dans un autre dossier
+# modifier ce script si installation par https ou exécuter son code à la main
+
 mkdir -p $HOME/docker-magento/ludilabel
 cd $HOME/docker-magento/ludilabel
 curl -sO https://raw.githubusercontent.com/ludilabel/docker-magento/master/lib/docker-magento-install

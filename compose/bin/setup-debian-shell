@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-# A l'ouverture du shell, placer le développeur dans le bon répertoire pour lancer les commandes bin/* de docker-magento
-TARGET_DIR="$HOME/docker-magento/ludilabel/compose/"
+source env/dev-setup-config.env
 
-# Command to add
-COMMAND="cd $TARGET_DIR"
+# place shell user in compose folder to enable execution of bin/* commands
+COMMAND="cd $COMPOSE_PATH"
 
 # Files to modify
 FILES=("$HOME/.bashrc" "$HOME/.bash_profile")

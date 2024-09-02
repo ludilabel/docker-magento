@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Requirement : le script doit avoir un nom unique sur le système pour que la commande "source" le trouve
 if [ -d "./bin" ]; then
   echo "Error: The current directory is not empty. Please remove all contents within this directory and try again."
   exit 1

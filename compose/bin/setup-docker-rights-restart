@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+############ WARNING ####################
+# ne pas mettre de commandes (même dans le scrip appelant) après newgrp car il termine la session shell
+echo "Ajout des droits Docker pour l'utilisateur de la Debian"
+
+# Add user to Docker group
+sudo usermod -aG docker $USER
+
+# Create a temporary script to run after newgrp
+tmp_script=$(mktemp)
+cat << 'EOF' > $tmp_script
+#!/bin/bash
+# Your commands to run after newgrp
+wsl.exe --shutdown
+EOF
+
+# Make the temporary script executable
+chmod +x $tmp_script
+
+# Execute newgrp, then run the temporary script
+newgrp docker <<EOF
+bash $tmp_script
+EOF
