@@ -16,19 +16,26 @@ bin/setup-recette
 echo "Running bin/autostart-containers..."
 bin/autostart-containers
 
+# luditodo : remplacer ce long processus par un git checkout local
 echo "Running bin/copytocontainer -all... (long)"
 bin/copytocontainer --all
+
+
+echo "Adding Magento modules to Composer allow-plugins directive..."
+bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer-installer true
+bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-composer-installer true
+bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
 
 echo "Download /vendor..."
 bin/composer install
 
 # dépend de bin/setup-recette
-echo "Running bin/import-db..."
-bin/import-db
+echo "Running bin/install-dbimport..."
+bin/install-dbimport
 
 # dépend de bin/setup-recette
-echo "Running bin/import-media... (long)"
-bin/import-media
+echo "Running bin/install-mediaimport... (long)"
+bin/install-mediaimport
 
 # dépendance des commandes bin/magento M2
 echo "Running bin/fixowns..."
@@ -38,8 +45,10 @@ bin/fixowns
 echo "Running bin/fixperms..."
 bin/fixperms
 
+# dépend de bin/fixowns et bin/fixperms
 echo "Exécuter les mises à jour de modules sur la base de données importée"
 bin/clinotty bin/magento setup:upgrade
 
+# dépend de bin/fixowns et bin/fixperms
 echo "Generate /generated"
 bin/magento setup:di:compile

@@ -6,8 +6,9 @@ echo "Setup app/etc/env.php"
 read -r -p "Saisir votre prénom de développeur : " human_dev_name
 if [ -z "$human_dev_name" ]; then
     echo "Rappel : le projet Magento 2 doit nécessairement avoir un fichier app/env.php correctement configuré."
+    exit 1
 else
-    echo "Création du fichier app/etc.php dans Windows et Docker avec la configuration Docker propre au développeur"
+    echo "Création du fichier app/etc/env.php dans Windows et Docker avec la configuration Docker propre au développeur"
     cp "$OS_SRC/app/etc/env/dev.$human_dev_name.docker.env.php" "$OS_SRC/app/etc/env.php"
     bin/copytocontainer app/etc/env.php
 fi

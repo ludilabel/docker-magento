@@ -18,11 +18,6 @@ bin/magento app:config:import
 echo "Running bin/setup-domain..."
 bin/setup-domain
 
-echo "Adding Magento modules to Composer allow-plugins directive..."
-bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer-installer true
-bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-composer-installer true
-bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
-
 echo "Re-indexing with Elasticsearch..."
 bin/clinotty bin/magento indexer:reindex
 
@@ -35,7 +30,7 @@ bin/clinotty bin/magento cron:install
 echo "Turning on developer mode..."
 bin/clinotty bin/magento deploy:mode:set developer
 
-echo "Après le redémarage, vous pouvez accéder aux boutiques depuis votre navigateur"
+echo "Après le redémarage qui va suivre, vous pourrez accéder aux boutiques depuis votre navigateur"
 
 # Restart nginx to apply the updates
 echo "Restarting containers to apply updates..."

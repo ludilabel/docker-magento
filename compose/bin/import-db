@@ -1,20 +1,43 @@
 #!/usr/bin/env bash
 
+# Arguments:
+#   fichier_sql (Optionnel) Chemin vers un fichier SQL à importer.
+#     Si non fourni, l'utilisateur devra choisir entre importer une base de données de recette ou un fichier SQL local.
+
 source env/dev-setup-config.env
+source bin/import-db-fn
 
-DATE=$(date +"%Y%m%d_%H%M%S")
-DUMP_FILE="db_backup_recette_$DATE.sql"
-LOCAL_DIR="$TRANSFER_PATH"
+# Si un chemin vers un fichier sql est fourni, on l'importe
+if [ "$1" ]; then
+  sql_file="$1"
+  if [[ "$sql_file" == *.sql ]]; then
+    import_param_sql "$sql_file"
+  else
+    echo "Erreur : Le fichier $sql_file fourni ne termine pas par .sql."
+    exit 1
+  fi
 
-# Generate mysqldump on remote server
-ssh -i "$RECETTE_DEBIAN_RSA_PATH" "$RECETTE_USER@$RECETTE_IP" "mysqldump -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME > /tmp/$DUMP_FILE"
+else
+  # Sinon on donne le choix au développeur
+  echo "Quelle base de données souhaitez-vous importer ?"
+  echo "1) Recette"
+  echo "2) Depuis un fichier .sql local"
+  read -r -p "Entrez votre choix [1 ou 2] : " choice
 
-# Download the dump file to local directory
-echo "Téléchargement du fichier backup sur la Debian"
-scp -i "$RECETTE_DEBIAN_RSA_PATH" "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE" "$LOCAL_DIR/"
+  case $choice in
+    1)
+      import_recette
+      ;;
+    2)
+      import_prompt_sql
+      ;;
+  esac
+fi
 
-# Clean up: Remove the dump file from the remote server
-ssh -i "$RECETTE_DEBIAN_RSA_PATH" "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
+if [ $? -ne 0 ]; then
+    echo "Erreur lors de l'importation de la base de données"
+    exit 1
+fi
 
-echo "Importation de la base dans le service Docker"
-bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DUMP_FILE"
+# Configuration de la base de données
+bin/dbconfig

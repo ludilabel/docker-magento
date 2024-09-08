@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+source env/dev-setup-config.env
+
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
+# Ensure the parent destination path exists
+mkdir -p "$TRANSFER_PATH/pub"
+
+echo "Téléchargement des fichiers /media de recette sur la Debian WSL2"
+rsync -avz -e "ssh -i $RECETTE_DEBIAN_RSA_PATH" $RECETTE_USER@$RECETTE_IP:$RECETTE_MEDIA_PATH $TRANSFER_PATH/pub
+
+echo "Copie des fichiers Debian dans le service Docker"
+docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/media
+docker cp "$TRANSFER_PATH/pub/media/." "$CONTAINER_ID":/var/www/html/pub/media
