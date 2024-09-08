@@ -1,7 +1,27 @@
 #!/usr/bin/env bash
 
-echo "Veuillez coller le chemin Windows vers le fichier id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur recette"
-read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+# Arguments :
+# $1 : recette_user (Optionnel) utilisateur ssh sur serveur recette
+# $2 : win_id_rsa_path (Optionnel) chemin absolu du fichier id_rsa sur Windows
+
+# Nom de l'utilisateur ssh
+if [ "$1" ]; then
+  recette_user="$1"
+else
+  echo "Veuillez saisir le nom de la session utilisateur ssh sur serveur recette"
+  read -r -p "(ex : bertrand) : " recette_user
+fi
+
+sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config.env
+
+
+# Clé privée ssh
+if [ "$2" ]; then
+  win_id_rsa_path="$2"
+else
+  echo "Veuillez coller le chemin Windows vers le fichier id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur recette"
+  read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+fi
 
 
 # Transformation du chemin Windows en chemin Debian WSL2

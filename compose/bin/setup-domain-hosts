@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -o errexit
+# dépend de bin/setup-domain-dn
 
+# Arguments :
+# $1 : WIN_HOST (Optionnel) chemin complet Windows du fichier hosts
+
+source env/dev-setup-config.env
 source env/setup/magento-stores.env
 
 # listes de données dans env/magento-stores.env
@@ -10,8 +15,13 @@ for entry in ${TLD_STORE_MAP}; do
   store_codes[${entry%%:*}]=${entry##*:}
 done
 
-echo "Veuillez coller le chemin Windows complet du fichier host"
-read -r -p "(ex : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+if [ "$1" ]; then
+  WIN_HOST="$1"
+else
+  echo "Veuillez coller le chemin Windows complet du fichier hosts"
+  read -r -p "(ex : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+fi
+
 
 # Transformation du chemin Windows en chemin Debian WSL2
 if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
@@ -42,7 +52,7 @@ DEBIAN_IP=$(hostname -I | awk '{print $1}')
 entries_to_add=()
 ALL_FQDN=()
 
-source env/dev-setup-config.env
+
 
 # Loop through each top-level domain and prepare the corresponding entry
 for TLD in "${!store_codes[@]}"; do
@@ -61,6 +71,7 @@ for TLD in "${!store_codes[@]}"; do
 done
 
 # If there are entries to add, run the PowerShell script
+# 09/2024 : only tested on Windows 10
 if [ ${#entries_to_add[@]} -gt 0 ]; then
     echo "Adding entries to the Windows hosts file..."
     echo "Vous devez fermer provisoirement vos navigateurs web, sqlyog et powershell avant de continuer pour éviter un conflit sur le ficher Windows hosts"

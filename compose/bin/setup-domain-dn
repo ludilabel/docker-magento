@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -o errexit
 
+# Arguments :
+# $1 : DN (Optionnel) nom de domaine pour les URLs des boutiques
 
 source env/setup/magento-stores.env
+source env/dev-setup-config.env
 
 # listes de données dans env/magento-stores.env
 # boutiques Magento 2
@@ -11,15 +14,18 @@ for entry in ${TLD_STORE_MAP}; do
   store_codes[${entry%%:*}]=${entry##*:}
 done
 
-
-source env/dev-setup-config.env
-
-if [ "$DN" != "domain.name" ]; then
-  echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
-  read -r -p "(ex : franz.docker.ludilabel) sans le suffixe du domaine de premier niveau (.fr,...) : " DN
-
+if [ "$1" ]; then
+  DN="$1"
   sed -i "s|^DN=.*|DN=\"$DN\"|" env/dev-setup-config.env
+else
+  if [ "$DN" == "domain.name" ]; then
+    echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
+    read -r -p "(ex : franz.docker.ludilabel) sans le suffixe du domaine de premier niveau (.fr,...) : " DN
+
+    sed -i "s|^DN=.*|DN=\"$DN\"|" env/dev-setup-config.env
+  fi
 fi
+
 
 # scope stores
 echo "Ajout des noms de domaine pour toutes les boutiques dans core_config_data"

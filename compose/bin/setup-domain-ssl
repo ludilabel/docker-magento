@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -o errexit
+# dépend de bin/setup-domain-dn
 
+source env/dev-setup-config.env
 source env/setup/magento-stores.env
 
 # listes de données dans env/magento-stores.env
@@ -9,12 +11,6 @@ declare -A store_codes
 for entry in ${TLD_STORE_MAP}; do
   store_codes[${entry%%:*}]=${entry##*:}
 done
-
-
-source env/dev-setup-config.env
-
-echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
-read -r -p "(ex : franz.docker.ludilabel) sans le suffixe du domaine de premier niveau (.fr,...) : " DN
 
 # Initialize an array to hold entries that need to be added
 ALL_FQDN=()

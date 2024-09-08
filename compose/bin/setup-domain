@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 set -o errexit
 
-echo "Running bin/setup-domain-hosts"
-bin/setup-domain-hosts
-
 echo "Running bin/setup-domain-dn"
 bin/setup-domain-dn
 
+# dépend de bin/setup-domain-dn
+echo "Running bin/setup-domain-hosts"
+bin/setup-domain-hosts
+
+
+# dépend de bin/setup-domain-dn
 echo "Running bin/setup-domain-ssl"
 bin/setup-domain-ssl

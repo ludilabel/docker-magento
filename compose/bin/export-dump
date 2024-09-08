@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-echo "Veuillez coller le chemin Windows où déposer le fichier de backup"
-read -r -p "(ex : D:\projects\magento\mysql\backups) : " mysqldump_win_path
+
+if [ "$1" ]; then
+  mysqldump_win_path="$1"
+else
+  echo "Veuillez coller le chemin Windows où déposer le fichier de backup"
+  read -r -p "(ex : D:\projects\magento\mysql\backups) : " mysqldump_win_path
+fi
+
 
 # Transformation du chemin Windows en chemin Debian WSL2
 if [[ "$mysqldump_win_path" =~ ^[A-Za-z]:\\ ]]; then

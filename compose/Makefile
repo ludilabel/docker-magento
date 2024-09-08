@@ -69,7 +69,6 @@ help:
 	@echo "$(call format,restart,'Stop and then start all containers.')"
 	@echo "$(call format,root,'Run any CLI command as root without going into the bash prompt.')"
 	@echo "$(call format,rootnotty,'Run any CLI command as root with no TTY.')"
-	@echo "$(call format,setup,'Run the Magento setup process$(comma) with optional domain name.')"
 	@echo "$(call format,setup-composer-auth,'Setup authentication credentials for Composer.')"
 	@echo "$(call format,setup-domain,'Setup Magento domain name.')"
 	@echo "$(call format,setup-domain-dn,'Modifie les URLs des boutiques dans la base de donnée')"

@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 
-echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
-read -r -p "(ex : D:\Travail\Ludilabel\Magento2) : " win_sources_path
+# Arguments :
+# $1 : win_sources_path (Optionnel) chemin Windows vers les fichiers sources Magento 2
+
+
+if [ "$1" ]; then
+  win_sources_path="$1"
+else
+  echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
+  read -r -p "(ex : D:\Travail\Ludilabel\Magento2) : " win_sources_path
+fi
 
 # Transformation du chemin Windows en chemin Debian WSL2
 if [[ "$win_sources_path" =~ ^[A-Za-z]:\\ ]]; then

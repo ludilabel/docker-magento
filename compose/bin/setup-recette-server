@@ -3,16 +3,25 @@
 # Enable debugging
 # set -x
 
-echo "Veuillez coller l'IP du serveur recette"
-read -r -p "(ex : 125.58.165.95) : " recette_ip
+# Arguments :
+# $1 : recette_ip (Optionnel) adresse IP du serveur recette
+# $2 : recette_media_path (Optionnel) chemin absolu du dossier media du serveur recette
 
-echo "Veuillez saisir le nom de la session utilisateur sur serveur recette"
-read -r -p "(ex : bertrand) : " recette_user
+if [ "$1" ]; then
+  recette_ip="$1"
+else
+  echo "Veuillez coller l'IP du serveur recette"
+  read -r -p "(ex : 125.58.165.95) : " recette_ip
+fi
 
-echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur recette"
-read -r -p "(ex : /var/www/html/magento/pub/media) : " recette_media_path
+if [ "$2" ]; then
+  recette_media_path="$2"
+else
+  echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur recette"
+  read -r -p "(ex : /var/www/html/magento/pub/media) : " recette_media_path
+fi
+
 
 # Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
 sed -i "s|^RECETTE_IP=.*|RECETTE_IP=\"$recette_ip\"|" env/dev-setup-config.env
-sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config.env
 sed -i "s|^RECETTE_MEDIA_PATH=.*|RECETTE_MEDIA_PATH=\"$recette_media_path\"|" env/dev-setup-config.env
