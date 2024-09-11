@@ -17,6 +17,9 @@ done
 
 if [ "$1" ]; then
   WIN_HOST="$1"
+  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
+  echo 'Usage: bin/* "C:\Windows\System32\drivers\etc\hosts"'
+
 else
   echo "Veuillez coller le chemin Windows complet du fichier hosts"
   read -r -p "(ex : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
@@ -91,5 +94,8 @@ if [ ${#entries_to_add[@]} -gt 0 ]; then
 else
     echo "All entries already exist in the hosts file."
 fi
+
+# Pour permettre une communication entre les conteneurs Docker et le Windows du développeur (IDE, etc.)
+bin/setup-host-docker-win "$WIN_HOST"
 
 echo "Vous pouvez rouvrir vos navigateurs web, sqlyog et powershell"

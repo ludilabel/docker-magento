@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# set -x
+
+if [ "$1" ]; then
+  WIN_HOST="$1"
+  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
+  echo 'Usage: bin/* "C:\Windows\System32\drivers\etc\hosts"'
+
+else
+  echo "Veuillez coller le chemin Windows complet du fichier hosts"
+  read -r -p "(ex : 'C:\Windows\System32\drivers\etc\hosts') : " WIN_HOST
+fi
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+    WIN_HOST=$(echo "$WIN_HOST" | sed 's|\\|/|g')
+
+    # Convertir le chemin au format WSL
+    WIN_HOST=$(wslpath -a "$WIN_HOST")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $WIN_HOST"
+fi
+
+# Get the local IP address from Windows + strip return line
+local_ip=$(powershell.exe -Command "(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { \$_.InterfaceAlias -like '*Ethernet*' -and \$_.IPAddress -match '^192\.168\.' }).IPAddress" | tr -d '\r\n')
+
+# Entries to add to hosts file
+# va permettre entre autre à XDebug de communiquer avec l'IDE PHPStorm sur Windows (conf xdebug : client_host -> host.docker.internal)
+entries_to_add=(
+    "$local_ip host.docker.internal"
+    "$local_ip gateway.docker.internal"
+)
+
+
+# Check if the entry exists and is uncommented
+check_entry_exists() {
+    local ip="$1"
+    local domain="$2"
+    local WIN_HOST="$3"
+
+    grep -q "^[^#]*\b$ip\b.*\b$domain\b" "$WIN_HOST"
+}
+
+if [ ${#entries_to_add[@]} -gt 0 ]; then
+    echo "Adding entries to the Windows hosts file..."
+    echo "Vous devez fermer provisoirement vos navigateurs web, sqlyog et powershell avant de continuer pour éviter un conflit sur le ficher Windows hosts"
+
+    # script is halted until user response
+    read -p "Appuyez sur entrée une fois que les navigateurs, sqlyog et powershell sont fermés."
+    echo "Please accept PowerShell invitation if prompted."
+
+
+    entries_ps=""
+    for entry in "${entries_to_add[@]}"; do
+        ip=$(echo "$entry" | awk '{print $1}')
+        domain=$(echo "$entry" | awk '{print $2}')
+
+        if check_entry_exists "$ip" "$domain" "$WIN_HOST"; then
+            echo "Entry '$ip $domain' already exists in the hosts file."
+        else
+            entries_ps+="'$entry'; "
+        fi
+    done
+
+    if [ -n "$entries_ps" ]; then
+        powershell.exe -Command "
+        \$entries = @($entries_ps);
+        \$entries | ForEach-Object { Add-Content -Path 'C:\Windows\System32\drivers\etc\hosts' -Value \$_ }
+        "
+    else
+        echo "No new entries to add."
+    fi
+
+else
+    echo "All entries already exist in the hosts file."
+fi
