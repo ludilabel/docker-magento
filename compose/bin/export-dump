@@ -3,6 +3,8 @@
 
 if [ "$1" ]; then
   mysqldump_win_path="$1"
+  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
+  echo 'Usage: bin/* "chemin"'
 else
   echo "Veuillez coller le chemin Windows où déposer le fichier de backup"
   read -r -p "(ex : D:\projects\magento\mysql\backups) : " mysqldump_win_path

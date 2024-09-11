@@ -6,6 +6,8 @@
 
 if [ "$1" ]; then
   win_sources_path="$1"
+  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
+  echo 'Usage: bin/* "chemin"'
 else
   echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
   read -r -p "(ex : D:\Travail\Ludilabel\Magento2) : " win_sources_path

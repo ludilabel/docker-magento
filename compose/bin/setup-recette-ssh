@@ -7,6 +7,8 @@
 # Nom de l'utilisateur ssh
 if [ "$1" ]; then
   recette_user="$1"
+  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
+  echo 'Usage: bin/* "chemin"'
 else
   echo "Veuillez saisir le nom de la session utilisateur ssh sur serveur recette"
   read -r -p "(ex : bertrand) : " recette_user
