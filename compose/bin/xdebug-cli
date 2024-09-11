@@ -58,5 +58,5 @@ elif [[ $firstArgLetter == "t" ]]; then
 elif [[ $firstArgLetter == "s" ]]; then
   local_debug_status
 else
-    printf "Please specify either 'disable', 'enable', 'status' or 'toggle' as mandatory argument.\nSpecify as an optional second argument the platform. Default is PHPSTORM\nEx: bin/debug-cli enable [PHPSTORM]\n"
+    printf "Please specify either 'disable', 'enable', 'status' or 'toggle' as mandatory argument.\nSpecify as an optional second argument the platform. Default is PHPSTORM\nEx: bin/xdebug-cli enable [PHPSTORM]\n"
 fi
