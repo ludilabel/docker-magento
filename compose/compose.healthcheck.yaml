@@ -1,7 +1,10 @@
 services:
   app:
     healthcheck:
-      test: 'curl --fail 127.0.0.1:80'
+      test: 'curl --fail -L -k http://172.17.0.1:80'
+      interval: 5s
+      timeout: 5s
+      retries: 30
     depends_on:
       phpfpm:
         condition: service_started
