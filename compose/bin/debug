@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+PS3="Choisissez une option de débogage: "
+options=("1 - xdebug qui ne fonctionne pas" "2 - ..." "3 -  ..." "Entrée pour quitter")
+
+select opt in "${options[@]}"
+do
+  case $REPLY in
+        1)
+            echo "Hypothèse : L’ordinateur s'est connecté à un nouveau réseau LAN et son IP local a changé"
+            echo "Solution : redéfinir la résolution DNS pour que le service Docker phpfpm puisse communiquer avec la nouvelle adresse IP de Windows"
+            echo "Running bin/setup-host-docker-win"
+            bin/setup-host-docker-win
+            break
+            ;;
+        2)
+            echo "Vous avez choisi Option 2"
+            break
+            ;;
+        3)
+            echo "Vous avez choisi Option 3"
+            break
+            ;;
+        "")
+            echo "Sortie..."
+            break
+            ;;
+        *)
+            echo "Option invalide"
+            ;;
+    esac
+done
