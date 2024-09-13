@@ -13,11 +13,10 @@ bin/setup-domain-dn
 echo "Configuration de la base importée pour l'environnement du développeur"
 bin/clinotty bin/magento config:set web/url/redirect_to_base 0 --scope="default" > /dev/null
 
-# Configuration pour Elasticsearch 7
+# Configuration pour que Elasticsearch 8 d’Amasty parle avec le serveur Elasticsearch de Docker
 # les informations dans app/etc/env.php ne sont pas récupérées ...
-bin/magento config:set catalog/search/engine amasty_elastic
 bin/magento config:set catalog/search/elasticsearch7_server_hostname elasticsearch
-bin/magento config:set catalog/search/elasticsearch7_server_port 9200
+bin/magento config:set amasty_elastic/connection/server_hostname elasticsearch
 
 echo "Exécuter les mises à jour de modules du code source présent sur la base de données importée"
 bin/clinotty bin/magento setup:upgrade
