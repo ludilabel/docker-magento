@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+branch_name="$1"
+
+# Check if branch name is provided, if not prompt for it
+if [ -z "$branch_name" ]; then
+  echo "Aucun nom de branche fourni."
+  read -p "Entrez le nom de la branche à utiliser : " branch_name
+  if [ -z "$branch_name" ]; then
+    echo "Erreur: Aucun nom de branche fourni."
+    exit 1
+  fi
+fi
+
+# Reset any local modifications on the current branch
+echo "Suppression des modifications locales non validées de la branche actuelle..."
+git reset --hard
+
+# Perform Git fetch to update branches from the remote
+echo "Récupération des dernières informations du dépôt distant (git fetch)..."
+git fetch
+
+# Switch to the specified branch
+echo "Changement de branche vers : $branch_name"
+git switch "$branch_name"
+if [ $? -eq 0 ]; then
+  echo "Changement de branche réussi : $branch_name"
+else
+  echo "Erreur lors du changement de branche. Assurez-vous que la branche existe."
+  exit 1
+fi
+
+# Toutes les commandes à jouer lorsqu'on change les fichiers sources
+echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
+bin/composer install
+bin/fixowns
+bin/fixperms
+bin/clinotty bin/magento setup:upgrade
+bin/magento setup:di:compile
+echo "Toutes les commandes bin/* ont été exécutées."
