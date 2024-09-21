@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
+docker exec "$CONTAINER_ID" rm -rf /var/www/html/vendor
+bin/composer install
