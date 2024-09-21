@@ -14,17 +14,17 @@ if [ "$1" == "--all" ]; then
   docker cp "$CONTAINER_ID":/var/www/html/./ "$HOST_SRC/"
   echo "Completed copying all files from container to host"
 
-  rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/" "$OS_SRC"
+  rsync -az --info=progress2 --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/" "$OS_SRC"
   echo "Completed copying from Debian to Windows"
 
 else
   if [ -f "$1" ] ; then
     docker cp "$CONTAINER_ID":/var/www/html/"$1" "$HOST_SRC/$1"
-    rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1" "$OS_SRC"
+    rsync -az --info=progress2 --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1" "$OS_SRC"
 
   else
     docker cp "$CONTAINER_ID":/var/www/html/"$1" "$HOST_SRC/$(dirname "$1")"
-    rsync -av --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1/" "$OS_SRC/$1"
+    rsync -az --info=progress2 --delete --exclude='.git' --exclude='.idea' "$HOST_SRC/$1/" "$OS_SRC/$1"
 
   fi
   echo "Completed copying from container to host"
