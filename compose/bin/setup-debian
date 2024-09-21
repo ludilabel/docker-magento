@@ -10,3 +10,6 @@ bin/setup-debian-systemd
 echo "Running bin/setup-debian-shell"
 bin/setup-debian-shell
 
+echo "Running bin/setup-debian-ssh"
+bin/setup-debian-ssh
+

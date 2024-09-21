@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+source bin/setup-ssh-fn
+
+# Arguments :
+# $1 : github_user (Optionnel) utilisateur ssh sur github
+
+# Nom de l'utilisateur ssh
+if [ "$1" ]; then
+  github_user="$1"
+  echo "Si erreur, avez-vous utilisé des quotes autour de l'email ?"
+else
+  echo "Veuillez saisir l'email de votre compte utilisateur github"
+  read -r -p "(ex : xavier.convent@ludilabel.com) : " github_user
+fi
+
+sed -i "s|^GITHUB_USER=.*|GITHUB_USER=\"$github_user\"|" env/dev-setup-config.env
+
+
+# Clé privée ssh
+echo "Génération de la paire de clé SSH (Entrée pour utiliser les valeurs par défaut"
+ssh-keygen -t ed25519 -C "$github_user"
+
+### bin/setup-ssh-fn - permet d’utiliser les commandes Git sans paramètres ssh
+run_ssh_agent_and_register_key "id_ed25519"
+
+# Output the content of the public key
+echo "Voici la clé publique. Copie et ajoute la à ton compte GitHub (celui de l'e-mail fourni):"
+cat ~/.ssh/id_ed25519.pub
+
+read -p "Entrée une fois que la clé publique est enregistrée sur Gihub."
+
+# Add authenticity of github host for future connections
+echo "Reconnaissance de l’authenticité de github pour les futures connexions (répondre yes)"
+# NB : pas besoin de préciser notre compte utilisateur pour la connexion SSH
+# car github a crée un utilisateur unique "git" que tout le monde partage
+ssh -T git@github.com
+
+
+if [ $? -eq 0 ]; then
+  echo "SSH key works! You've successfully authenticated with GitHub."
+else
+  echo "SSH authentication to GitHub failed.
+fi
+

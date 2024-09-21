@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -o errexit
+
+echo "Running bin/setup-github-ssh"
+bin/setup-github-ssh
+
+
+
