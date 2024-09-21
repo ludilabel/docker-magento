@@ -2,7 +2,7 @@
 
 source env/dev-setup-config.env
 
-# place shell user in compose folder to enable execution of bin/* commands
+# starting directory of user connected to shell is /compose folder so he can type directly bin/* commands
 COMMAND="cd $COMPOSE_PATH"
 
 # Files to modify
