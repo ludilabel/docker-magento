@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+PS3="Choisissez une option: "
+options=("1 - Cloner master (HEAD)" "2 - Cloner branche (HEAD)" "3 - Transférer les fichiers en l’état depuis Windows (> 15mn)" "Quitter")
+
+select opt in "${options[@]}"
+do
+  case $REPLY in
+    1)
+      bin/clonefromgithub
+      break
+      ;;
+    2)
+      echo "Veuillez entrer le nom de la branche que vous souhaitez checkouter : "
+      read branch_name
+      bin/clonefromgithub "$branch_name"
+      break
+      ;;
+    3)
+      bin/copyalltocontainer
+      break
+      ;;
+    "")
+      echo "Quitter..."
+      break
+      ;;
+    *)
+      echo "Option invalide. Veuillez réessayer."
+      ;;
+  esac
+done

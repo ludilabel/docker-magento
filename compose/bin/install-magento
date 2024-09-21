@@ -12,14 +12,17 @@ bin/setup-win-sources
 echo "Running bin/setup-recette..."
 bin/setup-recette
 
+echo "Running bin/setup-github-ssh..."
+bin/setup-github-ssh
+
+# Démarrage pour la première fois des conteneurs Docker
 # dépend de bin/setup-win-sources
 echo "Running bin/autostart-containers..."
 bin/autostart-containers
 
 # luditodo : remplacer ce long processus par un git checkout local
-echo "Running bin/copytocontainer -all... (long)"
-bin/copytocontainer --all
-
+echo "Running bin/install-magento-sources... "
+bin/install-magento-sources
 
 echo "Adding Magento modules to Composer allow-plugins directive..."
 bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer-installer true

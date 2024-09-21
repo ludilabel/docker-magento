@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+source env/dev-setup-config.env
+
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
+HOST_SRC=$(cd -P "$TRANSFER_PATH" && pwd)
+
+echo "Copy first from Windows to Debian"
+rsync -az --info=progress2 --delete --exclude='.git' --exclude='.idea' "$OS_SRC/" "$HOST_SRC/windows/"
+
+echo "Copy from Debian to docker container"
+docker exec "$CONTAINER_ID" rm -rf /var/www/html/*
+docker cp "$HOST_SRC/windows/./" "$CONTAINER_ID":/var/www/html/
+
+echo "Completed copying all files from Windows to docker container"
+
+# Toutes les commandes à jouer lorsqu'on change les fichiers sources
+echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
+bin/composer install
+bin/fixowns
+bin/fixperms
+bin/clinotty bin/magento setup:upgrade
+bin/magento setup:di:compile
+echo "Toutes les commandes bin/* ont été exécutées."
+

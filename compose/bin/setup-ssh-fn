@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+run_ssh_agent_and_register_key() {
+  local key_name="$1"
+
+  if [ -z "$1" ]; then
+    echo "Il manque le nom de la clé à enregistrer en paramètre"
+    exit 1
+  else
+
+    # Start ssh-agent if needed and ensure SSH_AUTH_SOCK is set
+    if ! pgrep -x "ssh-agent" > /dev/null || [ -z "$SSH_AUTH_SOCK" ]; then
+      echo "Démarrage du SSH agent..."
+      eval "$(ssh-agent -s)"
+
+    else
+      echo "SSH agent is already running."
+    fi
+
+    # Ensure SSH_AUTH_SOCK is set
+    if [ -z "$SSH_AUTH_SOCK" ]; then
+      echo "SSH_AUTH_SOCK is not set. Restarting ssh-agent..."
+      eval "$(ssh-agent -s)"
+    fi
+
+    # add new key to ssh agent
+    echo "Ajout de la clé privée $key_name au SSH agent"
+    ssh-add "$HOME/.ssh/$key_name"
+  fi
+
+}
