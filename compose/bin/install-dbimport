@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
 
 source env/dev-setup-config.env
+source bin/setup-ssh-fn
 
 DATE=$(date +"%Y%m%d_%H%M%S")
 DUMP_FILE="db_backup_recette_$DATE.sql"
 LOCAL_DIR="$TRANSFER_PATH"
 
+# bin/setup-ssh-fn
+run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_NAME"
+
 # Generate mysqldump on remote server
-ssh -i "$RECETTE_DEBIAN_RSA_PATH" "$RECETTE_USER@$RECETTE_IP" "mysqldump -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME > /tmp/$DUMP_FILE"
+ssh "$RECETTE_USER@$RECETTE_IP" "mysqldump -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME > /tmp/$DUMP_FILE"
 
 # Download the dump file to local directory
 echo "Téléchargement du fichier backup sur la Debian"
-scp -i "$RECETTE_DEBIAN_RSA_PATH" "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE" "$LOCAL_DIR/"
+scp "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE" "$LOCAL_DIR/"
 
 # Clean up: Remove the dump file from the remote server
-ssh -i "$RECETTE_DEBIAN_RSA_PATH" "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
+ssh "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
 
 echo "Importation de la base dans le service Docker"
 bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DUMP_FILE"
