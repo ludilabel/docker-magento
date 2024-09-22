@@ -12,6 +12,29 @@ if [ -z "$branch_name" ]; then
   fi
 fi
 
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
+TRANSFER_GITHUB_PATH="$TRANSFER_PATH/github"
+HOST_SRC=$(cd -P "$TRANSFER_GITHUB_PATH" && pwd)
+# on change de dossier courant pour toutes les commandes git qui suivent
+cd "$HOST_SRC"
+
+current_branch=$(git branch --show-current)
+echo "La branche courante est : $current_branch"
+
+echo -e "Attention \nToutes les modifications de fichiers non commitées sur cette branche seront perdues."
+read -p "Souhaitez-vous vraiment continuer ? (oui/non) : " reponse
+
+# Vérifier la réponse de l'utilisateur
+if [[ "$reponse" != "oui" ]]; then
+    echo "Annulation de la commande."
+    exit 1
+fi
+
+echo "Delete all files from docker container except /vendor and /pub/media"
+docker exec "$CONTAINER_ID" bash -c 'find /var/www/html/* -maxdepth 1 ! -path "/var/www/html/vendor" ! -path "/var/www/html/vendor/*" ! -path "/var/www/html/pub/media" ! -path "/var/www/html/pub/media/*" -exec rm -rf {} +'
+
 # Reset any local modifications on the current branch
 echo "Suppression des modifications locales non validées de la branche actuelle..."
 git reset --hard
@@ -29,6 +52,13 @@ else
   echo "Erreur lors du changement de branche. Assurez-vous que la branche existe."
   exit 1
 fi
+
+echo "Copy files from Debian host to Docker container"
+docker cp "$HOST_SRC/./" "$CONTAINER_ID":/var/www/html/
+echo "Completed copying all files"
+
+# on rétablit le chemin pour lancer les commandes bin/*
+cd "$COMPOSE_PATH"
 
 # Toutes les commandes à jouer lorsqu'on change les fichiers sources
 echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
