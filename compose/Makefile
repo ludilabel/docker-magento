@@ -48,7 +48,7 @@ help:
 	@echo "$(call format,status,'Check the container status.')"
 	@echo "$(call format,stop,'Stop all project containers.')"
 	@echo "$(call format,stopall,'Stop all docker running containers.')"
-	@echo "$(call format,update,'[untested] Update your project to the latest version of docker-magento.')"
+	@echo "$(call format,update,'Update to the latest version of docker-magento.')"
 
 	@echo ""
 	@echo "$(call yellow,Admin Magento 2 bin/* commands)"
