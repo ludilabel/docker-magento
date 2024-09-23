@@ -114,7 +114,7 @@ services:
       - "cluster.routing.allocation.disk.threshold_enabled=false"
       - "index.blocks.read_only_allow_delete"
       ## Uncomment to set custom heap size to avoid memory errors
-      #- "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - ES_JAVA_OPTS=-Xms3g -Xmx3g
       ## Uncomment to increase the virtual memory map count
       - "max_map_count=262144"
       ## mandatory for windows/wsl2 setup
