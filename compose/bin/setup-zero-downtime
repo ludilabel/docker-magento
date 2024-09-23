@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+DOCKER_SERVICE="phpfpm"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+
+bin/root mkdir -p /home/app/.ssh
+bin/root chown -R app:app /home/app
+bin/root chmod -R u+rwx /home/app
+
+# Copy the private key into the container
+docker cp "$HOME/.ssh/id_ed25519" "$CONTAINER_ID":/home/app/.ssh/
+
+# Test the connexion
+bin/root ssh -i /home/app/.ssh/id_ed25519 -T git@github.com
