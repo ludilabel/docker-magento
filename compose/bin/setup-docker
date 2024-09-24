@@ -13,9 +13,5 @@ bin/setup-docker-env
 echo "Running bin/setup-docker-conf"
 bin/setup-docker-conf
 
-# depends on bin/setup-docker-env
-echo "Running bin/setup-docker-ssh"
-bin/setup-docker-ssh
-
 
 
