@@ -40,6 +40,5 @@ ssh -T git@github.com
 if [ $? -eq 0 ]; then
   echo "SSH key works! You've successfully authenticated with GitHub."
 else
-  echo "SSH authentication to GitHub failed.
+  echo "SSH authentication to GitHub failed."
 fi
-
