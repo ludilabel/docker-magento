@@ -6,6 +6,7 @@ set -o errexit
 
 source env/setup/magento-stores.env
 source env/dev-setup-config.env
+source bin/terminal-colors
 
 # listes de données dans env/magento-stores.env
 # boutiques Magento 2
@@ -16,14 +17,22 @@ done
 
 if [ "$1" ]; then
   DN="$1"
-  sed -i "s|^DN=.*|DN=\"$DN\"|" env/dev-setup-config.env
 else
-  if [ "$DN" == "domain.name" ]; then
-    echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
-    read -r -p "(ex : franz.docker.ludilabel) sans le suffixe du domaine de premier niveau (.fr,...) : " DN
+    if [ "$DN" ]; then
+        echo "Le nom de domaine est déjà configuré : $(yellow "$DN")"
+    else
+      echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
+      read -r -p "(ex : franz.docker.ludilabel) SANS le suffixe du domaine de premier niveau (.fr,...) : " DN
+    fi
+fi
 
+if [ "$DN" ]; then
+  if [ "$1" ]; then
     sed -i "s|^DN=.*|DN=\"$DN\"|" env/dev-setup-config.env
   fi
+else
+    echo "Ajout de la variable DN à la fin du fichier env/dev-setup-config.env."
+    echo "DN=\"$DN\"" >> env/dev-setup-config.env
 fi
 
 

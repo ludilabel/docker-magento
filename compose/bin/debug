@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-PS3="Choisissez une option de débogage: "
-options=("1 - xdebug qui ne fonctionne pas" "2 - ..." "3 -  ..." "Entrée pour quitter")
+PS3="Choisissez une fonctionnalité à réparer : "
+options=("1 - xdebug" "2 - connexion au serveur recette (source BDD et /media)" "3 - connexion à github" "Entrée pour quitter")
 
 select opt in "${options[@]}"
 do
@@ -11,14 +11,33 @@ do
             echo "Solution : redéfinir la résolution DNS pour que le service Docker phpfpm puisse communiquer avec la nouvelle adresse IP de Windows"
             echo "Running bin/setup-host-docker-win"
             bin/setup-host-docker-win
+
             break
             ;;
         2)
-            echo "Vous avez choisi Option 2"
+            echo "Hypothèse : vous avez renseigné des informations erronées"
+            echo "Solution : resaisir toutes les informations"
+            read -r -p "serveur IP : " recette_ip
+            read -r -p "serveur chemin absolu dossier media : " recette_media_path
+            bin/setup-recette-server "$recette_ip" "$recette_media_path"
+
+            read -r -p "utilisateur BDD : " recette_db_user
+            read -r -p "Nom BDD : " recette_db_name
+            read -r -p "Mot de passe BDD : " recette_db_pass
+            bin/setup-recette-db "$recette_db_user" "$recette_db_name" "$recette_db_pass"
+
+            read -r -p "serveur utilisateur SSH : " recette_user
+            read -r -p "chemin Windows qui contient clé id_rsa (OpenSSH) pour connexion SSH : " win_id_rsa_path
+            bin/setup-recette-ssh "$recette_user" "$win_id_rsa_path"
+
             break
             ;;
         3)
-            echo "Vous avez choisi Option 3"
+            echo "Hypothèse : vous vous êtes trompé de compte utilisateur ou vous avez besoin de régénérer une nouvelle clé"
+            echo "Solution : saisi du compte utilisateur et régénération de la clé SSH"
+            read -r -p "email du compte utilisateur Github : " github_user
+            bin/setup-github-ssh github_user "regenerate-key"
+
             break
             ;;
         "")
@@ -26,7 +45,7 @@ do
             break
             ;;
         *)
-            echo "Option invalide"
+            echo "Saisie invalide"
             ;;
     esac
 done

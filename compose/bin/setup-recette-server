@@ -3,6 +3,9 @@
 # Enable debugging
 # set -x
 
+source env/dev-setup-config.env
+source bin/terminal-colors
+
 # Arguments :
 # $1 : recette_ip (Optionnel) adresse IP du serveur recette
 # $2 : recette_media_path (Optionnel) chemin absolu du dossier media du serveur recette
@@ -10,18 +13,43 @@
 if [ "$1" ]; then
   recette_ip="$1"
 else
-  echo "Veuillez coller l'IP du serveur recette"
-  read -r -p "(ex : 125.58.165.95) : " recette_ip
+    if [ "$RECETTE_IP" ]; then
+        recette_ip="$RECETTE_IP"
+        echo "L'IP du serveur recette est déjà configurée : $(yellow "$RECETTE_IP")"
+    else
+      echo "Veuillez coller l'IP du serveur recette"
+      read -r -p "(ex : 125.58.165.95) : " recette_ip
+    fi
 fi
 
 if [ "$2" ]; then
   recette_media_path="$2"
 else
-  echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur recette"
-  read -r -p "(ex : /var/www/html/magento/pub/media) : " recette_media_path
+  if [ "$RECETTE_MEDIA_PATH" ]; then
+      recette_media_path="$RECETTE_MEDIA_PATH"
+      echo "Le chemin de media du serveur recette est déjà configuré : $(yellow "$RECETTE_MEDIA_PATH")"
+  else
+    echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur recette"
+    read -r -p "(ex : /var/www/html/magento/pub/media) : " recette_media_path
+  fi
 fi
 
 
 # Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
-sed -i "s|^RECETTE_IP=.*|RECETTE_IP=\"$recette_ip\"|" env/dev-setup-config.env
-sed -i "s|^RECETTE_MEDIA_PATH=.*|RECETTE_MEDIA_PATH=\"$recette_media_path\"|" env/dev-setup-config.env
+if [ "$RECETTE_IP" ]; then
+    if [ "$1" ]; then
+      sed -i "s|^RECETTE_IP=.*|RECETTE_IP=\"$recette_ip\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable RECETTE_IP à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_IP=\"$recette_ip\"" >> env/dev-setup-config.env
+fi
+
+if [ "$RECETTE_MEDIA_PATH" ]; then
+    if [ "$2" ]; then
+      sed -i "s|^RECETTE_MEDIA_PATH=.*|RECETTE_MEDIA_PATH=\"$recette_media_path\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable RECETTE_MEDIA_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_MEDIA_PATH=\"$recette_media_path\"" >> env/dev-setup-config.env
+fi

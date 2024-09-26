@@ -2,35 +2,77 @@
 
 # Enable debugging
 # set -x
+source env/dev-setup-config.env
+source bin/terminal-colors
 
 # Arguments : (cf. app/etc/env.php pour recette)
 # $1 : recette_db_user (Optionnel) nom utilisateur Mariadb du serveur recette
-# $2 : recette_db_pass (Optionnel) mot de passe de la base de données du serveur recette
-# $3 : recette_db_name (Optionnel) nom de la base de données du serveur recette
+# $2 : recette_db_name (Optionnel) nom de la base de données du serveur recette
+# $3 : recette_db_pass (Optionnel) mot de passe de la base de données du serveur recette
 
 if [ "$1" ]; then
   recette_db_user="$1"
 else
-  echo "Veuillez saisir le nom d'utilisateur de la base de données de recette"
-  read -r -p "(ex : magento_user) : " recette_db_user
+  if [ "$RECETTE_DB_USER" ]; then
+      recette_db_user="$RECETTE_DB_USER"
+      echo "Le nom d'utilisateur de la base de données est déjà configuré : $(yellow "$RECETTE_DB_USER")"
+  else
+    echo "Veuillez saisir le nom d'utilisateur de la base de données de recette"
+    read -r -p "(ex : magento_user) : " recette_db_user
+  fi
+
 fi
 
 if [ "$2" ]; then
-  recette_db_pass="$2"
+  recette_db_name="$2"
 else
-  echo "Veuillez coller le mot de passe de la base de données recette"
-  read -r -p "(ex : fkjdfifsqdKJdiLKj) : " recette_db_pass
+  if [ "$RECETTE_DB_NAME" ]; then
+      recette_db_name="$RECETTE_DB_NAME"
+      echo "Le nom de la base de données est déjà configuré : $(yellow "$RECETTE_DB_NAME")"
+  else
+      echo "Veuillez saisir le nom de la base de données de recette"
+      read -r -p "(ex : magento) : " recette_db_name
+  fi
 fi
 
 if [ "$3" ]; then
-  recette_db_name="$3"
+  recette_db_pass="$3"
 else
-  echo "Veuillez saisir le nom de la base de données de recette"
-  read -r -p "(ex : magento) : " recette_db_name
+    if [ "$RECETTE_DB_PASS" ]; then
+        recette_db_pass="$RECETTE_DB_PASS"
+        echo "Le mot de passe de la base de données est déjà configuré : $(yellow "$RECETTE_DB_PASS")"
+    else
+        echo "Veuillez coller le mot de passe de la base de données recette"
+        read -r -p "(ex : fkjdfifsqdKJdiLKj) : " recette_db_pass
+    fi
+
 fi
 
 
 # Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
-sed -i "s|^RECETTE_DB_USER=.*|RECETTE_DB_USER=\"$recette_db_user\"|" env/dev-setup-config.env
-sed -i "s|^RECETTE_DB_PASS=.*|RECETTE_DB_PASS=\"$recette_db_pass\"|" env/dev-setup-config.env
-sed -i "s|^RECETTE_DB_NAME=.*|RECETTE_DB_NAME=\"$recette_db_name\"|" env/dev-setup-config.env
+if [ "$RECETTE_DB_USER" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^RECETTE_DB_USER=.*|RECETTE_DB_USER=\"$recette_db_user\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable RECETTE_DB_USER à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_DB_USER=\"$recette_db_user\"" >> env/dev-setup-config.env
+fi
+
+if [ "$RECETTE_DB_NAME" ]; then
+  if [ "$2" ]; then
+    sed -i "s|^RECETTE_DB_NAME=.*|RECETTE_DB_NAME=\"$recette_db_name\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable RECETTE_DB_NAME à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_DB_NAME=\"$recette_db_name\"" >> env/dev-setup-config.env
+fi
+
+if [ "$RECETTE_DB_PASS" ]; then
+  if [ "$3" ]; then
+    sed -i "s|^RECETTE_DB_PASS=.*|RECETTE_DB_PASS=\"$recette_db_pass\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable RECETTE_DB_PASS à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_DB_PASS=\"$recette_db_pass\"" >> env/dev-setup-config.env
+fi

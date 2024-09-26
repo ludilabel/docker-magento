@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+source env/dev-setup-config.env
+source bin/terminal-colors
+
 # Arguments :
 # $1 : win_sources_path (Optionnel) chemin Windows vers les fichiers sources Magento 2
 
@@ -9,8 +12,14 @@ if [ "$1" ]; then
   echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
   echo 'Usage: bin/* "chemin"'
 else
-  echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
-  read -r -p "(ex : D:\Travail\Ludilabel\Magento2) : " win_sources_path
+  echo "$OS_SRC"
+  if [ "$OS_SRC" ]; then
+      win_sources_path="$OS_SRC"
+      echo "Le chemin est déjà configuré : $(yellow "$OS_SRC")"
+  else
+    echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
+    read -r -p "(ex : D:\Travail\Ludilabel\Magento2) : " win_sources_path
+  fi
 fi
 
 # Transformation du chemin Windows en chemin Debian WSL2
@@ -31,8 +40,16 @@ fi
 
 # Vérifier si le chemin existe
 if [ ! -d "$win_sources_path" ]; then
-    echo "Le chemin spécifié n'existe pas."
+    echo "Le chemin spécifié n'existe pas : $win_sources_path"
     exit 1
 fi
 
-sed -i "s|^OS_SRC=.*|OS_SRC=\"$win_sources_path\"|" env/dev-setup-config.env
+if [ "$OS_SRC" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^OS_SRC=.*|OS_SRC=\"$win_sources_path\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable OS_SRC à la fin du fichier env/dev-setup-config.env."
+    echo "OS_SRC=\"$win_sources_path\"" >> env/dev-setup-config.env
+fi
+

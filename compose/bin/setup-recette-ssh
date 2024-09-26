@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+source env/dev-setup-config.env
+source bin/terminal-colors
+
 # Arguments :
 # $1 : recette_user (Optionnel) utilisateur ssh sur serveur recette
 # $2 : win_id_rsa_path (Optionnel) chemin absolu du fichier id_rsa sur Windows
@@ -13,19 +16,38 @@ if [ "$1" ]; then
   echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
   echo 'Usage: bin/* "chemin"'
 else
-  echo "Veuillez saisir le nom de la session utilisateur ssh sur serveur recette"
-  read -r -p "(ex : bertrand) : " recette_user
+    if [ "$RECETTE_USER" ]; then
+        recette_user="$RECETTE_USER"
+        echo "Le nom de la session utilisateur ssh du serveur recette est déjà configuré : $(yellow "$RECETTE_USER")"
+    else
+        echo "Veuillez saisir le nom de la session utilisateur ssh sur serveur recette"
+        read -r -p "(ex : www-data) : " recette_user
+    fi
 fi
 
-sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config.env
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$RECETTE_USER" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable RECETTE_USER à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_USER=\"$recette_user\"" >> env/dev-setup-config.env
+fi
+
 
 
 # Clé privée ssh
 if [ "$2" ]; then
   win_id_rsa_path="$2"
 else
-  echo "Veuillez coller le chemin Windows vers la clé privée id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur recette"
-  read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+      if [ "$RECETTE_DEBIAN_RSA_PATH" ]; then
+          win_id_rsa_path="$RECETTE_DEBIAN_RSA_PATH"
+          echo "La clé ssh privée du serveur recette est déjà copiée sur la Debian et se trouve ici : $(yellow "$RECETTE_DEBIAN_RSA_PATH")"
+      else
+        echo "Veuillez coller le chemin Windows (sans quote) vers la clé privée id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur recette"
+        read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+      fi
 fi
 
 
@@ -51,19 +73,29 @@ if [ ! -f "$win_id_rsa_path" ]; then
     exit 1
 
 else
-  echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
-  read -e -i "id_rsa_" -r -p "(ex : id_rsa_recette) : " recette_rsa
-  debian_rsa_path="$HOME/.ssh/$recette_rsa"
+  if [ -z "$RECETTE_DEBIAN_RSA_PATH" ]; then
+    echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
+    read -e -i "id_rsa_" -r -p "(ex : id_rsa_recette) : " recette_rsa
+    recette_rsa="id_rsa_recette"
+    debian_rsa_path="$HOME/.ssh/$recette_rsa"
 
-  mkdir -p ~/.ssh
-  chmod 700 ~/.ssh
-  cp "$win_id_rsa_path" "$debian_rsa_path"
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    cp "$win_id_rsa_path" "$debian_rsa_path"
 
-  chmod 600 "$debian_rsa_path"
-
+    chmod 600 "$debian_rsa_path"
+  fi
 fi
 
 # Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
-sed -i "s|^RECETTE_DEBIAN_RSA_NAME=.*|RECETTE_DEBIAN_RSA_NAME=\"$recette_rsa\"|" env/dev-setup-config.env
+if [ "$RECETTE_DEBIAN_RSA_PATH" ]; then
+  if [ "$2" ]; then
+    sed -i "s|^RECETTE_DEBIAN_RSA_PATH=.*|RECETTE_DEBIAN_RSA_PATH=\"$debian_rsa_path\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable RECETTE_DEBIAN_RSA_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_DEBIAN_RSA_PATH=\"$debian_rsa_path\"" >> env/dev-setup-config.env
+fi
+
 
 
