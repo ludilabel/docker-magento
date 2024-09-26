@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+ # Toutes les commandes à jouer lorsqu'on change de base de données
+echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement de base de données"
+echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
+bin/magento app:config:import
+
+# URLs des boutiques, Hosts, SSL
+echo "$(green "Running bin/setup-domain...")"
+bin/setup-domain
+
+# Configuration pour pouvoir accéder aux autres boutiques que FR sur Docker
+bin/clinotty bin/magento config:set web/url/redirect_to_base 0 --scope="default" > /dev/null
+
+# Configuration pour que Elasticsearch 8 d’Amasty parle avec le serveur Elasticsearch de Docker
+bin/magento config:set catalog/search/elasticsearch7_server_hostname elasticsearch
+bin/magento config:set amasty_elastic/connection/server_hostname elasticsearch
+
+# Désactivation de certains caches
+bin/magento cache:disable config full_page block_html
+
+if [ "$USAGE_MODE" != "install" ]; then
+  bin/clinotty bin/magento setup:upgrade
+  # théoriquement ce process consulte la BDD mais je n’ai pas prouvé son utilité pour Ludilabel
+  bin/clinotty bin/magento setup:di:compile
+  bin/clinotty bin/magento cache:flush
+fi
+
+echo "Toutes les commandes bin/* ont été exécutées."

@@ -42,4 +42,6 @@ if [ $? -ne 0 ]; then
 fi
 
 # Configuration de la base de données
-bin/dbconfig
+if [ "$USAGE_MODE" != "install" ]; then
+  source bin/after-import-db-config-inc
+fi

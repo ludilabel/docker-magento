@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 source env/dev-setup-config.env
+source bin/setup-ssh-fn
 
 import_prompt_sql() {
 
@@ -35,7 +36,8 @@ import_prompt_sql() {
   echo "Téléchargement du fichier backup sur la Debian"
   rsync -av "$win_bdd_file_path" "$TRANSFER_PATH"
 
-  echo "Importation de la base dans le service Docker"
+  echo "Importation de la base dans le service Docker (long...)"
+  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
   bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/$FILENAME"
 }
 
@@ -70,11 +72,32 @@ import_param_sql() {
   echo "Téléchargement du fichier backup sur la Debian"
   rsync -av "$sql_file" "$TRANSFER_PATH"
 
-  echo "Importation de la base dans le service Docker"
+  echo "Importation de la base dans le service Docker (long...)"
+
+  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
   bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/$FILENAME"
 }
 
 import_recette() {
-  echo "Running bin/install-dbimport..."
-  bin/install-dbimport
+
+  DATE=$(date +"%Y%m%d_%H%M%S")
+  DUMP_FILE="db_backup_recette_$DATE.sql"
+  LOCAL_DIR="$TRANSFER_PATH"
+
+  # bin/setup-ssh-fn
+  run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
+
+  # Generate mysqldump on remote server
+  ssh "$RECETTE_USER@$RECETTE_IP" "mysqldump -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME > /tmp/$DUMP_FILE"
+
+  # Download the dump file to local directory
+  echo "Téléchargement du fichier backup sur la Debian"
+  scp "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE" "$LOCAL_DIR/"
+
+  # Clean up: Remove the dump file from the remote server
+  ssh "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
+
+  echo "Importation de la base dans le service Docker (long...)"
+  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
+  bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DUMP_FILE"
 }
