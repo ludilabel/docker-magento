@@ -3,17 +3,19 @@ set -o errexit
 # Enable debugging
 # set -x
 
-echo "Running bin/setup-docker..."
+source bin/terminal-colors
+
+echo "$(green "Running bin/setup-docker...")"
 bin/setup-docker
 
 # depend de bin/setup-docker
-echo "Running bin/setup-debian..."
+echo "$(green "Running bin/setup-debian...")"
 bin/setup-debian
 
 echo "All setup scripts completed."
 
 # !!! Doit toujours être mis en fin de session shell car contient un newgrp et un restart de la Debian WSL2
-echo "Running bin/setup-docker-rights-restart..."
+echo "$(green "Running bin/setup-docker-rights-restart...")"
 bin/setup-docker-rights-restart
 
 
