@@ -4,12 +4,12 @@ source env/dev-setup-config.env
 source bin/setup-ssh-fn
 
 ### bin/setup-ssh-fn - permet d’utiliser les commandes Git sans paramètres ssh
-run_ssh_agent_and_register_key "id_ed25519"
+run_ssh_agent_and_register_key "$GITHUB_DEBIAN_RSA_PATH"
 
 DOCKER_SERVICE="phpfpm"
 CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
 
-echo -e "Attention \nTous les fichiers actuellement déployés sur le serveur seront perdus (sources Magento 2, /pub/media, /vendor/, /generated, etc.)"
+echo -e "Attention \nTous les fichiers actuellement déployés sur le conteneur Docker seront perdus (sources Magento 2, /pub/media, /vendor/, /generated, etc.)"
 read -p "Souhaitez-vous vraiment continuer ? (oui/non) : " reponse
 
 # Vérifier la réponse de l'utilisateur
@@ -29,7 +29,7 @@ cd "$HOST_SRC"
 echo "git clone first from Github to Debian"
 rm -rf "$HOST_SRC/*"
 git clone --no-checkout git@github.com:ludilabel/magento-2.git .
-# nécessaire pour que les références vers les branches distantes soient configurées
+# --all nécessaire pour que les références vers les branches distantes soient configurées
 git fetch --all
 
 if [ "$1" ]; then
@@ -40,7 +40,8 @@ else
   git checkout master
 fi
 
-echo "Copy from Debian to docker container (< 2mn)"
+echo "Copy from Debian to docker container (inférieur à 2mn)"
+
 docker exec "$CONTAINER_ID" rm -rf /var/www/html/*
 docker cp "$HOST_SRC/./" "$CONTAINER_ID":/var/www/html/
 echo "Completed copying all files from Debian host to container"
@@ -48,12 +49,7 @@ echo "Completed copying all files from Debian host to container"
 # on rétablit le chemin pour lancer les commandes bin/*
 cd "$COMPOSE_PATH"
 
-# Toutes les commandes à jouer lorsqu'on change les fichiers sources
-echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
-bin/composer install
-bin/fixowns
-bin/fixperms
-bin/clinotty bin/magento setup:upgrade
-bin/magento setup:di:compile
-echo "Toutes les commandes bin/* ont été exécutées."
+if [ "$USAGE_MODE" != "install" ]; then
+  source after-import-sources-inc
+fi
 

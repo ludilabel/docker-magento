@@ -16,12 +16,7 @@ docker cp "$HOST_SRC/windows/./" "$CONTAINER_ID":/var/www/html/
 
 echo "Completed copying all files from Windows to docker container"
 
-# Toutes les commandes à jouer lorsqu'on change les fichiers sources
-echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
-bin/composer install
-bin/fixowns
-bin/fixperms
-bin/clinotty bin/magento setup:upgrade
-bin/magento setup:di:compile
-echo "Toutes les commandes bin/* ont été exécutées."
+if [ "$USAGE_MODE" != "install" ]; then
+  source after-import-sources-inc
+fi
 

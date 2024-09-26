@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+# Toutes les commandes à jouer lorsqu'on change les fichiers sources
+echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
+
+echo "Copie de app/etc/env.php pour l’environnement Docker"
+bin/setup-magento-env
+
+echo "Adding Magento modules to Composer allow-plugins directive..."
+bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer-installer true
+bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-composer-installer true
+bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
+bin/composer install
+
+bin/fixowns
+bin/fixperms
+if [ "$USAGE_MODE" != "install" ]; then
+  bin/clinotty bin/magento setup:upgrade
+  bin/clinotty bin/magento setup:di:compile
+  bin/clinotty bin/magento cache:flush
+fi
+echo "Toutes les commandes bin/* ont été exécutées."
