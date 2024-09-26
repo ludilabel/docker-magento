@@ -7,7 +7,7 @@ DOCKER_SERVICE="phpfpm"
 CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
 
 # bin/setup-ssh-fn
-run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_NAME"
+run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
 
 # Ensure the parent destination path exists
 mkdir -p "$TRANSFER_PATH/recette/pub"
@@ -18,3 +18,9 @@ rsync -az --info=progress2 -e "ssh" $RECETTE_USER@$RECETTE_IP:$RECETTE_MEDIA_PAT
 echo "Copie des fichiers Debian dans le service Docker (long...)"
 docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/media
 docker cp "$TRANSFER_PATH/recette/pub/media/." "$CONTAINER_ID:/var/www/html/pub/media"
+
+echo "Running bin/fixowns..."
+bin/fixowns
+
+echo "Running bin/fixperms..."
+bin/fixperms

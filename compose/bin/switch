@@ -13,7 +13,7 @@ cd "$HOST_SRC"
 
 
 ### bin/setup-ssh-fn - permet d’utiliser les commandes Git sans paramètres ssh
-run_ssh_agent_and_register_key "id_ed25519"
+run_ssh_agent_and_register_key "$GITHUB_DEBIAN_RSA_PATH"
 
 current_branch=$(git branch --show-current)
 echo "La branche courante est : $current_branch"

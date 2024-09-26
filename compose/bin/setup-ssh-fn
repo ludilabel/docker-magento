@@ -25,7 +25,7 @@ run_ssh_agent_and_register_key() {
 
     # add new key to ssh agent
     echo "Ajout de la clé privée $key_name au SSH agent"
-    ssh-add "$HOME/.ssh/$key_name"
+    ssh-add "$key_name"
   fi
 
 }
