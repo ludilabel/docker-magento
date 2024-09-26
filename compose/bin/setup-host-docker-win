@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # set -x
 
+source bin/terminal-colors
+
 if [ "$1" ]; then
   WIN_HOST="$1"
-  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
-  echo 'Usage: bin/* "C:\Windows\System32\drivers\etc\hosts"'
-
 else
-  echo "Veuillez coller le chemin Windows complet du fichier hosts"
-  read -r -p "(ex : 'C:\Windows\System32\drivers\etc\hosts') : " WIN_HOST
+  echo "Entrée par défaut"
+  echo "Sinon coller le chemin Windows complet du fichier hosts"
+  read -r -p "(par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+  WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
 fi
 
 # Transformation du chemin Windows en chemin Debian WSL2
@@ -25,7 +26,6 @@ if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
         exit 1
     fi
 
-    echo "Chemin converti au format Debian WSL2 : $WIN_HOST"
 fi
 
 # Get the local IP address from Windows + strip return line
@@ -38,46 +38,28 @@ entries_to_add=(
     "$local_ip gateway.docker.internal"
 )
 
+# Check and remove entries that already exist in the hosts file
+for i in "${!entries_to_add[@]}"; do
+    entry="${entries_to_add[$i]}"
 
-# Check if the entry exists and is uncommented
-check_entry_exists() {
-    local ip="$1"
-    local domain="$2"
-    local WIN_HOST="$3"
-
-    grep -q "^[^#]*\b$ip\b.*\b$domain\b" "$WIN_HOST"
-}
+    # Check if the entry already exists in the hosts file
+    if grep -qF "$entry" "$WIN_HOST"; then
+        echo "Entry '$entry' already exists in the hosts file."
+        unset 'entries_to_add[i]'
+    fi
+done
 
 if [ ${#entries_to_add[@]} -gt 0 ]; then
-    echo "Adding entries to the Windows hosts file..."
-    echo "Vous devez fermer provisoirement vos navigateurs web, sqlyog et powershell avant de continuer pour éviter un conflit sur le ficher Windows hosts"
+    echo "Nous avons analysé votre fichier hosts"
+    echo "Il manque les entrées suivantes, copier-coller les dans $WIN_HOST en mode administrateur."
 
-    # script is halted until user response
-    read -p "Appuyez sur entrée une fois que les navigateurs, sqlyog et powershell sont fermés."
-    echo "Please accept PowerShell invitation if prompted."
+    # Affichage de la liste dans la console pour être copiée
+    echo
+        for entry in "${entries_to_add[@]}"; do
+            yellow "$entry"
+        done
 
-
-    entries_ps=""
-    for entry in "${entries_to_add[@]}"; do
-        ip=$(echo "$entry" | awk '{print $1}')
-        domain=$(echo "$entry" | awk '{print $2}')
-
-        if check_entry_exists "$ip" "$domain" "$WIN_HOST"; then
-            echo "Entry '$ip $domain' already exists in the hosts file."
-        else
-            entries_ps+="'$entry'; "
-        fi
-    done
-
-    if [ -n "$entries_ps" ]; then
-        powershell.exe -Command "
-        \$entries = @($entries_ps);
-        \$entries | ForEach-Object { Add-Content -Path 'C:\Windows\System32\drivers\etc\hosts' -Value \$_ }
-        "
-    else
-        echo "No new entries to add."
-    fi
-
+    read -p "Continuer l'exécution du script"
 else
-    echo "All entries already exist in the hosts file."
+    echo "Toutes les entrées existent déjà dans le fichier hosts."
 fi

@@ -7,6 +7,7 @@ set -o errexit
 
 source env/dev-setup-config.env
 source env/setup/magento-stores.env
+source bin/terminal-colors
 
 # listes de données dans env/magento-stores.env
 # boutiques Magento 2
@@ -17,12 +18,11 @@ done
 
 if [ "$1" ]; then
   WIN_HOST="$1"
-  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
-  echo 'Usage: bin/* "C:\Windows\System32\drivers\etc\hosts"'
-
 else
-  echo "Veuillez coller le chemin Windows complet du fichier hosts"
-  read -r -p "(ex : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+  echo "Entrée par défaut"
+  echo "Sinon coller le chemin Windows complet du fichier hosts"
+  read -r -p "(par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+  WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
 fi
 
 
@@ -30,21 +30,20 @@ fi
 if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
 
     # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-    WIN_HOST=$(echo "$WIN_HOST" | sed 's|\\|/|g')
+    DEBIAN_WIN_HOST=$(echo "$WIN_HOST" | sed 's|\\|/|g')
 
     # Convertir le chemin au format WSL
-    WIN_HOST=$(wslpath -a "$WIN_HOST")
+    DEBIAN_WIN_HOST=$(wslpath -a "$DEBIAN_WIN_HOST")
 
     if [ $? -ne 0 ]; then
         echo "Erreur lors de la conversion du chemin."
         exit 1
     fi
 
-    echo "Chemin converti au format Debian WSL2 : $WIN_HOST"
 fi
 
 # Vérifier si le fichier existe
-if [ ! -f "$WIN_HOST" ]; then
+if [ ! -f "$DEBIAN_WIN_HOST" ]; then
     echo "Le fichier spécifié n'existe pas."
     exit 1
 fi
@@ -55,8 +54,6 @@ DEBIAN_IP=$(hostname -I | awk '{print $1}')
 entries_to_add=()
 ALL_FQDN=()
 
-
-
 # Loop through each top-level domain and prepare the corresponding entry
 for TLD in "${!store_codes[@]}"; do
     # Define the entry for each TLD
@@ -65,7 +62,7 @@ for TLD in "${!store_codes[@]}"; do
     ALL_FQDN+=("$DN.$TLD")
 
     # Check if the entry already exists in the hosts file
-    if ! grep -q "$entry" "$WIN_HOST"; then
+    if ! grep -q "$entry" "$DEBIAN_WIN_HOST"; then
         echo "Preparing to add entry $entry to the Windows hosts file..."
         entries_to_add+=("$entry")
     else
@@ -73,29 +70,22 @@ for TLD in "${!store_codes[@]}"; do
     fi
 done
 
-# If there are entries to add, run the PowerShell script
-# 09/2024 : only tested on Windows 10
+# If there are entries to add, make a list for the user to copy it
 if [ ${#entries_to_add[@]} -gt 0 ]; then
-    echo "Adding entries to the Windows hosts file..."
-    echo "Vous devez fermer provisoirement vos navigateurs web, sqlyog et powershell avant de continuer pour éviter un conflit sur le ficher Windows hosts"
+    echo "Nous avons analysé votre fichier hosts"
+    echo "Il manque les entrées suivantes, copier/coller les dans $WIN_HOST en mode administrateur."
 
-    # script is halted until user response
-    read -p "Appuyez sur entrée une fois que les navigateurs, sqlyog et powershell sont fermés."
+    # Affichage de la liste dans la console pour être copiée
+    echo
+        for entry in "${entries_to_add[@]}"; do
+            yellow "$entry"
+        done
 
-    echo "Please accept PowerShell invitation if any"
+    read -p "Continuer l'exécution du script"
 
-    # Convert the array to a PowerShell-compatible string
-    entries_ps="$(printf "'%s'; " "${entries_to_add[@]}")"
-
-    powershell.exe -Command "
-    \$entries = @($entries_ps);
-    \$entries | ForEach-Object { Add-Content -Path 'C:\Windows\System32\drivers\etc\hosts' -Value \$_ }
-    "
 else
-    echo "All entries already exist in the hosts file."
+    echo "Toutes les entrées existent déjà dans le fichier hosts."
 fi
 
 # Pour permettre une communication entre les conteneurs Docker et le Windows du développeur (IDE, etc.)
 bin/setup-host-docker-win "$WIN_HOST"
-
-echo "Vous pouvez rouvrir vos navigateurs web, sqlyog et powershell"
