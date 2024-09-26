@@ -12,7 +12,7 @@ if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
 fi
 
 ### bin/setup-ssh-fn - permet d’utiliser les commandes Git sans paramètres ssh
-run_ssh_agent_and_register_key "id_ed25519"
+run_ssh_agent_and_register_key "$GITHUB_DEBIAN_RSA_PATH"
 
 DOCKER_SERVICE="phpfpm"
 CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
@@ -48,12 +48,8 @@ echo "Completed copying all files"
 # on rétablit le chemin pour lancer les commandes bin/*
 cd "$COMPOSE_PATH"
 
-# Toutes les commandes à jouer lorsqu'on change les fichiers sources
-echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
-bin/composer install
-bin/fixowns
-bin/fixperms
-bin/clinotty bin/magento setup:upgrade
-bin/magento setup:di:compile
-echo "Toutes les commandes bin/* ont été exécutées."
+if [ "$USAGE_MODE" != "install" ]; then
+  source after-import-sources-inc
+fi
+
 

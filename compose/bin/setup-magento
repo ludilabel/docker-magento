@@ -3,20 +3,12 @@ set -o errexit
 # Enable debugging
 # set -x
 
-echo "Running bin/setup-magento-env"
-bin/setup-magento-env
 
 # depend de bin/setup-magento-env
 #echo "Running, Magento setup:install..."
 # en erreur : fonctionnement à comprendre par rapport à app:config:import
 # possiblement facultatif comme on a déjà app/etc/config.php et app/etc/env.php correctement personnalisés
 #bin/setup-install
-
-echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
-bin/magento app:config:import
-
-echo "Running bin/setup-domain..."
-bin/setup-domain
 
 echo "Re-indexing with Elasticsearch..."
 bin/clinotty bin/magento indexer:reindex
@@ -30,9 +22,9 @@ bin/clinotty bin/magento cron:install
 echo "Turning on developer mode..."
 bin/clinotty bin/magento deploy:mode:set developer
 
-echo "Après le redémarage qui va suivre, vous pourrez accéder aux boutiques depuis votre navigateur"
+echo "Après le redémarage qui va suivre, vous pourrez accéder aux urls https:// des boutiques"
 
 # Restart nginx to apply the updates
 echo "Restarting containers to apply updates..."
-read -p "Appuyer sur entrée pour lancer le redémarrage des conteneurs"
+read -p "/// Appuyer sur entrée pour lancer le redémarrage des conteneurs"
 bin/restart

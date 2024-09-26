@@ -1,57 +1,49 @@
 #!/usr/bin/env bash
+
 # depend on bin/setup-environnement
 set -o errexit
 # Enable debugging
 # set -x
 
+source bin/terminal-colors
 
+# Variable globale pour les scripts d'importation base de données et fichiers sources, qui sont prévus pour être joués seuls, n’executent pas des commandes
+# comme bin/magento setup:upgrade qui ont besoin que les deux soient déjà installé, ce qui n’est pas le cas pendant le processus initial d'installation
+USAGE_MODE="install"
+export USAGE_MODE
 
-echo "Running bin/setup-win-sources..."
+echo "$(green "Running bin/setup-win-sources...")"
 bin/setup-win-sources
 
-echo "Running bin/setup-recette..."
+echo "$(green "Running bin/setup-recette...")"
 bin/setup-recette
 
-echo "Running bin/setup-github-ssh..."
+echo "$(green "Running bin/setup-github-ssh...")"
 bin/setup-github-ssh
 
 # Démarrage pour la première fois des conteneurs Docker
 # dépend de bin/setup-win-sources
-echo "Running bin/autostart-containers..."
+echo "$(green "Running bin/autostart-containers...")"
 bin/autostart-containers
 
-# luditodo : remplacer ce long processus par un git checkout local
-echo "Running bin/install-magento-sources... "
+# dépend de bin/setup-recette
+echo "$(green "Running bin/import-db...")"
+bin/import-db
+
+echo "$(green "Running bin/install-magento-sources... ")"
 bin/install-magento-sources
 
-echo "Adding Magento modules to Composer allow-plugins directive..."
-bin/clinotty composer config --no-plugins allow-plugins.magento/magento-composer-installer true
-bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-composer-installer true
-bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
-
-echo "Download /vendor..."
-bin/composer install
-
-# dépend de bin/setup-recette
-echo "Running bin/install-dbimport..."
-bin/install-dbimport
+# exécution de ces post-traitements ici exceptionnement pendant l’installation
+# ils sont sinon exécutés à chaque changement de fichiers sources ou de base de données
+source bin/after-import-sources-inc
+source bin/after-import-db-config-inc
+bin/clinotty bin/magento setup:upgrade
+bin/clinotty bin/magento setup:di:compile
+bin/clinotty bin/magento cache:flush
 
 # dépend de bin/setup-recette
-echo "Running bin/install-mediaimport... (long)"
+echo "$(green "Running bin/install-mediaimport... (long)")"
 bin/install-mediaimport
 
-# dépendance des commandes bin/magento M2
-echo "Running bin/fixowns..."
-bin/fixowns
-
-# dépendance des commandes bin/magento M2
-echo "Running bin/fixperms..."
-bin/fixperms
-
-# dépend de bin/fixowns et bin/fixperms
-echo "Exécuter les mises à jour de modules sur la base de données importée"
-bin/clinotty bin/magento setup:upgrade
-
-# dépend de bin/fixowns et bin/fixperms
-echo "Generate /generated"
-bin/magento setup:di:compile
+echo "Si certaines valeurs que vous avez données sont incorrectes et empêche un service de fonctionner"
+echo "utiliser la commande bin/debug pour essayer d’y remédier"
