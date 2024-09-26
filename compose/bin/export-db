@@ -33,4 +33,4 @@ if [ ! -d "$mysqldump_win_path" ]; then
     exit 1
 fi
 
-bin/n98-magerun2 db:dump --stdout > "$mysqldump_win_path/backup_docker_$(date +%Y%m%d_%H%M%S).sql"
+bin/n98-magerun2 db:dump --stdout > "$mysqldump_win_path/backup_docker_$(date +%Y%m%d_%H%M%S).sql" 2>/dev/null
