@@ -9,14 +9,17 @@ run_ssh_agent_and_register_key "$GITHUB_DEBIAN_RSA_PATH"
 DOCKER_SERVICE="phpfpm"
 CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
 
-echo -e "Attention \nTous les fichiers actuellement déployés sur le conteneur Docker seront perdus (sources Magento 2, /pub/media, /vendor/, /generated, etc.)"
-read -p "Souhaitez-vous vraiment continuer ? (oui/non) : " reponse
+if [ "$USAGE_MODE" != "install" ]; then
+  echo -e "Attention \nTous les fichiers actuellement déployés sur le conteneur Docker seront perdus (sources Magento 2, /pub/media, /vendor/, /generated, etc.)"
+  read -p "Souhaitez-vous vraiment continuer ? (oui/non) : " reponse
 
-# Vérifier la réponse de l'utilisateur
-if [[ "$reponse" != "oui" ]]; then
-    echo "Annulation de la commande."
-    exit 1
+  # Vérifier la réponse de l'utilisateur
+  if [[ "$reponse" != "oui" ]]; then
+      echo "Annulation de la commande."
+      exit 1
+  fi
 fi
+
 
 TRANSFER_GITHUB_PATH="$TRANSFER_PATH/github"
 rm -rf "$TRANSFER_GITHUB_PATH"
