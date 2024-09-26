@@ -12,7 +12,7 @@ do
       ;;
     2)
       echo "Veuillez entrer le nom de la branche que vous souhaitez checkouter : "
-      read branch_name
+      read -r -p "Branche : " branch_name
       bin/clonefromgithub "$branch_name"
       break
       ;;

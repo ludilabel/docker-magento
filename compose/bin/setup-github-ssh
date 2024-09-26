@@ -32,7 +32,7 @@ fi
 
 if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
     # Clé privée ssh
-    echo "Génération de la paire de clé SSH (Entrée à chaque question car on veut utiliser les valeurs par défaut)"
+    echo "Génération de la paire de clé SSH ($(yellow "Entrée à chaque question car on veut utiliser les valeurs par défaut"))"
     ssh-keygen -t ed25519 -C "$github_user"
 
     echo "Ajout de la variable GITHUB_DEBIAN_RSA_PATH à la fin du fichier env/dev-setup-config.env."
@@ -45,7 +45,7 @@ if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
     read -p "Continuer une fois que la clé publique est enregistrée sur le compte Gihub..."
 
     # Add authenticity of github host for future connections
-    echo "Reconnaissance de l’authenticité de github pour les futures connexions (répondre yes)"
+    echo "Si demande de reconnaissance de l’authenticité de github pour les futures connexions => répondre yes"
     # NB : pas besoin de préciser notre compte utilisateur pour la connexion SSH
     # car github a crée un utilisateur unique "git" que tout le monde partage
     ssh -T git@github.com

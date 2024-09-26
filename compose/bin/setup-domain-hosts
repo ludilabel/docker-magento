@@ -19,9 +19,8 @@ done
 if [ "$1" ]; then
   WIN_HOST="$1"
 else
-  echo "Entrée par défaut"
-  echo "Sinon coller le chemin Windows complet du fichier hosts"
-  read -r -p "(par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+  echo "Coller le chemin Windows complet du fichier hosts"
+  read -r -p "(Entrée pour la valeur par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
   WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
 fi
 

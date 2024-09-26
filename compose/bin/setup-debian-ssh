@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -o errexit
 
-echo "Running bin/setup-github-ssh"
-bin/setup-github-ssh
+source bin/terminal-colors
 
+echo "$(green "Running bin/setup-github-ssh...")"
+bin/setup-github-ssh
 
 
