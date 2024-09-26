@@ -18,9 +18,6 @@ bin/setup-win-sources
 echo "$(green "Running bin/setup-recette...")"
 bin/setup-recette
 
-echo "$(green "Running bin/setup-github-ssh...")"
-bin/setup-github-ssh
-
 # Démarrage pour la première fois des conteneurs Docker
 # dépend de bin/setup-win-sources
 echo "$(green "Running bin/autostart-containers...")"
@@ -33,7 +30,7 @@ bin/import-db
 echo "$(green "Running bin/install-magento-sources... ")"
 bin/install-magento-sources
 
-# exécution de ces post-traitements ici exceptionnement pendant l’installation
+# exécution de ces post-traitements ici exceptionnement pendant l'installation
 # ils sont sinon exécutés à chaque changement de fichiers sources ou de base de données
 source bin/after-import-sources-inc
 source bin/after-import-db-config-inc
