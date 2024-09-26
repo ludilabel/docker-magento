@@ -42,5 +42,5 @@ bin/clinotty bin/magento cache:flush
 echo "$(green "Running bin/install-mediaimport... (long)")"
 bin/install-mediaimport
 
-echo "Si certaines valeurs que vous avez données sont incorrectes et empêche un service de fonctionner"
+echo "Si certaines valeurs que vous avez données sont incorrectes et empêchent un service de fonctionner"
 echo "utiliser la commande bin/debug pour essayer d’y remédier"

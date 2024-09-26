@@ -2,6 +2,8 @@
 
 set -o errexit
 
+source bin/terminal-colors
+
  # Toutes les commandes à jouer lorsqu'on change de base de données
 echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement de base de données"
 echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
