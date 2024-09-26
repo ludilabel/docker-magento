@@ -22,7 +22,7 @@ else
         echo "Le nom de domaine est déjà configuré : $(yellow "$DN")"
     else
       echo "Veuillez saisir le nom de domaine pour accéder aux boutiques Magento 2 localement"
-      read -r -p "(ex : franz.docker.ludilabel) SANS le suffixe du domaine de premier niveau (.fr,...) : " DN
+      read -r -p "(ex : franz.docker.ludilabel) SANS le suffixe du domaine de premier niveau (.fr,...) : " input_dn
     fi
 fi
 
@@ -32,7 +32,7 @@ if [ "$DN" ]; then
   fi
 else
     echo "Ajout de la variable DN à la fin du fichier env/dev-setup-config.env."
-    echo "DN=\"$DN\"" >> env/dev-setup-config.env
+    echo "DN=\"$input_dn\"" >> env/dev-setup-config.env
 fi
 
 
