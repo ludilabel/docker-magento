@@ -67,7 +67,6 @@ help:
 	@echo "$(call format,debug,'Menu pour déboguer automatiquement les problèmes prévisibles')"
 	@echo "$(call format,import-db,'Import a database.')"
 	@echo "$(call format,import-media,'Importe le dossier media et son contenu depuis le serveur recette.')"
-	@echo "$(call format,install-dbimport,'import de la base de données Recette sur Docker.')"
 	@echo "$(call format,install-magento,'Installation de Magento 2 sur Docker.')"
 	@echo "$(call format,install-magento-sources,'Installation des fichiers sources Magento 2 sur Docker.')"
 	@echo "$(call format,install-mediaimport,'Transfert des fichiers media depuis Recette vers Docker.')"
