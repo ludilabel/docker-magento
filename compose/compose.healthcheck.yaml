@@ -2,9 +2,9 @@ services:
   app:
     healthcheck:
       test: 'curl --fail -L -k http://172.17.0.1:80'
-      interval: 5s
-      timeout: 5s
-      retries: 30
+      interval: 60s
+      timeout: 10s
+      retries: 5
     depends_on:
       phpfpm:
         condition: service_started
@@ -25,37 +25,37 @@ services:
   db:
     healthcheck:
       test: 'mysqladmin ping -h localhost -u root -pmagento'
-      interval: 5s
+      interval: 60s
       timeout: 5s
-      retries: 30
+      retries: 2
 
   redis:
     healthcheck:
       test: 'redis-cli ping || exit 1'
-      interval: 5s
+      interval: 60s
       timeout: 5s
-      retries: 30
+      retries: 2
 
   #opensearch:
   #  healthcheck:
   #    test: 'curl --fail opensearch:9200/_cat/health >/dev/null || exit 1'
   #    interval: 5s
   #    timeout: 5s
-  #    retries: 30
+  #    retries: 20
 
   elasticsearch:
     healthcheck:
       test: 'curl --fail elasticsearch:9200/_cat/health >/dev/null || exit 1'
-      interval: 5s
+      interval: 60s
       timeout: 5s
-      retries: 30
+      retries: 2
 
   rabbitmq:
     healthcheck:
       test: 'rabbitmq-diagnostics -q ping'
-      interval: 5s
+      interval: 60s
       timeout: 5s
-      retries: 30
+      retries: 2
 
   mailcatcher:
     healthcheck:
