@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/dev-setup-config.env
+source env/setup/magento-stores.env
+source bin/terminal-colors
+
+echo "$(yellow "URLs des boutiques")"
+# listes de données dans env/magento-stores.env
+# boutiques Magento 2
+declare -A store_codes
+for entry in ${TLD_STORE_MAP}; do
+  store_codes[${entry%%:*}]=${entry##*:}
+done
+
+for TLD in "${!store_codes[@]}"; do
+  echo "$(green "https://$DN.$TLD/")"
+done
+
+echo ""
+
+DEBIAN_IP=$(hostname -I | awk '{print $1}')
+
+echo "$(yellow "URL Rabbitmq")"
+echo "$(green "http://$DEBIAN_IP:15672")"
+
+
+

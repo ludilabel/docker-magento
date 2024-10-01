@@ -35,6 +35,7 @@ help:
 	@echo "$(call format,root,'Run any CLI command as root without going into the bash prompt.')"
 	@echo "$(call format,rootnotty,'Run any CLI command as root with no TTY.')"
 	@echo "$(call format,switch,'Checkout d une autre Git sur Docker')"
+	@echo "$(call format,urls,'Affichage de toutes les URLs du projet (boutiques M2, etc.)')"
 	@echo "$(call format,xdebug,'Disable or enable Xdebug. Accepts argument \`disable\`$(comma) \`enable\`$(comma) or \`status\`.')"
 
 	@echo ""
