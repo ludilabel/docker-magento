@@ -35,7 +35,6 @@ help:
 	@echo "$(call format,root,'Run any CLI command as root without going into the bash prompt.')"
 	@echo "$(call format,rootnotty,'Run any CLI command as root with no TTY.')"
 	@echo "$(call format,switch,'Checkout d une autre Git sur Docker')"
-	@echo "$(call format,urls,'Affichage de toutes les URLs du projet (boutiques M2, etc.)')"
 	@echo "$(call format,xdebug,'Disable or enable Xdebug. Accepts argument \`disable\`$(comma) \`enable\`$(comma) or \`status\`.')"
 
 	@echo ""
@@ -73,6 +72,7 @@ help:
 	@echo "$(call format,install-magento-sources,'Installation des fichiers sources Magento 2 sur Docker.')"
 	@echo "$(call format,install-mediaimport,'Transfert des fichiers media depuis Recette vers Docker.')"
 	@echo "$(call format,install-php-extensions,'Install PHP extension in the container.')"
+	@echo "$(call format,paths,'Affichage de toutes les chemins du projet (media, clé ssh, etc.)')"
 	@echo "$(call format,remove,'Remove all containers.')"
 	@echo "$(call format,removeall,'Remove all containers$(comma) networks$(comma) volumes and images.')"
 	@echo "$(call format,removenetwork,'Remove a network associated with the current directory name.')"
@@ -92,6 +92,7 @@ help:
 	@echo "$(call format,setup-recette,'Configuration des connections au serveur Recette.')"
 	@echo "$(call format,setup-ssl,'Generate an SSL certificate for one or more domains.')"
 	@echo "$(call format,setup-ssl-ca,'Generate a certificate authority and copy it to the host.')"
+	@echo "$(call format,urls,'Affichage de toutes les URLs du projet (boutiques M2, etc.)')"
 
 	@echo ""
 	@echo "$(call yellow,Extra and untested bin/* commands)"

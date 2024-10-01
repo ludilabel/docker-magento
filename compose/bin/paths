@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+
+echo ""
+echo "$(yellow "Chemins Windows")"
+echo "$(green "$OS_SRC")"
+echo "$(green "$OS_HOSTS")"
+
+echo ""
+
+echo "$(yellow "Chemins Recette")"
+echo "$(green "$RECETTE_MEDIA_PATH") "
+
+echo ""
+
+echo "$(yellow "Chemins Debian")"
+echo "$(green "$TRANSFER_PATH") $(white "chemin pour les transferts de fichiers entre Windows et conteneur Docker")"
+echo "$(green "$COMPOSE_PATH") $(white "chemin pour lancer les commandes bin/*")"
+echo -e "$(green "$RECETTE_DEBIAN_RSA_PATH") $(white "clé privée SSH pour se connecter au serveur Recette")"
+echo "$(green "$GITHUB_DEBIAN_RSA_PATH") $(white "clé privée SSH pour se connecter au serveur Github")"
+
+echo ""
+
+echo "$(yellow "Chemins conteneur Docker")"
+echo "$(green "/root/.local/share/mkcert/rootCA.pem") $(white "Autorité de certification locale des certificats SSL des boutiques")"
+
+echo ""
+
+
+
