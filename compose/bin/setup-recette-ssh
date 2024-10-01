@@ -76,7 +76,6 @@ else
   if [ -z "$RECETTE_DEBIAN_RSA_PATH" ]; then
     echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
     read -e -i "id_rsa_" -r -p "(ex : id_rsa_recette) : " recette_rsa
-    recette_rsa="id_rsa_recette"
     debian_rsa_path="$HOME/.ssh/$recette_rsa"
 
     mkdir -p ~/.ssh

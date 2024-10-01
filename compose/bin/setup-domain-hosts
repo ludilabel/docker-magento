@@ -19,9 +19,14 @@ done
 if [ "$1" ]; then
   WIN_HOST="$1"
 else
-  echo "Coller le chemin Windows complet du fichier hosts"
-  read -r -p "(Entrée pour la valeur par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
-  WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
+    if [ "$OS_HOSTS" ]; then
+        echo "Le chemin windows du fichier hosts est déjà configuré : $(yellow "$OS_HOSTS")"
+        DEBIAN_WIN_HOST="$OS_HOSTS"
+    else
+        echo "Coller le chemin Windows complet du fichier hosts"
+        read -r -p "(Entrée pour la valeur par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+        WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
+    fi
 fi
 
 
@@ -45,6 +50,15 @@ fi
 if [ ! -f "$DEBIAN_WIN_HOST" ]; then
     echo "Le fichier spécifié n'existe pas."
     exit 1
+fi
+
+if [ "$OS_HOSTS" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^OS_HOSTS=.*|OS_HOSTS=\"$OS_HOSTS\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable OS_HOSTS à la fin du fichier env/dev-setup-config.env."
+    echo "OS_HOSTS=\"$DEBIAN_WIN_HOST\"" >> env/dev-setup-config.env
 fi
 
 DEBIAN_IP=$(hostname -I | awk '{print $1}')
@@ -87,4 +101,4 @@ else
 fi
 
 # Pour permettre une communication entre les conteneurs Docker et le Windows du développeur (IDE, etc.)
-bin/setup-host-docker-win "$WIN_HOST"
+bin/setup-host-docker-win "$DEBIAN_WIN_HOST"
