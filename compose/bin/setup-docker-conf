@@ -7,6 +7,13 @@ TRANSFER_PATH=$(readlink -f "$BIN_PATH/../../../transfer-docker-debian-windows")
 
 mkdir -p "$TRANSFER_PATH"
 
+# Subpaths for rsync optimization speed and conflicts avoidance
+mkdir -p "$TRANSFER_PATH/from"
+mkdir -p "$TRANSFER_PATH/db"
+mkdir -p "$TRANSFER_PATH/github"
+mkdir -p "$TRANSFER_PATH/recette"
+mkdir -p "$TRANSFER_PATH/windows"
+
 # Remplacer les chemins dans le fichier env/dev-setup-config.env
 echo "Configuration des variables d'environnement BIN_PATH, COMPOSE_PATH et TRANSFER_PATH"
 sed -i "s|^BIN_PATH=.*|BIN_PATH=\"$BIN_PATH\"|" env/dev-setup-config.env

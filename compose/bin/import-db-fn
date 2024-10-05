@@ -34,11 +34,11 @@ import_prompt_sql() {
   FILENAME=$(basename "$win_bdd_file_path")
 
   echo "Téléchargement du fichier backup sur la Debian"
-  rsync -av "$win_bdd_file_path" "$TRANSFER_PATH"
+  rsync -av "$win_bdd_file_path" "$TRANSFER_PATH/db"
 
   echo "Importation de la base dans le service Docker (long...)"
   bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/$FILENAME"
+  bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/db/$FILENAME"
 }
 
 import_param_sql() {
@@ -70,19 +70,19 @@ import_param_sql() {
   FILENAME=$(basename "$sql_file")
 
   echo "Téléchargement du fichier backup sur la Debian"
-  rsync -av "$sql_file" "$TRANSFER_PATH"
+  rsync -av "$sql_file" "$TRANSFER_PATH/db"
 
   echo "Importation de la base dans le service Docker (long...)"
 
   bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/$FILENAME"
+  bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/db/$FILENAME"
 }
 
 import_recette() {
 
   DATE=$(date +"%Y%m%d_%H%M%S")
   DUMP_FILE="db_backup_recette_$DATE.sql"
-  LOCAL_DIR="$TRANSFER_PATH"
+  LOCAL_DIR="$TRANSFER_PATH/db"
 
   # bin/setup-ssh-fn
   run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
