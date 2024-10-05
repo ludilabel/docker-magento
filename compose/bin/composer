@@ -1,2 +1,9 @@
 #!/usr/bin/env bash
 bin/cli composer "$@"
+
+if [ $? -eq 0 ]; then
+  if [[ "$1" == "install" || "$1" == "update" ]]; then
+    bin/copyfromcontainer composer.json
+    bin/copyfromcontainer composer.lock
+  fi
+fi
