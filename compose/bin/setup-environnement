@@ -16,7 +16,8 @@ echo "All setup scripts completed."
 
 read -p "$(yellow "Continuer pour finir la configuration et fermer le shell Debian. Rouvrir le shell Debian pour la suite de l'installation...")"
 
-# !!! Doit toujours être mis en fin de session shell car contient un newgrp et un restart de la Debian WSL2
+# Avertissement : le code ci-dessous doit toujours être mis en fin de session shell car aucun code après ne sera exécuté
+# car bin/setup-docker-rights-restart contient un newgrp et un restart de la Debian WSL2
 echo "$(green "Running bin/setup-docker-rights-restart...")"
 bin/setup-docker-rights-restart
 

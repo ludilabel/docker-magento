@@ -23,6 +23,7 @@ help:
 	@echo "$(call format,copytocontainer,'Copy specified folders or files from host to container.')"
 	@echo "$(call format,empty-generated,'empty generated folder to resolve dynamically DI')"
 	@echo "$(call format,export-db,'Backup the Magento database.')"
+	@echo "$(call format,git-switch,'Checkout d une autre Git sur Docker')"
 	@echo "$(call format,grunt,'Run the grunt binary.')"
 	@echo "$(call format,log,'Monitor the Magento log files. Pass no params to tail all files.')"
 	@echo "$(call format,magento,'Run the Magento CLI.')"
@@ -34,7 +35,6 @@ help:
 	@echo "$(call format,reset-vendor,'Reinstallation du dossier vendor sur Docker')"
 	@echo "$(call format,root,'Run any CLI command as root without going into the bash prompt.')"
 	@echo "$(call format,rootnotty,'Run any CLI command as root with no TTY.')"
-	@echo "$(call format,switch,'Checkout d une autre Git sur Docker')"
 	@echo "$(call format,xdebug,'Disable or enable Xdebug. Accepts argument \`disable\`$(comma) \`enable\`$(comma) or \`status\`.')"
 
 	@echo ""
