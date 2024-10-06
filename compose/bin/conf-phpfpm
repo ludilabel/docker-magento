@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+main_menu() {
+    echo "Quelle configuration souhaitez-vous changer :"
+    echo "1) le nombre maximal de processus PHP-FPM"
+    echo "2) la mémoire limite utilisée par PHP"
+    echo "3) le mode de Xdebug"
+    read -p "Saisir 1, 2 ou 3 : " choice
+
+    case $choice in
+        1)
+            change_max_children
+            ;;
+        2)
+            change_memory_limit
+            ;;
+        3)
+            echo "Xdebug options:"
+            echo "a) Enable Xdebug"
+            echo "b) Disable Xdebug"
+            echo "c) Toggle Xdebug"
+            echo "d) Xdebug status"
+            read -p "Enter choice [a-d]: " xdebug_choice
+
+            case $xdebug_choice in
+                a) bin/xdebug enable ;;
+                b) bin/xdebug disable ;;
+                c) bin/xdebug toggle ;;
+                d) bin/xdebug status ;;
+                *) echo "Invalid option." ;;
+            esac
+            ;;
+        *)
+            echo "Invalid choice. Please enter 1, 2 or 3."
+            ;;
+    esac
+}
+
+change_memory_limit() {
+    read -p "Entrez le nombre de Giga-octets à allouer (Exemple : 8 pour donner 8G): " new_limit
+    if [[ $new_limit =~ ^[0-9]+$ ]]; then
+        bin/root sed -i -e "s/^memory_limit = .*/memory_limit = ${new_limit}G/g" /usr/local/etc/php/php.ini
+        sleep 1
+        bin/restart phpfpm
+        echo "Memory limit has been updated to ${new_limit}G."
+    else
+        echo "No memory limit entered. No changes made."
+    fi
+}
+
+change_max_children() {
+    echo "Entrez le nouveau nombre maximal de processus enfants PHP-FPM"
+    read -p "(conseil : le double du nombre de CPU cores disponibles) : " new_max_children
+    if [[ $new_max_children =~ ^[0-9]+$ ]]; then
+        bin/root sed -i -e "s/^pm\.max_children = .*/pm.max_children = ${new_max_children}/g" /usr/local/etc/php-fpm.d/www.conf
+        sleep 1
+        bin/restart phpfpm
+        echo "PHP-FPM max children has been updated to ${new_max_children}."
+    else
+        echo "Invalid input. Please enter a numeric value."
+    fi
+}
+
+main_menu

@@ -61,6 +61,7 @@ help:
 	@echo "$(call yellow,Setup bin/* commands)"
 	@echo "$(call red,===============================)"
 	@echo "$(call format,clonefromgithub,'deploy Magento 2 github master or branch HEAD source files on Docker')"
+	@echo "$(call format,conf-phpfpm,'Configure memory and cpu for better phpfpm performance.')"
 	@echo "$(call format,copyalltocontainer,'Copy all magento 2 source files from a Windows folder to Docker.')"
 	@echo "$(call format,docker-compose,'Support V1 and V2 docker compose command$(comma) and use custom configuration files.')"
 	@echo "$(call format,fixowns,'This will fix filesystem ownerships within the container.')"
