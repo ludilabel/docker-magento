@@ -87,6 +87,7 @@ help:
 	@echo "$(call format,setup-domain-hosts,'Ajoute au fichier hosts de Windows les enregistrements DNS pour que les noms de domaine pointent vers Debian qui pointe vers service Docker nginx')"
 	@echo "$(call format,setup-domain-ssl,'Création d une autorité de certification et de certificats de sécurité pour tous les noms de domaine')"
 	@echo "$(call format,setup-github-ssh,'Création de la clé SSH pour la connexion à github.com')"
+	@echo "$(call format,setup-github-ssh-win-copie,'Copy the generated ssh key github to Windows user session')"
 	@echo "$(call format,setup-grunt,'Install and configure Grunt JavaScript task runner.')"
 	@echo "$(call format,setup-magento,'Configuration de instance Magento 2 après son installation dans Docker.')"
 	@echo "$(call format,setup-pwa-studio,'(BETA) Install PWA Studio.')"

@@ -35,12 +35,13 @@ if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
     echo "Génération de la paire de clé SSH ($(yellow "Entrée à chaque question car on veut utiliser les valeurs par défaut"))"
     ssh-keygen -t ed25519 -C "$github_user"
 
+    GITHUB_DEBIAN_RSA_PATH="$HOME/.ssh/id_ed25519"
     echo "Ajout de la variable GITHUB_DEBIAN_RSA_PATH à la fin du fichier env/dev-setup-config.env."
-    echo "GITHUB_DEBIAN_RSA_PATH=\"$HOME/.ssh/id_ed25519\"" >> env/dev-setup-config.env
+    echo "GITHUB_DEBIAN_RSA_PATH=\"$GITHUB_DEBIAN_RSA_PATH\"" >> env/dev-setup-config.env
 
     # Output the content of the public key
     echo "Voici la clé publique. Copie et ajoute la à ton compte GitHub (celui de l'e-mail fourni):"
-    yellow "$(cat "$HOME/.ssh/id_ed25519.pub")"
+    yellow "$(cat "${GITHUB_DEBIAN_RSA_PATH}.pub")"
 
     read -p "Continuer une fois que la clé publique est enregistrée sur le compte Gihub..."
 
@@ -52,7 +53,18 @@ if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
   else
       echo "La clé privée ssh github est déjà installée sur la Debian et se trouve : $GITHUB_DEBIAN_RSA_PATH"
       echo "Voici la clé publique. Copie et ajoute la à ton compte GitHub :"
-      yellow "$(cat "$HOME/.ssh/id_ed25519.pub")"
+      yellow "$(cat "${GITHUB_DEBIAN_RSA_PATH}.pub")"
       echo "Si tu veux écraser l’ancienne clé par une nouvelleq, utilise la commande bin/debug"
 fi
 
+# Recopie de la clé ssh github dans Windows
+echo "Cette clé privée ssh github peut être utilisée pour votre session utilisateur Windows."
+echo "Cela permet de lancer les commandes Git depuis le terminal sans être dépendant de PHPStorm"
+read -p "Voulez-vous la copier ? (oui/non) : " reponse
+
+# Vérifier la réponse de l'utilisateur
+if [[ "$reponse" != "oui" ]]; then
+    echo "Pas de copie dans Windows."
+  else
+    bin/setup-github-ssh-win-copie "$GITHUB_DEBIAN_RSA_PATH"
+fi

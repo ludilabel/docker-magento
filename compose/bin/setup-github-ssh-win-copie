@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/dev-setup-config.env
+
+if [ "$1" ]; then
+  GITHUB_DEBIAN_RSA_PATH="$1"
+fi
+
+echo "Veuillez coller le chemin Windows vers le dossier /.ssh de la session utilisateur en cours"
+echo "(utiliser la commande whoami dans Windows Powershell)"
+read -r -p "(ex : C:\Users\franz\.ssh) : " destination_win_path
+
+# Transformation du chemin Windows en chemin Debian WSL2
+if [[ "$destination_win_path" =~ ^[A-Za-z]:\\ ]]; then
+
+    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+        destination_win_path=$(echo "$destination_win_path" | sed 's|\\|/|g')
+    # Convertir le chemin au format WSL
+        destination_win_path=$(wslpath -a "$destination_win_path")
+
+    if [ $? -ne 0 ]; then
+        echo "Erreur lors de la conversion du chemin."
+        exit 1
+    fi
+
+    echo "Chemin converti au format Debian WSL2 : $destination_win_path"
+fi
+
+# Vérifier si le chemin existe
+if [ ! -d "$destination_win_path" ]; then
+    echo "Le chemin spécifié n'existe pas."
+    exit 1
+fi
+
+cp "$GITHUB_DEBIAN_RSA_PATH" "$destination_win_path/"
+echo "Le clé privée SSH a été téléchargée dans Windows."
+echo "Redémarrer powershell ou PHPStorm pour sa prise en compte par le terminal."
