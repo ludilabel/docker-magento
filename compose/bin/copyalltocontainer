@@ -17,6 +17,6 @@ docker cp "$HOST_SRC/windows/./" "$CONTAINER_ID":/var/www/html/
 echo "Completed copying all files from Windows to docker container"
 
 if [ "$USAGE_MODE" != "install" ]; then
-  source after-import-sources-inc
+  source "$(dirname "$0")/after-import-sources-inc"
 fi
 

@@ -57,8 +57,13 @@ git fetch
 # Switch to the specified branch
 echo "Changement de branche vers : $branch_name"
 git switch "$branch_name"
+
+
+
 if [ $? -eq 0 ]; then
   echo "Changement de branche réussi : $branch_name"
+  echo "Fast forward de la branche locale"
+  git pull --ff-only
 else
   echo "Erreur lors du changement de branche. Assurez-vous que la branche existe."
   exit 1
@@ -72,10 +77,4 @@ echo "Completed copying all files"
 cd "$COMPOSE_PATH"
 
 # Toutes les commandes à jouer lorsqu'on change les fichiers sources
-echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
-bin/composer install
-bin/fixowns
-bin/fixperms
-bin/clinotty bin/magento setup:upgrade
-bin/magento setup:di:compile
-echo "Toutes les commandes bin/* ont été exécutées."
+source "$(dirname "$0")/after-import-sources-inc"

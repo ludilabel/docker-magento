@@ -49,7 +49,7 @@ echo "Completed copying all files"
 cd "$COMPOSE_PATH"
 
 if [ "$USAGE_MODE" != "install" ]; then
-  source after-import-sources-inc
+  source "$(dirname "$0")/after-import-sources-inc"
 fi
 
 

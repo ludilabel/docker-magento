@@ -32,8 +32,8 @@ bin/install-magento-sources
 
 # exécution de ces post-traitements ici exceptionnement pendant l'installation
 # ils sont sinon exécutés à chaque changement de fichiers sources ou de base de données
-source bin/after-import-sources-inc
-source bin/after-import-db-config-inc
+source "$(dirname "$0")/after-import-sources-inc"
+source "$(dirname "$0")/after-import-db-config-inc"
 bin/clinotty bin/magento setup:upgrade
 bin/clinotty bin/magento setup:di:compile
 bin/clinotty bin/magento cache:flush
