@@ -45,6 +45,7 @@ help:
 	@echo "$(call format,docker-stats,'Display status for CPU$(comma) memory usage$(comma) and memory limit of currently-running Docker containers.')"
 	@echo "$(call format,restart,'Stop and then start all containers.')"
 	@echo "$(call format,service,'Permet de se connecter au shell du service Docker de notre choix')"
+	@echo "$(call format,service-root,'Permet de se connecter en root au shell du service Docker de notre choix')"
 	@echo "$(call format,start,'Start all containers.')"
 	@echo "$(call format,status,'Check the container status.')"
 	@echo "$(call format,stop,'Stop all project containers.')"

@@ -9,4 +9,4 @@ else
   shell="bash"
 fi
 
-bin/docker-compose exec "$1" $shell
+bin/docker-compose exec -u root "$1" $shell
