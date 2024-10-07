@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+set -o errexit
+# prerequis
+# l'installation des fichiers sources du projet par la commande bin/clonefromgithub
 
 source env/dev-setup-config.env
 source bin/setup-ssh-fn
@@ -42,9 +45,6 @@ if [[ "$reponse" != "oui" ]]; then
     echo "Annulation de la commande."
     exit 1
 fi
-
-echo "Delete all files from docker container except /vendor and /pub/media"
-docker exec "$CONTAINER_ID" bash -c 'find /var/www/html/* -maxdepth 1 ! -path "/var/www/html/vendor" ! -path "/var/www/html/vendor/*" ! -path "/var/www/html/pub/media" ! -path "/var/www/html/pub/media/*" -exec rm -rf {} +'
 
 # Reset any local modifications on the current branch
 echo "Suppression des modifications locales non validées de la branche actuelle..."

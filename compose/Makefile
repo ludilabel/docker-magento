@@ -72,7 +72,6 @@ help:
 	@echo "$(call format,import-media,'Importe le dossier media et son contenu depuis le serveur recette.')"
 	@echo "$(call format,install-magento,'Installation de Magento 2 sur Docker.')"
 	@echo "$(call format,install-magento-sources,'Installation des fichiers sources Magento 2 sur Docker.')"
-	@echo "$(call format,install-mediaimport,'Transfert des fichiers media depuis Recette vers Docker.')"
 	@echo "$(call format,install-php-extensions,'Install PHP extension in the container.')"
 	@echo "$(call format,paths,'Affichage de toutes les chemins du projet (media, clé ssh, etc.)')"
 	@echo "$(call format,remove,'Remove all containers.')"

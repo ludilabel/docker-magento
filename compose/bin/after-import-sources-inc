@@ -14,11 +14,15 @@ bin/clinotty composer config --no-plugins allow-plugins.magento/inventory-compos
 bin/clinotty composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
 bin/composer install
 
-bin/fixowns
-bin/fixperms
+
 if [ "$USAGE_MODE" != "install" ]; then
+  bin/fixowns
+  bin/fixperms
+
   bin/clinotty bin/magento setup:upgrade
   bin/clinotty bin/magento setup:di:compile
+  echo "$(green "Running bin/import-media... (long)")"
+  bin/import-media
   bin/clinotty bin/magento cache:flush
 fi
 echo "Toutes les commandes bin/* ont été exécutées."

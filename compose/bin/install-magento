@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-
-# depend on bin/setup-environnement
 set -o errexit
+# depend on bin/setup-environnement
+
 # Enable debugging
 # set -x
 
@@ -30,17 +30,19 @@ bin/import-db
 echo "$(green "Running bin/install-magento-sources... ")"
 bin/install-magento-sources
 
-# exécution de ces post-traitements ici exceptionnement pendant l'installation
-# ils sont sinon exécutés à chaque changement de fichiers sources ou de base de données
 source "$(dirname "$0")/after-import-sources-inc"
 source "$(dirname "$0")/after-import-db-config-inc"
+
+# Commandes post-traitement à la main ici car sinon exécutées deux fois avec les scripts "after-*"
+bin/fixowns
+bin/fixperms
+
 bin/clinotty bin/magento setup:upgrade
 bin/clinotty bin/magento setup:di:compile
-bin/clinotty bin/magento cache:flush
+echo "$(green "Running bin/import-media... (long)")"
+bin/import-media
 
-# dépend de bin/setup-recette
-echo "$(green "Running bin/install-mediaimport... (long)")"
-bin/install-mediaimport
+bin/clinotty bin/magento cache:flush
 
 echo "Si certaines valeurs que vous avez données sont incorrectes et empêchent un service de fonctionner"
 echo "utiliser la commande bin/debug pour essayer d’y remédier"
