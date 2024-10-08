@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 # Arguments:
-#   fichier_sql (Optionnel) Chemin vers un fichier SQL à importer.
-#     Si non fourni, l'utilisateur devra choisir entre importer une base de données de recette ou un fichier SQL local.
+# $1 : (Optionnel) sql_file : Chemin vers un fichier SQL à importer.
 
 source env/dev-setup-config.env
 source bin/import-db-fn
@@ -10,8 +9,6 @@ source bin/import-db-fn
 # Si un chemin vers un fichier sql est fourni, on l'importe
 if [ "$1" ]; then
   sql_file="$1"
-  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
-  echo 'Usage: bin/* "chemin"'
   if [[ "$sql_file" == *.sql ]]; then
     import_param_sql "$sql_file"
   else

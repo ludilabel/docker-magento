@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -o errexit
+
+# Transformation du chemin Windows en chemin Debian WSL2
+convertWinPathToWslPath() {
+  local win_sources_path=$1
+
+  # on vérifie que le chemin Windows n'a pas eu ses backslash retirés
+  # cas : se produit si le chemin est passé en paramètre de commande sans double quote
+  if [[ ! "$win_sources_path" =~ \\ ]]; then
+      echo "Erreur : vous devez utiliser des guillemets autour du chemin pour préserver les backslashes" >&2
+      exit 1
+  fi
+
+  # On ajoute des quotes si manquant uniquement pour l’étape suivante
+  if [[ "$win_sources_path" != \"*\" ]]; then
+      win_sources_path="\"$win_sources_path\""
+  fi
+
+  if [[ "$win_sources_path" =~ ^\"[A-Za-z]:\\ ]]; then
+
+      # On retire les quotes
+      win_sources_path=${win_sources_path//\"/}
+
+      # Remplacer les antislashs par des slashes pour la conversion avec wslpath
+      win_sources_path=${win_sources_path//\\//}
+      # Convertir le chemin au format WSL
+      win_sources_path=$(wslpath -a "$win_sources_path")
+
+      if [ $? -ne 0 ]; then
+          echo "Erreur lors de la conversion du chemin." >&2  # Message to stderr
+          exit 1
+      fi
+
+      echo "Chemin converti au format Debian WSL2 : $win_sources_path" >&2 # Message to stderr
+
+  else
+    echo "Erreur : Ce n'est pas un chemin Windows" >&2 # Message to stderr
+    exit 1
+  fi
+
+  echo "$win_sources_path"
+
+}

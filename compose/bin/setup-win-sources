@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-
-source env/dev-setup-config.env
-source bin/terminal-colors
+set -o errexit
 
 # Arguments :
-# $1 : win_sources_path (Optionnel) chemin Windows vers les fichiers sources Magento 2
+# (Optionnel) $1 : win_sources_path chemin Windows vers les fichiers sources Magento 2
+
+source env/dev-setup-config.env
+source bin/wsl-fn
+source bin/terminal-colors
 
 
 if [ "$1" ]; then
   win_sources_path="$1"
-  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
-  echo 'Usage: bin/* "chemin"'
 else
-  echo "$OS_SRC"
   if [ "$OS_SRC" ]; then
       win_sources_path="$OS_SRC"
       echo "Le chemin est déjà configuré : $(yellow "$OS_SRC")"
@@ -22,34 +21,24 @@ else
   fi
 fi
 
-# Transformation du chemin Windows en chemin Debian WSL2
-if [[ "$win_sources_path" =~ ^[A-Za-z]:\\ ]]; then
-
-    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-        win_sources_path=$(echo "$win_sources_path" | sed 's|\\|/|g')
-    # Convertir le chemin au format WSL
-        win_sources_path=$(wslpath -a "$win_sources_path")
-
-    if [ $? -ne 0 ]; then
-        echo "Erreur lors de la conversion du chemin."
-        exit 1
-    fi
-
-    echo "Chemin converti au format Debian WSL2 : $win_sources_path"
+if [ ! "$OS_SRC" ]; then
+   wsl_sources_path=$(convertWinPathToWslPath "$win_sources_path")
+  else
+   wsl_sources_path="$win_sources_path"
 fi
 
 # Vérifier si le chemin existe
-if [ ! -d "$win_sources_path" ]; then
-    echo "Le chemin spécifié n'existe pas : $win_sources_path"
+if [ ! -d "$wsl_sources_path" ]; then
+    echo "Le chemin spécifié n'existe pas : $wsl_sources_path"
     exit 1
 fi
 
 if [ "$OS_SRC" ]; then
   if [ "$1" ]; then
-    sed -i "s|^OS_SRC=.*|OS_SRC=\"$win_sources_path\"|" env/dev-setup-config.env
+    sed -i "s|^OS_SRC=.*|OS_SRC=\"$wsl_sources_path\"|" env/dev-setup-config.env
   fi
 else
     echo "Ajout de la variable OS_SRC à la fin du fichier env/dev-setup-config.env."
-    echo "OS_SRC=\"$win_sources_path\"" >> env/dev-setup-config.env
+    echo "OS_SRC=\"$wsl_sources_path\"" >> env/dev-setup-config.env
 fi
 

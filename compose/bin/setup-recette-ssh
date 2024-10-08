@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
+# Arguments :
+# $1 : (Optionnel) recette_user : utilisateur ssh sur serveur recette
+# $2 : (Optionnel) win_id_rsa_path : chemin absolu du fichier id_rsa sur Windows
+
 source env/dev-setup-config.env
 source bin/terminal-colors
-
-# Arguments :
-# $1 : recette_user (Optionnel) utilisateur ssh sur serveur recette
-# $2 : win_id_rsa_path (Optionnel) chemin absolu du fichier id_rsa sur Windows
 
 # clé publique ssh
 echo "Nous supposons que la clé publique SSH est déjà enregistrée dans le serveur recette"
@@ -13,8 +13,6 @@ echo "Nous supposons que la clé publique SSH est déjà enregistrée dans le se
 # Nom de l'utilisateur ssh
 if [ "$1" ]; then
   recette_user="$1"
-  echo "En cas d'erreur, avez-vous utilisé des quotes autour du chemin ?"
-  echo 'Usage: bin/* "chemin"'
 else
     if [ "$RECETTE_USER" ]; then
         recette_user="$RECETTE_USER"
