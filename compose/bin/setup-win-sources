@@ -5,8 +5,8 @@ set -o errexit
 # (Optionnel) $1 : win_sources_path chemin Windows vers les fichiers sources Magento 2
 
 source env/dev-setup-config.env
-source bin/wsl-fn
 source bin/terminal-colors
+source bin/wsl-fn
 
 
 if [ "$1" ]; then

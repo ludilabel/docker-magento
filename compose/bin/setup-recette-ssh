@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o errexit
 
 # Arguments :
 # $1 : (Optionnel) recette_user : utilisateur ssh sur serveur recette
@@ -6,6 +7,7 @@
 
 source env/dev-setup-config.env
 source bin/terminal-colors
+source bin/wsl-fn
 
 # clé publique ssh
 echo "Nous supposons que la clé publique SSH est déjà enregistrée dans le serveur recette"
@@ -48,25 +50,14 @@ else
       fi
 fi
 
-
-# Transformation du chemin Windows en chemin Debian WSL2
-if [[ "$win_id_rsa_path" =~ ^[A-Za-z]:\\ ]]; then
-
-    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-        win_id_rsa_path=$(echo "$win_id_rsa_path" | sed 's|\\|/|g')
-    # Convertir le chemin au format WSL
-        win_id_rsa_path=$(wslpath -a "$win_id_rsa_path")
-
-    if [ $? -ne 0 ]; then
-        echo "Erreur lors de la conversion du chemin."
-        exit 1
-    fi
-
-    echo "Chemin converti au format Debian WSL2 : $win_id_rsa_path"
+if [ ! "$RECETTE_DEBIAN_RSA_PATH" ]; then
+   wsl_id_rsa_path=$(convertWinPathToWslPath "$win_id_rsa_path")
+  else
+   wsl_id_rsa_path="$win_id_rsa_path"
 fi
 
 # Vérifier si le chemin existe
-if [ ! -f "$win_id_rsa_path" ]; then
+if [ ! -f "$wsl_id_rsa_path" ]; then
     echo "Le fichier spécifié n'existe pas."
     exit 1
 
@@ -78,7 +69,7 @@ else
 
     mkdir -p ~/.ssh
     chmod 700 ~/.ssh
-    cp "$win_id_rsa_path" "$debian_rsa_path"
+    cp "$wsl_id_rsa_path" "$debian_rsa_path"
 
     chmod 600 "$debian_rsa_path"
   fi
