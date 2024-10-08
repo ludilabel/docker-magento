@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Arguments:
-# $1 : (Optionnel) sql_file : Chemin vers un fichier SQL à importer.
+# $1 : (Optionnel) sql_file : Chemin vers un fichier SQL Windows à importer.
 
 source env/dev-setup-config.env
 source bin/import-db-fn

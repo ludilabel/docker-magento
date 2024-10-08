@@ -1,40 +1,27 @@
 #!/usr/bin/env bash
+set -o errexit
 
 source env/dev-setup-config.env
 source bin/setup-ssh-fn
+source bin/wsl-fn
 
 import_prompt_sql() {
 
   echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
   read -r -p "(ex : D:\projets\magento\import\recette_dump.sql) : " win_bdd_file_path
 
-  # Transformation du chemin Windows en chemin Debian WSL2
-  if [[ "$win_bdd_file_path" =~ ^[A-Za-z]:\\ ]]; then
-
-      # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-      win_bdd_file_path=$(echo "$win_bdd_file_path" | sed 's|\\|/|g')
-
-      # Convertir le chemin au format WSL
-      win_bdd_file_path=$(wslpath -a "$win_bdd_file_path")
-
-      if [ $? -ne 0 ]; then
-          echo "Erreur lors de la conversion du chemin."
-          exit 1
-      fi
-
-      echo "Chemin converti au format Debian WSL2 : $win_bdd_file_path"
-  fi
+  wsl_win_bdd_file_path=$(convertWinPathToWslPath "$win_bdd_file_path")
 
   # Vérifier si le fichier existe
-  if [ ! -f "$win_bdd_file_path" ]; then
+  if [ ! -f "$wsl_win_bdd_file_path" ]; then
       echo "Le fichier spécifié n'existe pas."
       exit 1
   fi
 
-  FILENAME=$(basename "$win_bdd_file_path")
+  FILENAME=$(basename "$wsl_win_bdd_file_path")
 
   echo "Téléchargement du fichier backup sur la Debian"
-  rsync -av "$win_bdd_file_path" "$TRANSFER_PATH/db"
+  rsync -av "$wsl_win_bdd_file_path" "$TRANSFER_PATH/db"
 
   echo "Importation de la base dans le service Docker (long...)"
   bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
@@ -44,33 +31,18 @@ import_prompt_sql() {
 import_param_sql() {
   local sql_file="$1"
 
-# Si c'est un chemin Windows, on le transforme en chemin Debian WSL2
-  if [[ "$sql_file" =~ ^[A-Za-z]:\\ ]]; then
-
-      # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-      sql_file=$(echo "$sql_file" | sed 's|\\|/|g')
-
-      # Convertir le chemin au format WSL
-      sql_file=$(wslpath -a "$sql_file")
-
-      if [ $? -ne 0 ]; then
-          echo "Erreur lors de la conversion du chemin."
-          exit 1
-      fi
-
-      echo "Chemin converti au format Debian WSL2 : $sql_file"
-  fi
+  wsl_sql_file=$(convertWinPathToWslPath "$sql_file")
 
   # Vérifier si le fichier existe
-  if [ ! -f "$sql_file" ]; then
+  if [ ! -f "$wsl_sql_file" ]; then
       echo "Le fichier spécifié n'existe pas."
       exit 1
   fi
 
-  FILENAME=$(basename "$sql_file")
+  FILENAME=$(basename "$wsl_sql_file")
 
   echo "Téléchargement du fichier backup sur la Debian"
-  rsync -av "$sql_file" "$TRANSFER_PATH/db"
+  rsync -av "$wsl_sql_file" "$TRANSFER_PATH/db"
 
   echo "Importation de la base dans le service Docker (long...)"
 
