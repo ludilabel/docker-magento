@@ -13,7 +13,7 @@ if [ "$1" ]; then
   win_sources_path="$1"
 else
   if [ "$OS_SRC" ]; then
-      win_sources_path="$OS_SRC"
+      wsl_sources_path="$OS_SRC"
       echo "Le chemin est déjà configuré : $(yellow "$OS_SRC")"
   else
     echo "Veuillez coller le chemin Windows vers les fichiers sources Magento 2"
@@ -21,7 +21,7 @@ else
   fi
 fi
 
-if [ ! "$OS_SRC" ]; then
+if [[ ! "$OS_SRC" || "$1"]]; then
    wsl_sources_path=$(convertWinPathToWslPath "$win_sources_path")
   else
    wsl_sources_path="$win_sources_path"

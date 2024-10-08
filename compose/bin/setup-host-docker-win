@@ -1,31 +1,29 @@
 #!/usr/bin/env bash
+set -o errexit
+
+# Arguments :
+# $1 : (Optionnel) WIN_HOST : chemin complet Windows du fichier hosts
+
+# debogage
 # set -x
 
+source env/dev-setup-config.env
 source bin/terminal-colors
+source bin/wsl-fn
 
 if [ "$1" ]; then
   WIN_HOST="$1"
 else
-  echo "Entrée par défaut"
-  echo "Sinon coller le chemin Windows complet du fichier hosts"
+  echo "Entrée pour la valeur par défaut"
+  echo "Sinon coller votre chemin Windows complet du fichier hosts"
   read -r -p "(par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
   WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
 fi
 
-# Transformation du chemin Windows en chemin Debian WSL2
-if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
-
-    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-    WIN_HOST=$(echo "$WIN_HOST" | sed 's|\\|/|g')
-
-    # Convertir le chemin au format WSL
-    WIN_HOST=$(wslpath -a "$WIN_HOST")
-
-    if [ $? -ne 0 ]; then
-        echo "Erreur lors de la conversion du chemin."
-        exit 1
-    fi
-
+if [[ ! "$OS_HOSTS" || "$1" ]]; then
+   wsl_win_host=$(convertWinPathToWslPath "$WIN_HOST")
+  else
+   wsl_win_host="$WIN_HOST"
 fi
 
 # Get the local IP address from Windows + strip return line

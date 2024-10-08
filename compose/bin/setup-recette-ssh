@@ -42,7 +42,7 @@ if [ "$2" ]; then
   win_id_rsa_path="$2"
 else
       if [ "$RECETTE_DEBIAN_RSA_PATH" ]; then
-          win_id_rsa_path="$RECETTE_DEBIAN_RSA_PATH"
+          wsl_id_rsa_path="$RECETTE_DEBIAN_RSA_PATH"
           echo "La clé ssh privée du serveur recette est déjà copiée sur la Debian et se trouve ici : $(yellow "$RECETTE_DEBIAN_RSA_PATH")"
       else
         echo "Veuillez coller le chemin Windows (sans quote) vers la clé privée id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur recette"
@@ -50,7 +50,7 @@ else
       fi
 fi
 
-if [ ! "$RECETTE_DEBIAN_RSA_PATH" ]; then
+if [[ ! "$RECETTE_DEBIAN_RSA_PATH" || "$2" ]]; then
    wsl_id_rsa_path=$(convertWinPathToWslPath "$win_id_rsa_path")
   else
    wsl_id_rsa_path="$win_id_rsa_path"

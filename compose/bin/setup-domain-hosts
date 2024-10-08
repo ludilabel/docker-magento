@@ -3,11 +3,13 @@ set -o errexit
 # dépend de bin/setup-domain-dn
 
 # Arguments :
-# $1 : WIN_HOST (Optionnel) chemin complet Windows du fichier hosts
+# $1 : (Optionnel) WIN_HOST : chemin complet Windows du fichier hosts
 
 source env/dev-setup-config.env
 source env/setup/magento-stores.env
 source bin/terminal-colors
+source bin/wsl-fn
+
 
 # listes de données dans env/magento-stores.env
 # boutiques Magento 2
@@ -21,7 +23,7 @@ if [ "$1" ]; then
 else
     if [ "$OS_HOSTS" ]; then
         echo "Le chemin windows du fichier hosts est déjà configuré : $(yellow "$OS_HOSTS")"
-        DEBIAN_WIN_HOST="$OS_HOSTS"
+        wsl_win_host="$OS_HOSTS"
     else
         echo "Coller le chemin Windows complet du fichier hosts"
         read -r -p "(Entrée pour la valeur par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
@@ -29,25 +31,14 @@ else
     fi
 fi
 
-
-# Transformation du chemin Windows en chemin Debian WSL2
-if [[ "$WIN_HOST" =~ ^[A-Za-z]:\\ ]]; then
-
-    # Remplacer les antislashs par des slashes pour la conversion avec wslpath
-    DEBIAN_WIN_HOST=$(echo "$WIN_HOST" | sed 's|\\|/|g')
-
-    # Convertir le chemin au format WSL
-    DEBIAN_WIN_HOST=$(wslpath -a "$DEBIAN_WIN_HOST")
-
-    if [ $? -ne 0 ]; then
-        echo "Erreur lors de la conversion du chemin."
-        exit 1
-    fi
-
+if [[ ! "$OS_HOSTS" || "$1" ]]; then
+   wsl_win_host=$(convertWinPathToWslPath "$WIN_HOST")
+  else
+   wsl_win_host="$WIN_HOST"
 fi
 
 # Vérifier si le fichier existe
-if [ ! -f "$DEBIAN_WIN_HOST" ]; then
+if [ ! -f "$wsl_win_host" ]; then
     echo "Le fichier spécifié n'existe pas."
     exit 1
 fi
@@ -58,7 +49,7 @@ if [ "$OS_HOSTS" ]; then
   fi
 else
     echo "Ajout de la variable OS_HOSTS à la fin du fichier env/dev-setup-config.env."
-    echo "OS_HOSTS=\"$DEBIAN_WIN_HOST\"" >> env/dev-setup-config.env
+    echo "OS_HOSTS=\"$wsl_win_host\"" >> env/dev-setup-config.env
 fi
 
 DEBIAN_IP=$(hostname -I | awk '{print $1}')
@@ -75,7 +66,7 @@ for TLD in "${!store_codes[@]}"; do
     ALL_FQDN+=("$DN.$TLD")
 
     # Check if the entry already exists in the hosts file
-    if ! grep -q "$entry" "$DEBIAN_WIN_HOST"; then
+    if ! grep -q "$entry" "$wsl_win_host"; then
         echo "Preparing to add entry $entry to the Windows hosts file..."
         entries_to_add+=("$entry")
     else
@@ -101,4 +92,4 @@ else
 fi
 
 # Pour permettre une communication entre les conteneurs Docker et le Windows du développeur (IDE, etc.)
-bin/setup-host-docker-win "$DEBIAN_WIN_HOST"
+bin/setup-host-docker-win "$wsl_win_host"
