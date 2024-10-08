@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o errexit
 
 # Arguments:
 # $1 : (Optionnel) sql_file : Chemin vers un fichier SQL Windows à importer.
