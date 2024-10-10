@@ -28,6 +28,7 @@ help:
 	@echo "$(call format,log,'Monitor the Magento log files. Pass no params to tail all files.')"
 	@echo "$(call format,magento,'Run the Magento CLI.')"
 	@echo "$(call format,magento-version,'Determine the Magento version installed in the current environment..')"
+	@echo "$(call format,mailcatcher,'Permet d intercepter les emails et les consulter en local')"
 	@echo "$(call format,mysql,'Run the MySQL CLI with database config from env/db.env.')"
 	@echo "$(call format,n98-magerun2,'Access the n98-magerun2 CLI.')"
 	@echo "$(call format,pullfromgithub,'Mise à jour des fichiers sources Magento 2 sur Docker par rapport au HEAD de la branch courante')"

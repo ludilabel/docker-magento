@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -o errexit
+
+if [ -z "$1" ] || { [ "$1" != "enable" ] && [ "$1" != "disable" ]; }; then
+  echo "Usage: $0 [enable|disable]"
+  echo "  enable  : Active Mailcatcher"
+  echo "  disable : Active SMTP Brevo"
+  exit 1
+fi
+
+if [ $1 == "enable" ]; then
+  # Configuration pour diriger les e-mails vers le service Docker mailcatcher
+  bin/clinotty bin/magento config:set system/smtp/host "mailcatcher" --scope="default" > /dev/null
+  bin/clinotty bin/magento config:set system/smtp/port 1025 --scope="default" > /dev/null
+  bin/clinotty bin/magento config:set system/smtp/auth "none" --scope="default" > /dev/null
+
+  # Désactivation de la surcharge de la configuration M2 par le code du module sendinblue
+  # Contraint d'utiliser une requête SQL à cause du format non respecté de path par le module sendinblue
+  bin/mysql -e "UPDATE core_config_data SET value = '' WHERE path = 'sendinblue/relay_data_status' AND scope = 'default';"
+
+
+fi
+
+if [ $1 == "disable" ]; then
+  # Configuration pour envoyer les e-mails par le serveur SMTP de brevo (ex-sendinblue)
+  bin/clinotty bin/magento config:set system/smtp/host "smtp-relay.brevo.com" --scope="default" > /dev/null
+  bin/clinotty bin/magento config:set system/smtp/port 587 --scope="default" > /dev/null
+  bin/clinotty bin/magento config:set system/smtp/auth "login" --scope="default" > /dev/null
+
+  # Résactivation de la surcharge de la configuration M2 par le code du module sendinblue
+  # Contraint d'utiliser une requête SQL à cause du format non respecté de path par le module sendinblue
+  bin/mysql -e "UPDATE core_config_data SET value = 'enabled' WHERE path = 'sendinblue/relay_data_status' AND scope = 'default';"
+fi
+
+# Application du changement de configuration
+bin/magento cache:clean
+
+# afficher l'url d’accès à l'interface admin web de Mailcatcher
+if [ $1 == "enable" ]; then
+  bin/urls
+fi
+
+

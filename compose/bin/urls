@@ -24,5 +24,13 @@ DEBIAN_IP=$(hostname -I | awk '{print $1}')
 echo "$(yellow "URL Rabbitmq")"
 echo "$(green "http://$DEBIAN_IP:15672")"
 
+echo ""
+
+echo "$(yellow "URL Mailcatcher")"
+echo "$(green "http://$DEBIAN_IP:1080")"
+
+
+
+
 
 
