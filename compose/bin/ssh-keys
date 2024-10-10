@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source bin/wsl-fn
+
+# Color codes
+GREEN='\033[0;32m'
+NC='\033[0m' # No color
+
+# Main menu
+function main_menu() {
+    echo ""
+    echo "Choose an option:"
+    echo "1) Generate a new private key"
+    echo "2) Regenerate a public key from an existing private key"
+    echo "3) Generate a Windows (.ppk) version of an existing private key"
+    echo ""
+    read -p "Enter your choice (1/2/3): " choice
+
+    case "$choice" in
+        1)
+            generate_private_key
+            ;;
+        2)
+            regenerate_public_key
+            ;;
+        3)
+            generate_windows_version
+            ;;
+        *)
+            echo "Invalid option."
+            ;;
+    esac
+}
+
+# local functions definitions
+# Ensure necessary packages are installed
+function install_dependencies() {
+    echo "Checking and installing necessary packages..."
+    sudo apt-get update
+    sudo apt-get install -y openssh-client putty-tools
+}
+
+# List private keys in ~/.ssh and display a numbered menu
+function list_private_keys_menu() {
+    echo "Available private keys in ~/.ssh:" >&2
+    keys=()
+
+    # Populate an array of private key filenames
+    for key in ~/.ssh/id_*; do
+        if [[ -f "$key" && "$key" != *.pub ]]; then
+            keys+=("$(basename "$key")")  # Store the filenames in the array
+        fi
+    done
+
+    # Check if no keys were found
+    if [[ ${#keys[@]} -eq 0 ]]; then
+        echo "No private keys found in ~/.ssh." >&2
+        exit 1
+    fi
+
+   # Display the keys as a numbered menu
+     for i in "${!keys[@]}"; do
+         echo "$((i + 1))) ${keys[$i]}" >&2
+     done
+
+    # ligne espacement
+    echo "" >&2
+
+    # Ask user to pick a key by number
+    read -p "Enter the number of the private key to use: " choice
+    if [[ "$choice" -ge 1 && "$choice" -le "${#keys[@]}" ]]; then
+        echo "${keys[$((choice - 1))]}"  # Return the selected key name
+    else
+        echo "Invalid selection."
+        exit 1
+    fi
+}
+
+
+
+# Generate new private key
+function generate_private_key() {
+    # Prompt with default value "id_rsa_"
+    read -e -i "id_rsa_" -r -p "Enter the private key filename (e.g., id_rsa_server2): " key_name
+
+    ssh-keygen -t rsa -b 4096 -f ~/.ssh/"$key_name"
+    echo "Private key ~/.ssh/${key_name} generated successfully."
+
+    read -p "Do you want to generate a public key? (y/n): " generate_pub_key
+    if [[ "$generate_pub_key" =~ ^[Yy]$ ]]; then
+        ssh-keygen -y -f ~/.ssh/"$key_name" > ~/.ssh/"$key_name".pub
+        echo -e "${GREEN}Public key generated successfully:${NC}"
+        cat ~/.ssh/"$key_name".pub
+    fi
+
+    # Optionally generate a Windows-compatible key
+    generate_windows_version "$key_name"
+}
+
+# Regenerate public key from existing private key
+function regenerate_public_key() {
+    key_name=$(list_private_keys_menu)  # Get the key name from the menu
+    ssh-keygen -y -f ~/.ssh/"$key_name" > ~/.ssh/"$key_name".pub
+    echo -e "${GREEN}Public key regenerated successfully:${NC}"
+    cat ~/.ssh/"$key_name".pub
+}
+
+# Function to generate a Windows-compatible (.ppk) version of a private key
+function generate_windows_version() {
+    local key_name=$1
+
+    # If the key name isn't provided, ask for it
+    if [[ -z "$key_name" ]]; then
+        key_name=$(list_private_keys_menu)  # Get the key name from the menu
+    fi
+
+    # Generate .ppk file from the private key
+    if [[ -f ~/.ssh/"$key_name" ]]; then
+        puttygen ~/.ssh/"$key_name" -O private -o ~/.ssh/"$key_name".ppk
+        echo "Private key converted to PuTTY format: ~/.ssh/${key_name}.ppk"
+
+        # Ask for the Windows path to copy the .ppk file
+        echo "Enter the full Windows path where the .ppk file should be copied (e.g., 'D:\\Projects\\SSH'): "
+        read -r windows_path
+
+        echo "ssh-keys : $windows_path"
+        wsl_windows_path=$(convertWinPathToWslPath "$windows_path")
+
+        # Copy the .ppk file to the specified Windows path
+        if cp ~/.ssh/"$key_name".ppk "$wsl_windows_path"; then
+            echo -e "${GREEN}.ppk file copied successfully to ${wsl_windows_path}${NC}"
+            # Delete the original .ppk file from Debian
+            rm ~/.ssh/"$key_name".ppk
+            echo ".ppk file deleted from Debian after copy."
+        else
+            echo "Failed to copy .ppk file to the specified Windows path."
+        fi
+    else
+        echo "Private key ~/.ssh/${key_name} not found."
+    fi
+}
+
+# Run script
+install_dependencies
+main_menu
