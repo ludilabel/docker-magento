@@ -121,8 +121,7 @@ function generate_windows_version() {
         echo "Private key converted to PuTTY format: ~/.ssh/${key_name}.ppk"
 
         # Ask for the Windows path to copy the .ppk file
-        echo "Enter the full Windows path where the .ppk file should be copied (e.g., 'D:\\Projects\\SSH'): "
-        read -r windows_path
+        read -r -p "Enter the full Windows path where the .ppk file should be copied (e.g., 'D:\\Projects\\SSH'): " windows_path
 
         echo "ssh-keys : $windows_path"
         wsl_windows_path=$(convertWinPathToWslPath "$windows_path")
