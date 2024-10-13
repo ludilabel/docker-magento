@@ -28,6 +28,7 @@ fi
 # Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
 if [ "$RECETTE_USER" ]; then
   if [ "$1" ]; then
+    echo "Mise à jour de la variable RECETTE_USER dans env/dev-setup-config.env."
     sed -i "s|^RECETTE_USER=.*|RECETTE_USER=\"$recette_user\"|" env/dev-setup-config.env
   fi
 else
@@ -62,7 +63,7 @@ if [ ! -f "$wsl_id_rsa_path" ]; then
     exit 1
 
 else
-  if [ -z "$RECETTE_DEBIAN_RSA_PATH" ]; then
+  if [[ -z "$RECETTE_DEBIAN_RSA_PATH" || "$2" ]]; then
     echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
     read -e -i "id_rsa_" -r -p "(ex : id_rsa_recette) : " recette_rsa
     debian_rsa_path="$HOME/.ssh/$recette_rsa"
@@ -78,6 +79,7 @@ fi
 # Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
 if [ "$RECETTE_DEBIAN_RSA_PATH" ]; then
   if [ "$2" ]; then
+    echo "Mise à jour de la variable RECETTE_DEBIAN_RSA_PATH dans env/dev-setup-config.env."
     sed -i "s|^RECETTE_DEBIAN_RSA_PATH=.*|RECETTE_DEBIAN_RSA_PATH=\"$debian_rsa_path\"|" env/dev-setup-config.env
   fi
 else
