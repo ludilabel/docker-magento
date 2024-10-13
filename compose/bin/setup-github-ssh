@@ -32,11 +32,20 @@ fi
 
 
 if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
-    # Clé privée ssh
-    echo "Génération de la paire de clé SSH ($(yellow "Entrée à chaque question car on veut utiliser les valeurs par défaut"))"
-    ssh-keygen -t ed25519 -C "$github_user"
-
     GITHUB_DEBIAN_RSA_PATH="$HOME/.ssh/id_ed25519"
+
+    # Si le fichier existe déjà même s’il n’est pas dans la configuration
+    # on ne la régénère pas - présuppose qu’à la précédente installation l’utilisateur a bien gardé le nom par défaut
+    if [ -f "$GITHUB_DEBIAN_RSA_PATH" ]; then
+        echo "La clé privée SSH pour github existe déjà : $GITHUB_DEBIAN_RSA_PATH"
+        echo "Passage à l'étape suivante sans régénération."
+    else
+      # Clé privée ssh
+      echo "Génération de la paire de clé SSH ($(yellow "Entrée à chaque question car on veut utiliser les valeurs par défaut"))"
+      ssh-keygen -t ed25519 -C "$github_user"
+
+    fi
+
     echo "Ajout de la variable GITHUB_DEBIAN_RSA_PATH à la fin du fichier env/dev-setup-config.env."
     echo "GITHUB_DEBIAN_RSA_PATH=\"$GITHUB_DEBIAN_RSA_PATH\"" >> env/dev-setup-config.env
 
@@ -50,12 +59,12 @@ if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
     echo "Si demande de reconnaissance de l’authenticité de github pour les futures connexions => répondre yes"
     # NB : pas besoin de préciser notre compte utilisateur pour la connexion SSH
     # car github a crée un utilisateur unique "git" que tout le monde partage
-    ssh -T git@github.com
+    ssh -T git@github.com || true
   else
       echo "La clé privée ssh github est déjà installée sur la Debian et se trouve : $GITHUB_DEBIAN_RSA_PATH"
       echo "Voici la clé publique. Copie et ajoute la à ton compte GitHub :"
       yellow "$(cat "${GITHUB_DEBIAN_RSA_PATH}.pub")"
-      echo "Si tu veux écraser l’ancienne clé par une nouvelleq, utilise la commande bin/debug"
+      echo "Si tu veux écraser l’ancienne clé par une nouvelle, utilise la commande bin/debug"
 fi
 
 # Recopie de la clé ssh github dans Windows

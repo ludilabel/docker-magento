@@ -14,16 +14,19 @@ source bin/wsl-fn
 if [ "$1" ]; then
   WIN_HOST="$1"
 else
-  echo "Entrée pour la valeur par défaut"
-  echo "Sinon coller votre chemin Windows complet du fichier hosts"
-  read -r -p "(par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
-  WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
+    if [ "$OS_HOSTS" ]; then
+        echo "Le chemin windows du fichier hosts est déjà configuré : $(yellow "$OS_HOSTS")"
+        wsl_win_host="$OS_HOSTS"
+    else
+        echo "Entrée pour la valeur par défaut"
+        echo "Sinon coller votre chemin Windows complet du fichier hosts"
+        read -r -p "(par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
+        WIN_HOST=${WIN_HOST:-"\"C:\\Windows\\System32\\drivers\\etc\\hosts\""}
+    fi
 fi
 
 if [[ ! "$OS_HOSTS" || "$1" ]]; then
    wsl_win_host=$(convertWinPathToWslPath "$WIN_HOST")
-  else
-   wsl_win_host="$WIN_HOST"
 fi
 
 # Get the local IP address from Windows + strip return line
@@ -41,7 +44,7 @@ for i in "${!entries_to_add[@]}"; do
     entry="${entries_to_add[$i]}"
 
     # Check if the entry already exists in the hosts file
-    if grep -qF "$entry" "$WIN_HOST"; then
+    if grep -qF "$entry" "$wsl_win_host"; then
         echo "Entry '$entry' already exists in the hosts file."
         unset 'entries_to_add[i]'
     fi

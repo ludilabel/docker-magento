@@ -27,15 +27,14 @@ else
     else
         echo "Coller le chemin Windows complet du fichier hosts"
         read -r -p "(Entrée pour la valeur par défaut : C:\Windows\System32\drivers\etc\hosts) : " WIN_HOST
-        WIN_HOST=${WIN_HOST:-"C:\\Windows\\System32\\drivers\\etc\\hosts"}
+        WIN_HOST=${WIN_HOST:-"\"C:\\Windows\\System32\\drivers\\etc\\hosts\""}
     fi
 fi
 
 if [[ ! "$OS_HOSTS" || "$1" ]]; then
    wsl_win_host=$(convertWinPathToWslPath "$WIN_HOST")
-  else
-   wsl_win_host="$WIN_HOST"
 fi
+
 
 # Vérifier si le fichier existe
 if [ ! -f "$wsl_win_host" ]; then
@@ -92,4 +91,5 @@ else
 fi
 
 # Pour permettre une communication entre les conteneurs Docker et le Windows du développeur (IDE, etc.)
-bin/setup-host-docker-win "$wsl_win_host"
+bin/setup-host-docker-win
+#bin/setup-host-docker-win "$wsl_win_host"
