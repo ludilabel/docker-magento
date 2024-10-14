@@ -3,10 +3,14 @@ set -o errexit
 # Enable debugging
 # set -x
 
+bin/composer remove elasticsearch/elasticsearch
+bin/composer require elasticsearch/elasticsearch:"~7.17.0"
 
 # depend de bin/setup-magento-env
 echo "Running, Magento setup:install..."
 bin/setup-install
+
+bin/composer require elasticsearch/elasticsearch:"^8.6"
 
 # durant le bin/setup-install, Magento exige que le moteur de recherche soit un officiel : elasticsearch7
 # mais ensuite nous avons besoin de le redéfinir en celui d’Amasty pour que le moteur de recherche fonctionne car tout le reste de la configuration
