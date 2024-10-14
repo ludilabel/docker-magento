@@ -23,8 +23,6 @@ fi
 
 if [[ ! "$OS_SRC" || "$1" ]]; then
    wsl_sources_path=$(convertWinPathToWslPath "$win_sources_path")
-  else
-   wsl_sources_path="$win_sources_path"
 fi
 
 # Vérifier si le chemin existe

@@ -53,8 +53,6 @@ fi
 
 if [[ ! "$RECETTE_DEBIAN_RSA_PATH" || "$2" ]]; then
    wsl_id_rsa_path=$(convertWinPathToWslPath "$win_id_rsa_path")
-  else
-   wsl_id_rsa_path="$win_id_rsa_path"
 fi
 
 # Vérifier si le chemin existe
