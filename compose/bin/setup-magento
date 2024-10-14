@@ -5,10 +5,13 @@ set -o errexit
 
 
 # depend de bin/setup-magento-env
-#echo "Running, Magento setup:install..."
-# en erreur : fonctionnement à comprendre par rapport à app:config:import
-# possiblement facultatif comme on a déjà app/etc/config.php et app/etc/env.php correctement personnalisés
-#bin/setup-install
+echo "Running, Magento setup:install..."
+bin/setup-install
+
+# durant le bin/setup-install, Magento exige que le moteur de recherche soit un officiel : elasticsearch7
+# mais ensuite nous avons besoin de le redéfinir en celui d’Amasty pour que le moteur de recherche fonctionne car tout le reste de la configuration
+# utilise sur la surcharge d’Amasty
+bin/magento config:set catalog/search/engine amasty_elastic_8
 
 echo "Re-indexing with Elasticsearch..."
 bin/clinotty bin/magento indexer:reindex

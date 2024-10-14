@@ -33,5 +33,5 @@ bin/clinotty bin/magento setup:install \
   --session-save-redis-db=2 \
   --elasticsearch-host="$ES_HOST" \
   --elasticsearch-port="$ES_PORT" \
-  --search-engine=elasticsearch \
+  --search-engine=elasticsearch7 \
   --no-interaction
