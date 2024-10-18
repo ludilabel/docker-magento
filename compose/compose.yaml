@@ -122,7 +122,7 @@ services:
     restart: always
 
   rabbitmq:
-    image: rabbitmq:3.10.8-alpine
+    image: markoshust/magento-rabbitmq:3.11-1
     ports:
       - "15672:15672"
       - "5672:5672"
