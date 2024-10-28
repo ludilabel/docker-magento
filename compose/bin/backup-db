@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -o errexit
+
+# Arguments:
+# $1 : (Optionnel) "recette" or "docker"
+
+source env/dev-setup-config.env
+source bin/backup-db-fn
+
+# If an argument is passed, use it to select the database
+if [ "$1" == "recette" ]; then
+    backup_recette
+elif [ "$1" == "docker" ]; then
+    backup_docker
+else
+
+  # Menu to choose which database to backup
+  echo "Quelle base de données souhaitez-vous sauvegarder ?"
+  echo "1) Recette"
+  echo "2) Docker"
+  read -r -p "Entrez votre choix [1 ou 2] : " choice
+
+  case $choice in
+    1)
+      backup_recette
+      ;;
+    2)
+      backup_docker
+      ;;
+    *)
+      echo "Choix invalide. Veuillez entrer 1 ou 2."
+      exit 1
+      ;;
+  esac
+
+  if [ $? -ne 0 ]; then
+      echo "Erreur lors de la sauvegarde de la base de données"
+      exit 1
+  fi
+
+  echo "Sauvegarde terminée."
+fi

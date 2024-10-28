@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+source bin/setup-ssh-fn
+
+backup_recette() {
+  if [ -z "$RECETTE_IP" ]; then
+    bin/setup-recette
+    source env/dev-setup-config.env # Mise à jour des variables d’environnement
+  fi
+
+  DATE=$(date +"%Y%m%d_%H%M%S")
+  DUMP_FILE="db_backup_recette_$DATE.sql"
+  LOCAL_DIR="$TRANSFER_PATH/db"
+
+  # bin/setup-ssh-fn
+  run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
+
+  echo "Téléchargement du fichier backup de la recette sur la Debian"
+  # Generate mysqldump on remote recette server
+  ssh "$RECETTE_USER@$RECETTE_IP" "mysqldump -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME > /tmp/$DUMP_FILE"
+
+  # Download the dump file to local directory
+  scp "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE" "$LOCAL_DIR/"
+
+  # Clean up: Remove the dump file from the remote server
+  ssh "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
+
+  echo "Sauvegarde de la base de données recette terminée."
+  echo "Fichier local : "
+  yellow "$LOCAL_DIR/$DUMP_FILE"
+}
+
+backup_docker() {
+
+  DATE=$(date +"%Y%m%d_%H%M%S")
+  DUMP_FILE="db_backup_docker_$DATE.sql"
+  LOCAL_DIR="$TRANSFER_PATH/db"
+
+  # bin/setup-ssh-fn
+  run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
+
+  # Generate mysqldump locally and transfer to remote server
+  echo "Génération du dump localement ..."
+  bin/n98-magerun2 db:dump --stdout > "$LOCAL_DIR/$DUMP_FILE" 2>/dev/null
+
+  echo "Le fichier de backup est généré : $LOCAL_DIR/$DUMP_FILE"
+}
