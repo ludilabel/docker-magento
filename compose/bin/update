@@ -9,5 +9,8 @@ run_ssh_agent_and_register_key "$GITHUB_DEBIAN_RSA_PATH"
 echo "Running git reset --hard && git pull"
 git reset --hard && git pull
 
+# permet d’appliquer les changements de droits fichiers prévus sur l'installation docker-magento
+bin/setup-docker-permissions
+
 echo "docker-magento has been updated"
-echo"run bin/restart if you modified yaml files to apply the updates to Docker containers"
+echo"run bin/restart if you modified yaml files to update to Docker containers"
