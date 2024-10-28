@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+# Enable debugging
+# set -x
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+
+# Arguments :
+# $1 : preprod_ip (Optionnel) adresse IP du serveur preprod
+# $2 : preprod_bin_path (Optionnel) chemin absolu du dossier root du serveur preprod
+# $3 : preprod_media_path (Optionnel) chemin absolu du dossier media du serveur preprod
+
+if [ "$1" ]; then
+  preprod_ip="$1"
+else
+    if [ "$PREPROD_IP" ]; then
+        preprod_ip="$PREPROD_IP"
+        echo "L'IP du serveur preprod est déjà configurée : $(yellow "$PREPROD_IP")"
+    else
+      echo "Veuillez coller l'IP du serveur preprod"
+      read -r -p "(ex : 125.58.165.95) : " preprod_ip
+    fi
+fi
+
+if [ "$2" ]; then
+  preprod_bin_path="$2"
+else
+  if [ "$PREPROD_BIN_PATH" ]; then
+      preprod_bin_path="$PREPROD_BIN_PATH"
+      echo "Le chemin root du serveur preprod est déjà configuré : $(yellow "$PREPROD_BIN_PATH")"
+  else
+    echo "Veuillez coller le chemin absolu du dossier /www de Magento 2 du serveur preprod"
+    read -r -p "(ex : /var/www/html/magento) : " preprod_bin_path
+  fi
+fi
+
+if [ "$3" ]; then
+  preprod_media_path="$3"
+else
+  if [ "$PREPROD_MEDIA_PATH" ]; then
+      preprod_media_path="$PREPROD_MEDIA_PATH"
+      echo "Le chemin de media du serveur preprod est déjà configuré : $(yellow "$PREPROD_MEDIA_PATH")"
+  else
+    echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur preprod"
+    read -r -p "(ex : /var/www/html/magento/pub/media) : " preprod_media_path
+  fi
+fi
+
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PREPROD_IP" ]; then
+    if [ "$1" ]; then
+      sed -i "s|^PREPROD_IP=.*|PREPROD_IP=\"$preprod_ip\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable PREPROD_IP à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_IP=\"$preprod_ip\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PREPROD_BIN_PATH" ]; then
+    if [ "$2" ]; then
+      sed -i "s|^PREPROD_BIN_PATH=.*|PREPROD_BIN_PATH=\"$preprod_bin_path\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable PREPROD_BIN_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_BIN_PATH=\"$preprod_bin_path\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PREPROD_MEDIA_PATH" ]; then
+    if [ "$3" ]; then
+      sed -i "s|^PREPROD_MEDIA_PATH=.*|PREPROD_MEDIA_PATH=\"$preprod_media_path\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable PREPROD_MEDIA_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_MEDIA_PATH=\"$preprod_media_path\"" >> env/dev-setup-config.env
+fi

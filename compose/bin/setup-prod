@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -o errexit
+
+echo "Running bin/setup-prod-server"
+bin/setup-prod-server
+
+# pas utilisé pour l'instant
+#echo "Running bin/setup-prod-db"
+#bin/setup-prod-db
+
+echo "Running bin/setup-prod-ssh"
+bin/setup-prod-ssh
+

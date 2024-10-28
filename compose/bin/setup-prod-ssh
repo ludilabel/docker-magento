@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -o errexit
+
+# Arguments :
+# $1 : (Optionnel) prod_user : utilisateur ssh sur serveur prod
+# $2 : (Optionnel) win_id_rsa_path : chemin absolu du fichier id_rsa sur Windows
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+source bin/wsl-fn
+
+# clé publique ssh
+echo "Nous supposons que la clé publique SSH est déjà enregistrée dans le serveur prod"
+
+# Nom de l'utilisateur ssh
+if [ "$1" ]; then
+  prod_user="$1"
+else
+    if [ "$PROD_USER" ]; then
+        prod_user="$PROD_USER"
+        echo "Le nom de la session utilisateur ssh du serveur prod est déjà configuré : $(yellow "$PROD_USER")"
+    else
+        echo "Veuillez saisir le nom de la session utilisateur ssh sur serveur prod"
+        read -r -p "(ex : www-data) : " prod_user
+    fi
+fi
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PROD_USER" ]; then
+  if [ "$1" ]; then
+    echo "Mise à jour de la variable PROD_USER dans env/dev-setup-config.env."
+    sed -i "s|^PROD_USER=.*|PROD_USER=\"$prod_user\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PROD_USER à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_USER=\"$prod_user\"" >> env/dev-setup-config.env
+fi
+
+
+
+# Clé privée ssh
+if [ "$2" ]; then
+  win_id_rsa_path="$2"
+else
+      if [ "$PROD_DEBIAN_RSA_PATH" ]; then
+          wsl_id_rsa_path="$PROD_DEBIAN_RSA_PATH"
+          echo "La clé ssh privée du serveur prod est déjà copiée sur la Debian et se trouve ici : $(yellow "$PROD_DEBIAN_RSA_PATH")"
+      else
+        echo "Veuillez coller le chemin Windows (sans quote) vers la clé privée id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur prod"
+        read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+      fi
+fi
+
+if [[ ! "$PROD_DEBIAN_RSA_PATH" || "$2" ]]; then
+   wsl_id_rsa_path=$(convertWinPathToWslPath "$win_id_rsa_path")
+fi
+
+# Vérifier si le chemin existe
+if [ ! -f "$wsl_id_rsa_path" ]; then
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
+
+else
+  if [[ -z "$PROD_DEBIAN_RSA_PATH" || "$2" ]]; then
+    echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
+    read -e -i "id_rsa_" -r -p "(ex : id_rsa_prod) : " prod_rsa
+    debian_rsa_path="$HOME/.ssh/$prod_rsa"
+
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    cp "$wsl_id_rsa_path" "$debian_rsa_path"
+
+    chmod 600 "$debian_rsa_path"
+  fi
+fi
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PROD_DEBIAN_RSA_PATH" ]; then
+  if [ "$2" ]; then
+    echo "Mise à jour de la variable PROD_DEBIAN_RSA_PATH dans env/dev-setup-config.env."
+    sed -i "s|^PROD_DEBIAN_RSA_PATH=.*|PROD_DEBIAN_RSA_PATH=\"$debian_rsa_path\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PROD_DEBIAN_RSA_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_DEBIAN_RSA_PATH=\"$debian_rsa_path\"" >> env/dev-setup-config.env
+fi
+
+
+

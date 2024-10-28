@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+# Enable debugging
+# set -x
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+
+# Arguments :
+# $1 : prod_ip (Optionnel) adresse IP du serveur prod
+# $2 : prod_bin_path (Optionnel) chemin absolu du dossier root du serveur prod
+# $3 : prod_media_path (Optionnel) chemin absolu du dossier media du serveur prod
+
+if [ "$1" ]; then
+  prod_ip="$1"
+else
+    if [ "$PROD_IP" ]; then
+        prod_ip="$PROD_IP"
+        echo "L'IP du serveur prod est déjà configurée : $(yellow "$PROD_IP")"
+    else
+      echo "Veuillez coller l'IP du serveur prod"
+      read -r -p "(ex : 125.58.165.95) : " prod_ip
+    fi
+fi
+
+if [ "$2" ]; then
+  prod_bin_path="$2"
+else
+  if [ "$PROD_BIN_PATH" ]; then
+      prod_bin_path="$PROD_BIN_PATH"
+      echo "Le chemin root du serveur prod est déjà configuré : $(yellow "$PROD_BIN_PATH")"
+  else
+    echo "Veuillez coller le chemin absolu du dossier /www de Magento 2 du serveur prod"
+    read -r -p "(ex : /var/www/html/magento) : " prod_bin_path
+  fi
+fi
+
+if [ "$3" ]; then
+  prod_media_path="$3"
+else
+  if [ "$PROD_MEDIA_PATH" ]; then
+      prod_media_path="$PROD_MEDIA_PATH"
+      echo "Le chemin de media du serveur prod est déjà configuré : $(yellow "$PROD_MEDIA_PATH")"
+  else
+    echo "Veuillez coller le chemin absolu du dossier /media de Magento 2 du serveur prod"
+    read -r -p "(ex : /var/www/html/magento/pub/media) : " prod_media_path
+  fi
+fi
+
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PROD_IP" ]; then
+    if [ "$1" ]; then
+      sed -i "s|^PROD_IP=.*|PROD_IP=\"$prod_ip\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable PROD_IP à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_IP=\"$prod_ip\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PROD_BIN_PATH" ]; then
+    if [ "$2" ]; then
+      sed -i "s|^PROD_BIN_PATH=.*|PROD_BIN_PATH=\"$prod_bin_path\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable PROD_BIN_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_BIN_PATH=\"$prod_bin_path\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PROD_MEDIA_PATH" ]; then
+    if [ "$3" ]; then
+      sed -i "s|^PROD_MEDIA_PATH=.*|PROD_MEDIA_PATH=\"$prod_media_path\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable PROD_MEDIA_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_MEDIA_PATH=\"$prod_media_path\"" >> env/dev-setup-config.env
+fi

@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -o errexit
+
+# Arguments :
+# $1 : (Optionnel) preprod_user : utilisateur ssh sur serveur preprod
+# $2 : (Optionnel) win_id_rsa_path : chemin absolu du fichier id_rsa sur Windows
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+source bin/wsl-fn
+
+# clé publique ssh
+echo "Nous supposons que la clé publique SSH est déjà enregistrée dans le serveur preprod"
+
+# Nom de l'utilisateur ssh
+if [ "$1" ]; then
+  preprod_user="$1"
+else
+    if [ "$PREPROD_USER" ]; then
+        preprod_user="$PREPROD_USER"
+        echo "Le nom de la session utilisateur ssh du serveur preprod est déjà configuré : $(yellow "$PREPROD_USER")"
+    else
+        echo "Veuillez saisir le nom de la session utilisateur ssh sur serveur preprod"
+        read -r -p "(ex : www-data) : " preprod_user
+    fi
+fi
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PREPROD_USER" ]; then
+  if [ "$1" ]; then
+    echo "Mise à jour de la variable PREPROD_USER dans env/dev-setup-config.env."
+    sed -i "s|^PREPROD_USER=.*|PREPROD_USER=\"$preprod_user\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PREPROD_USER à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_USER=\"$preprod_user\"" >> env/dev-setup-config.env
+fi
+
+
+
+# Clé privée ssh
+if [ "$2" ]; then
+  win_id_rsa_path="$2"
+else
+      if [ "$PREPROD_DEBIAN_RSA_PATH" ]; then
+          wsl_id_rsa_path="$PREPROD_DEBIAN_RSA_PATH"
+          echo "La clé ssh privée du serveur preprod est déjà copiée sur la Debian et se trouve ici : $(yellow "$PREPROD_DEBIAN_RSA_PATH")"
+      else
+        echo "Veuillez coller le chemin Windows (sans quote) vers la clé privée id_rsa (le nom peut être différent mais il doit être au format openSSH) qui permet de se connecter au serveur preprod"
+        read -r -p "(ex : C:\Users\Utilisateur\.ssh\id_rsa) : " win_id_rsa_path
+      fi
+fi
+
+if [[ ! "$PREPROD_DEBIAN_RSA_PATH" || "$2" ]]; then
+   wsl_id_rsa_path=$(convertWinPathToWslPath "$win_id_rsa_path")
+fi
+
+# Vérifier si le chemin existe
+if [ ! -f "$wsl_id_rsa_path" ]; then
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
+
+else
+  if [[ -z "$PREPROD_DEBIAN_RSA_PATH" || "$2" ]]; then
+    echo "Veuillez saisir un autre nom que id_rsa pour la recopie de la clé privée sur la Debian"
+    read -e -i "id_rsa_" -r -p "(ex : id_rsa_preprod) : " preprod_rsa
+    debian_rsa_path="$HOME/.ssh/$preprod_rsa"
+
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    cp "$wsl_id_rsa_path" "$debian_rsa_path"
+
+    chmod 600 "$debian_rsa_path"
+  fi
+fi
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PREPROD_DEBIAN_RSA_PATH" ]; then
+  if [ "$2" ]; then
+    echo "Mise à jour de la variable PREPROD_DEBIAN_RSA_PATH dans env/dev-setup-config.env."
+    sed -i "s|^PREPROD_DEBIAN_RSA_PATH=.*|PREPROD_DEBIAN_RSA_PATH=\"$debian_rsa_path\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PREPROD_DEBIAN_RSA_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_DEBIAN_RSA_PATH=\"$debian_rsa_path\"" >> env/dev-setup-config.env
+fi
+
+
+

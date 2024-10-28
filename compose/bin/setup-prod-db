@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+
+# Arguments :
+# $1 : prod_db_pathname (Optionnel) chemin absolu du fichier backup bdd de prod
+
+if [ "$1" ]; then
+  prod_db_pathname="$1"
+else
+  if [ "$PROD_BACKUP_DB_PATHNAME" ]; then
+      prod_db_pathname="$PROD_BACKUP_DB_PATHNAME"
+      echo "Le chemin du backup de base de données est déjà configuré : $(yellow "$PROD_BACKUP_DB_PATHNAME")"
+  else
+    echo "Veuillez saisir le chemin absolu du fichier backup de prod"
+    read -r -p "(ex : /home/user/backup.sql) : " prod_db_pathname
+  fi
+
+fi
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PROD_BACKUP_DB_PATHNAME" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^PROD_BACKUP_DB_PATHNAME=.*|PROD_BACKUP_DB_PATHNAME=\"$prod_db_pathname\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PROD_BACKUP_DB_PATHNAME à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_BACKUP_DB_PATHNAME=\"$prod_db_pathname\"" >> env/dev-setup-config.env
+fi

@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# Enable debugging
+# set -x
+source env/dev-setup-config.env
+source bin/terminal-colors
+
+# Arguments :
+# $1 : preprod_db_user (Optionnel) nom utilisateur Mariadb du serveur preprod
+# $2 : preprod_db_name (Optionnel) nom de la base de données du serveur preprod
+# $3 : preprod_db_pass (Optionnel) mot de passe de la base de données du serveur preprod
+
+if [ "$1" ]; then
+  preprod_db_user="$1"
+else
+  if [ "$PREPROD_DB_USER" ]; then
+      preprod_db_user="$PREPROD_DB_USER"
+      echo "Le nom d'utilisateur de la base de données est déjà configuré : $(yellow "$PREPROD_DB_USER")"
+  else
+    echo "Veuillez saisir le nom d'utilisateur de la base de données de preprod"
+    read -r -p "(ex : magento_user) : " preprod_db_user
+  fi
+
+fi
+
+if [ "$2" ]; then
+  preprod_db_name="$2"
+else
+  if [ "$PREPROD_DB_NAME" ]; then
+      preprod_db_name="$PREPROD_DB_NAME"
+      echo "Le nom de la base de données est déjà configuré : $(yellow "$PREPROD_DB_NAME")"
+  else
+      echo "Veuillez saisir le nom de la base de données de preprod"
+      read -r -p "(ex : magento) : " preprod_db_name
+  fi
+fi
+
+if [ "$3" ]; then
+  preprod_db_pass="$3"
+else
+    if [ "$PREPROD_DB_PASS" ]; then
+        preprod_db_pass="$PREPROD_DB_PASS"
+        echo "Le mot de passe de la base de données est déjà configuré : $(yellow "$PREPROD_DB_PASS")"
+    else
+        echo "Veuillez coller le mot de passe de la base de données preprod"
+        read -r -p "(ex : fkjdfifsqdKJdiLKj) : " preprod_db_pass
+    fi
+
+fi
+
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PREPROD_DB_USER" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^PREPROD_DB_USER=.*|PREPROD_DB_USER=\"$preprod_db_user\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PREPROD_DB_USER à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_DB_USER=\"$preprod_db_user\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PREPROD_DB_NAME" ]; then
+  if [ "$2" ]; then
+    sed -i "s|^PREPROD_DB_NAME=.*|PREPROD_DB_NAME=\"$preprod_db_name\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PREPROD_DB_NAME à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_DB_NAME=\"$preprod_db_name\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PREPROD_DB_PASS" ]; then
+  if [ "$3" ]; then
+    sed -i "s|^PREPROD_DB_PASS=.*|PREPROD_DB_PASS=\"$preprod_db_pass\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PREPROD_DB_PASS à la fin du fichier env/dev-setup-config.env."
+    echo "PREPROD_DB_PASS=\"$preprod_db_pass\"" >> env/dev-setup-config.env
+fi
