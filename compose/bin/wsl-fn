@@ -42,3 +42,24 @@ convertWinPathToWslPath() {
   echo "$win_sources_path"
 
 }
+
+convertWslPathToWinPath() {
+  local wsl_path=$1
+
+  # Check if the path is absolute
+  if [[ ! "$wsl_path" =~ ^/ ]]; then
+    echo "Erreur : Ce n'est pas un chemin WSL valide" >&2
+    exit 1
+  fi
+
+  # Convert the WSL path to Windows format
+  win_path=$(wslpath -w "$wsl_path")
+
+  if [ $? -ne 0 ]; then
+      echo "Erreur lors de la conversion du chemin." >&2
+      exit 1
+  fi
+
+  echo "Chemin converti au format Windows : $win_path" >&2 # Message to stderr
+  echo "$win_path"
+}
