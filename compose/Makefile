@@ -22,6 +22,7 @@ help:
 	@echo "$(call format,composer,'Run the composer binary.')"
 	@echo "$(call format,copyfromcontainer,'Copy specified folders or files from container to host.')"
 	@echo "$(call format,copytocontainer,'Copy specified folders or files from host to container.')"
+	@echo "$(call format,deploy,'Processus de déploiement sur recette, preprod et prod')"
 	@echo "$(call format,empty-generated,'empty generated folder to resolve dynamically DI')"
 	@echo "$(call format,export-db,'Backup the docker database in Windows or replace Recette.')"
 	@echo "$(call format,git-switch,'Checkout d une autre Git sur Docker')"

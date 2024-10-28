@@ -1,10 +1,125 @@
 #!/usr/bin/env bash
-bin/composer install
-bin/magento maintenance:enable
-bin/cli rm -rf generated/code var/view_preprocessed
-bin/magento cache:flush
-bin/magento setup:upgrade
-bin/magento setup:di:compile
-bin/magento setup:static-content:deploy en_US "$@" -f
-bin/magento maintenance:disable
-bin/magento cache:flush
+set -o errexit
+
+# Arguments:
+# $1 (optionnel) deploy_choice : "recette" or "preprod" or "prod"
+# $2 (optionnel|requirement deploy_choice="recette") : "branch-name"
+
+source env/dev-setup-config.env
+source bin/terminal-colors
+
+# Determine which database to back up
+if [ "$1" == "recette" ]; then
+    deploy_choice="recette"
+
+    if [ -z "$2" ]; then
+            echo "Erreur: le nom de la branche est requis en deuxième paramètre."
+            exit 1
+        else
+            branch_choice="$2"
+        fi
+elif [ "$1" == "preprod" ]; then
+    deploy_choice="preprod"
+
+elif [ "$1" == "prod" ]; then
+    deploy_choice="prod"
+else
+    # Display menu if no valid parameter is passed
+    echo "Quelle base de données souhaitez-vous sauvegarder ?"
+    echo "1) Recette"
+    echo "2) Prod"
+    read -r -p "Entrez votre choix [1, 2 ou 3] : " choice
+
+    case $choice in
+      1)
+        deploy_choice="recette"
+        echo "Veuillez entrer le nom de la branche :"
+        read -r branch_choice
+        ;;
+      2) deploy_choice="preprod" ;;
+      3) deploy_choice="prod" ;;
+      *)
+        echo "Choix invalide. Veuillez entrer 1, 2 ou 3."
+        exit 1
+        ;;
+    esac
+fi
+
+
+# déploiements
+if [ "$deploy_choice" == "recette" ]; then
+
+    if [ -z "$RECETTE_IP" ]; then
+      bin/setup-recette
+      source env/dev-setup-config.env # Mise à jour des variables d’environnement
+    fi
+
+    green "activation du mode maintenance"
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd \"$RECETTE_BIN_PATH\" && bin/magento maintenance:enable"
+
+
+    git --git-dir="$OS_SRC/.git" --work-tree="$OS_SRC" push "ssh://$RECETTE_USER@$RECETTE_IP/srv/gitrepos/recette/magento2.git" "$branch_choice"
+
+    bin/export-db "recette"
+
+    green "Exécution des commandes de déploiement pour recette"
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd \"$RECETTE_BIN_PATH\" && composer install && bin/magento setup:upgrade && bin/magento setup:di:compile && bin/magento indexer:reindex && bin/magento cache:flush"
+
+
+    green "Désactivation du mode maintenance"
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd \"$RECETTE_BIN_PATH\" && bin/magento maintenance:disable"
+
+    green "Recette est prête pour tester le projet en cours du développeur : la branche $branch_choice et la base actuelle de Docker"
+else
+
+    # le process de déploiement est identique entre preprod et prod
+    echo ""
+    echo "Utiliser sur preprod le mode de déploiement qu’on prévoie d'utiliser sur prod"
+    read -p "Choose deployment mode ('manual' or 'auto'): " mode_choice
+
+    if [ "$mode_choice" != "manual" ] && [ "$mode_choice" != "auto" ]; then
+        echo "Error: Invalid input. Please choose 'manual' or 'auto'."
+        exit 1
+    fi
+
+    if [ "$deploy_choice" == "preprod" ]; then
+
+      if [ -z "$PREPROD_IP" ]; then
+        bin/setup-preprod
+        source env/dev-setup-config.env # Mise à jour des variables d’environnement
+      fi
+
+      if [ "$mode_choice" == "manual" ]; then
+        ssh "$PREPROD_USER@$PREPROD_IP" "cd \"$PREPROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 0 && bin/magento cache:clean config"
+      fi
+
+      git push "ssh://$PREPROD_USER@$PREPROD_IP/srv/gitrepos/magento2.git" master
+
+      if [ "$mode_choice" == "manual" ]; then
+        ssh "$PREPROD_USER@$PREPROD_IP" "cd \"$PREPROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
+      fi
+
+      echo "Déploiement sur Preprod terminé."
+
+    elif [ "$deploy_choice" == "prod" ]; then
+
+      if [ -z "$PROD_IP" ]; then
+        bin/setup-prod
+        source env/dev-setup-config.env # Mise à jour des variables d’environnement
+      fi
+
+      if [ "$mode_choice" == "manual" ]; then
+        ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 0 && bin/magento cache:clean config"
+      fi
+
+      git push "ssh://$PROD_USER@$PROD_IP/srv/gitrepos/magento2.git" master
+
+      if [ "$mode_choice" == "manual" ]; then
+        ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
+      fi
+
+      echo "Déploiement sur Prod terminé."
+
+    fi
+
+fi
