@@ -8,7 +8,8 @@ source bin/terminal-colors
 
 # Arguments :
 # $1 : recette_ip (Optionnel) adresse IP du serveur recette
-# $2 : recette_media_path (Optionnel) chemin absolu du dossier media du serveur recette
+# $2 : recette_bin_path (Optionnel) chemin absolu du dossier root du serveur recette
+# $3 : recette_media_path (Optionnel) chemin absolu du dossier media du serveur recette
 
 if [ "$1" ]; then
   recette_ip="$1"
@@ -23,7 +24,19 @@ else
 fi
 
 if [ "$2" ]; then
-  recette_media_path="$2"
+  recette_bin_path="$2"
+else
+  if [ "$RECETTE_BIN_PATH" ]; then
+      recette_bin_path="$RECETTE_BIN_PATH"
+      echo "Le chemin de media du serveur recette est déjà configuré : $(yellow "$RECETTE_BIN_PATH")"
+  else
+    echo "Veuillez coller le chemin absolu du dossier /www de Magento 2 du serveur recette"
+    read -r -p "(ex : /var/www/html/magento) : " recette_bin_path
+  fi
+fi
+
+if [ "$3" ]; then
+  recette_media_path="$3"
 else
   if [ "$RECETTE_MEDIA_PATH" ]; then
       recette_media_path="$RECETTE_MEDIA_PATH"
@@ -45,8 +58,17 @@ else
     echo "RECETTE_IP=\"$recette_ip\"" >> env/dev-setup-config.env
 fi
 
-if [ "$RECETTE_MEDIA_PATH" ]; then
+if [ "$RECETTE_BIN_PATH" ]; then
     if [ "$2" ]; then
+      sed -i "s|^RECETTE_BIN_PATH=.*|RECETTE_BIN_PATH=\"$recette_bin_path\"|" env/dev-setup-config.env
+    fi
+else
+    echo "Ajout de la variable RECETTE_BIN_PATH à la fin du fichier env/dev-setup-config.env."
+    echo "RECETTE_BIN_PATH=\"$recette_bin_path\"" >> env/dev-setup-config.env
+fi
+
+if [ "$RECETTE_MEDIA_PATH" ]; then
+    if [ "$3" ]; then
       sed -i "s|^RECETTE_MEDIA_PATH=.*|RECETTE_MEDIA_PATH=\"$recette_media_path\"|" env/dev-setup-config.env
     fi
 else
