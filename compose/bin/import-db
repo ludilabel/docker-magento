@@ -2,16 +2,16 @@
 set -o errexit
 
 # Arguments:
-# $1 : (Optionnel) sql_file : Chemin vers un fichier SQL Windows à importer.
+# $1 : (Optionnel) sql_file : Chemin vers un fichier SQL sur Windows à importer.
 
 source env/dev-setup-config.env
 source bin/import-db-fn
 
-# Si un chemin vers un fichier sql est fourni, on l'importe
+# Si un chemin vers un fichier sql Windows est fourni, on l'importe
 if [ "$1" ]; then
   sql_file="$1"
   if [[ "$sql_file" == *.sql ]]; then
-    import_param_sql "$sql_file"
+    import_from_windows "$sql_file"
   else
     echo "Erreur : Le fichier $sql_file fourni ne termine pas par .sql."
     exit 1
@@ -19,17 +19,22 @@ if [ "$1" ]; then
 
 else
   # Sinon on donne le choix au développeur
+  echo ""
   echo "Quelle base de données souhaitez-vous importer ?"
-  echo "1) Recette"
-  echo "2) Depuis un fichier .sql local"
-  read -r -p "Entrez votre choix [1 ou 2] : " choice
+  echo "1) Depuis le fichier backup de prod"
+  echo "2) Depuis un des fichiers backup .sql qui transitent par la Debian"
+  echo "3) Depuis un fichier backup .sql dans Windows"
+  read -r -p "Entrez votre choix [1, 2 ou 3] : " choice
 
   case $choice in
     1)
-      import_recette
+      import_from_prod
       ;;
     2)
-      import_prompt_sql
+      import_from_debian
+      ;;
+    3)
+      import_from_windows
       ;;
   esac
 fi

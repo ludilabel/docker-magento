@@ -5,38 +5,63 @@ source env/dev-setup-config.env
 source bin/setup-ssh-fn
 source bin/wsl-fn
 
-import_prompt_sql() {
+import_from_debian() {
 
-  echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
-  read -r -p "(ex : D:\projets\magento\import\recette_dump.sql) : " win_bdd_file_path
+  echo "Liste des backups sql disponibles dans $TRANSFER_PATH/db :"
 
-  wsl_win_bdd_file_path=$(convertWinPathToWslPath "$win_bdd_file_path")
-
-  # Vérifier si le fichier existe
-  if [ ! -f "$wsl_win_bdd_file_path" ]; then
-      echo "Le fichier spécifié n'existe pas."
+  # Check if the directory exists and list SQL files
+  if [ ! -d "$TRANSFER_PATH/db" ]; then
+      echo "Le répertoire $TRANSFER_PATH/db n'existe pas."
       exit 1
   fi
 
-  FILENAME=$(basename "$wsl_win_bdd_file_path")
+  # Generate a list of .sql files, ordered alphabetically
+  mapfile -t files < <(find "$TRANSFER_PATH/db" -type f -name "*.sql" | sort)
 
-  echo "Téléchargement du fichier backup sur la Debian"
-  rsync -av "$wsl_win_bdd_file_path" "$TRANSFER_PATH/db"
+  # Check if there are any SQL files
+  if [ ${#files[@]} -eq 0 ]; then
+      echo "Aucun fichier SQL trouvé dans $TRANSFER_PATH/db."
+      exit 1
+  fi
+
+  # Display the menu
+  for i in "${!files[@]}"; do
+      echo "$((i + 1)). $(basename "${files[i]}")"
+  done
+
+  # Prompt for the file selection
+  read -rp "Entrez le numéro du fichier .sql à importer : " file_choice
+
+  # Validate the input
+  if ! [[ "$file_choice" =~ ^[0-9]+$ ]] || [ "$file_choice" -lt 1 ] || [ "$file_choice" -gt ${#files[@]} ]; then
+      echo "Choix invalide."
+      exit 1
+  fi
+
+  # Get the chosen file path
+  selected_file="${files[$((file_choice - 1))]}"
 
   echo "Importation de la base dans le service Docker (long...)"
   bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/db/$FILENAME"
+  bin/clinotty mysql -h db -u root -pmagento magento < "$selected_file"
 }
 
-import_param_sql() {
+import_from_windows() {
   local sql_file="$1"
 
+  # If no argument is provided, prompt the user for a Windows file path
+  if [ -z "$sql_file" ]; then
+    echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
+    read -r -p "(ex : D:\\projets\\magento\\import\\recette_dump.sql) : " sql_file
+  fi
+
+  # Convert Windows path to WSL path
   wsl_sql_file=$(convertWinPathToWslPath "$sql_file")
 
   # Vérifier si le fichier existe
   if [ ! -f "$wsl_sql_file" ]; then
-      echo "Le fichier spécifié n'existe pas."
-      exit 1
+    echo "Le fichier spécifié n'existe pas."
+    exit 1
   fi
 
   FILENAME=$(basename "$wsl_sql_file")
@@ -45,31 +70,37 @@ import_param_sql() {
   rsync -av "$wsl_sql_file" "$TRANSFER_PATH/db"
 
   echo "Importation de la base dans le service Docker (long...)"
-
   bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
   bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/db/$FILENAME"
+
 }
 
-import_recette() {
+import_from_prod() {
+    # le fichier backup est provisoirement déposé sur prod
+    if [ -z "$PROD_IP" ]; then
+      bin/setup-prod
+      source env/dev-setup-config.env # mise à jour des variables d’environnement
+    fi
 
-  DATE=$(date +"%Y%m%d_%H%M%S")
-  DUMP_FILE="db_backup_recette_$DATE.sql"
-  LOCAL_DIR="$TRANSFER_PATH/db"
+    DATE=$(date +"%Y%m%d_%H%M%S")
+    LOCAL_DIR="$TRANSFER_PATH/db"
+    COMPRESSED_BACKUP_FILE="db_backup_prod_$DATE.sql.zst"
+    DECOMPRESSED_SQL_FILE="db_backup_prod_$DATE.sql"
 
-  # bin/setup-ssh-fn
-  run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
+    # bin/setup-ssh-fn
+    run_ssh_agent_and_register_key "$PROD_DEBIAN_RSA_PATH"
 
-  # Generate mysqldump on remote server
-  ssh "$RECETTE_USER@$RECETTE_IP" "mysqldump -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME > /tmp/$DUMP_FILE"
+    # Download the compressed .sql.zst backup file to local directory
+    echo "Téléchargement du fichier backup compressé sur la Debian"
+    scp "$PROD_USER@$PROD_IP:$PROD_BACKUP_DB_PATHNAME" "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE"
 
-  # Download the dump file to local directory
-  echo "Téléchargement du fichier backup sur la Debian"
-  scp "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE" "$LOCAL_DIR/"
+    # Decompress the .zst file to prepare for database import
+    unzstd -c "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE" > "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
 
-  # Clean up: Remove the dump file from the remote server
-  ssh "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
+    # Remove the compressed .zst file after decompression
+    rm "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE"
 
-  echo "Importation de la base dans le service Docker (long...)"
-  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DUMP_FILE"
+    echo "Importation de la base dans le service Docker (long...)"
+    bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
+    bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
 }
