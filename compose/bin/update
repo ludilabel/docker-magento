@@ -1,16 +1,35 @@
 #!/usr/bin/env bash
+set -o errexit
 
 source env/dev-setup-config.env
 source bin/setup-ssh-fn
+source bin/terminal-colors
+
+
+# protect existing setup configuration
+cp env/dev-setup-config.env $TRANSFER_PATH/
 
 ### bin/setup-ssh-fn - permet d’utiliser les commandes Git sans paramètres ssh
 run_ssh_agent_and_register_key "$GITHUB_DEBIAN_RSA_PATH"
 
-echo "Running git reset --hard && git pull"
-git reset --hard && git pull
+green "Attention, si vous étiez entrain de modifier le code source du projet docker-magento depuis PHPStorm, toutes vos modifications seront perdues"
+read -p "$(green "Voulez-vous continuer ? (oui/non) : ")" reponse
+
+# Vérifier la réponse de l'utilisateur
+if [[ "$reponse" != "oui" ]]; then
+    echo "Annulation de la mise à jour."
+    exit 1
+fi
+
+echo "Running git reset --hard "
+git fetch --all
+git reset --hard origin/release/next
+
+# protect existing setup configuration
+cp $TRANSFER_PATH/dev-setup-config.env env/
 
 # permet d’appliquer les changements de droits fichiers prévus sur l'installation docker-magento
 bin/setup-docker-permissions
 
 echo "docker-magento has been updated"
-echo"run bin/restart if you modified yaml files to update to Docker containers"
+green "run bin/restart if you modified yaml files to update to Docker containers"
