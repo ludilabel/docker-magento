@@ -3,31 +3,31 @@ set -o errexit
 
 source env/dev-setup-config.env
 source bin/terminal-colors
+source bin/wsl-fn
 
 echo ""
-echo "$(yellow "Chemins Windows")"
-echo "$(green "$OS_SRC")"
-echo "$(green "$OS_HOSTS")"
-
-echo ""
-
-echo "$(yellow "Chemins Recette")"
-echo "$(green "$RECETTE_MEDIA_PATH") "
+yellow "Chemins Windows"
+green "$OS_SRC"
+green "$OS_HOSTS"
 
 echo ""
 
-echo "$(yellow "Chemins Debian")"
+yellow "Chemins Recette"
+green "$RECETTE_MEDIA_PATH"
+
+echo ""
+
+yellow "Chemins Debian"
 echo "$(green "$TRANSFER_PATH") $(white "chemin pour les transferts de fichiers entre Windows et conteneur Docker")"
+echo "$(green "$TRANSFER_PATH/db") $(white "emplacement Debian de tous les backup, export, import de base de données")"
+convertWslPathToWinPath "$TRANSFER_PATH/db"
 echo "$(green "$COMPOSE_PATH") $(white "chemin pour lancer les commandes bin/*")"
-echo -e "$(green "$RECETTE_DEBIAN_RSA_PATH") $(white "clé privée SSH pour se connecter au serveur Recette")"
 echo "$(green "$GITHUB_DEBIAN_RSA_PATH") $(white "clé privée SSH pour se connecter au serveur Github")"
+echo "$(green "$RECETTE_DEBIAN_RSA_PATH") $(white "clé privée SSH pour se connecter au serveur Recette")"
 
 echo ""
 
-echo "$(yellow "Chemins conteneur Docker")"
+yellow "Chemins conteneur Docker"
 echo "$(green "/root/.local/share/mkcert/rootCA.pem") $(white "Autorité de certification locale des certificats SSL des boutiques")"
 
 echo ""
-
-
-
