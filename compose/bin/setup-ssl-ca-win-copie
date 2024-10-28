@@ -3,7 +3,7 @@ set -o errexit
 
 source bin/wsl-fn
 
-echo "Veuillez coller le chemin Windows vers le dossier où déposer le fichier rootCA.pem"
+echo "Veuillez coller un chemin Windows quelconque où retrouver le fichier rootCA.crt (version Windows) à installer"
 read -r -p "(ex : D:\projets\Magento2\nginx) : " destination_win_path
 
 wsl_destination_win_path=$(convertWinPathToWslPath "$destination_win_path")
@@ -21,4 +21,6 @@ openssl x509 -outform der -in rootCA.pem -out rootCA.crt
 rsync -av --delete "rootCA.crt" "$wsl_destination_win_path"
 rm rootCA.pem rootCA.crt
 
-echo "Le fichier a été téléchargé dans le dossier Windows. Double cliquer sur le fichier pour installer l'autorité de certification"
+echo "Le fichier a été téléchargé dans le dossier Windows."
+echo "Double cliquer sur le fichier pour installer l'autorité de certification."
+echo "Lire la documentation du projet si vous ne savez pas comment installer une autorité de certification."

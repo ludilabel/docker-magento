@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
-# Check if the model configuration file exists and move/rename it if it does
+
+# Création du fichier de configuration de setup s’il n’existe pas déjà
 if [ ! -f env/dev-setup-config.env ]; then
     echo "Creation du fichier env/dev-setup-config.env"
     cp env/setup/model.dev-setup-config.env env/dev-setup-config.env
+
+    echo "Le fichier env/dev-setup-config.env est crée."
+
+  else
+    echo "Le fichier de configuration env/dev-setup-config.env d’une précédente installation existe déjà et ses valeurs seront utilisées"
 fi
 
 

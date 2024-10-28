@@ -15,9 +15,6 @@ export USAGE_MODE
 echo "$(green "Running bin/setup-win-sources...")"
 bin/setup-win-sources
 
-echo "$(green "Running bin/setup-recette...")"
-bin/setup-recette
-
 # Démarrage pour la première fois des conteneurs Docker
 # dépend de bin/setup-win-sources
 echo "$(green "Running bin/autostart-containers...")"
@@ -39,7 +36,8 @@ bin/fixperms
 
 bin/clinotty bin/magento setup:upgrade
 bin/clinotty bin/magento setup:di:compile
-echo "$(green "Running bin/import-media... (long)")"
+echo ""
+green "Running bin/import-media... (long)"
 bin/import-media
 
 bin/clinotty bin/magento cache:flush

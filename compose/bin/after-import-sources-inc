@@ -3,7 +3,7 @@
 set -o errexit
 
 # Toutes les commandes à jouer lorsqu'on change les fichiers sources
-echo "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
+green "Exécution de toutes les commandes bin/* qui sont nécessaires après un changement des fichiers sources"
 
 echo "Copie de app/etc/env.php pour l’environnement Docker"
 bin/setup-magento-env
@@ -21,8 +21,8 @@ if [ "$USAGE_MODE" != "install" ]; then
 
   bin/clinotty bin/magento setup:upgrade
   bin/clinotty bin/magento setup:di:compile
-  echo "$(green "Running bin/import-media... (long)")"
+  green "Running bin/import-media... (long)"
   bin/import-media
   bin/clinotty bin/magento cache:flush
 fi
-echo "Toutes les commandes bin/* ont été exécutées."
+green "Toutes les commandes bin/* ont été exécutées."

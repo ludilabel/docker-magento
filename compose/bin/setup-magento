@@ -29,7 +29,8 @@ bin/clinotty bin/magento cron:install
 echo "Turning on developer mode..."
 bin/clinotty bin/magento deploy:mode:set developer
 
-echo "Après le redémarage qui va suivre, vous pourrez accéder aux urls https:// des boutiques"
+echo "Après le redémarage qui va suivre, vous pourrez accéder aux urls des boutiques"
+echo "bin/urls pour afficher les urls"
 
 # Restart nginx to apply the updates
 echo "Restarting containers to apply updates..."

@@ -13,7 +13,7 @@ if [ "$1" ]; then
   github_user="$1"
 else
     if [ "$GITHUB_USER" ]; then
-        recette_db_user="$GITHUB_USER"
+        github_user="$GITHUB_USER"
         echo "L'email du compte utilisateur github est déjà configuré : $(yellow "$GITHUB_USER")"
     else
       echo "Veuillez saisir l'email de votre compte utilisateur github"
@@ -41,7 +41,9 @@ if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
         echo "Passage à l'étape suivante sans régénération."
     else
       # Clé privée ssh
-      echo "Génération de la paire de clé SSH ($(yellow "Entrée à chaque question car on veut utiliser les valeurs par défaut"))"
+      echo "Génération de la paire de clé SSH"
+      echo ""
+      yellow "Appuyer sur Entrée à chaque question suivante du programme ssh-keygen car on veut utiliser les valeurs par défaut"
       ssh-keygen -t ed25519 -C "$github_user"
 
     fi
@@ -50,21 +52,25 @@ if [ "$2" = "regenerate-key" ] || [ -z "$GITHUB_DEBIAN_RSA_PATH" ];  then
     echo "GITHUB_DEBIAN_RSA_PATH=\"$GITHUB_DEBIAN_RSA_PATH\"" >> env/dev-setup-config.env
 
     # Output the content of the public key
-    echo "Voici la clé publique. Copie et ajoute la à ton compte GitHub (celui de l'e-mail fourni):"
+
+    echo ""
+    yellow "Voici la clé publique. Copie et ajoute la à ton compte GitHub (celui de l'e-mail fourni):"
     yellow "$(cat "${GITHUB_DEBIAN_RSA_PATH}.pub")"
 
-    read -p "Continuer une fois que la clé publique est enregistrée sur le compte Gihub..."
+    echo "URL pour enregistrer la clé publique github : $(yellow "https://github.com/settings/keys")"
+    read -p "Appuyer sur entrée une fois que la clé publique est enregistrée sur le compte Gihub..."
 
     # Add authenticity of github host for future connections
-    echo "Si demande de reconnaissance de l’authenticité de github pour les futures connexions => répondre yes"
+    echo "Si demande de reconnaissance de l’authenticité de github pour les futures connexions => $(yellow "répondre yes")"
     # NB : pas besoin de préciser notre compte utilisateur pour la connexion SSH
     # car github a crée un utilisateur unique "git" que tout le monde partage
     ssh -T git@github.com || true
   else
       echo "La clé privée ssh github est déjà installée sur la Debian et se trouve : $GITHUB_DEBIAN_RSA_PATH"
+      echo ""
       echo "Voici la clé publique. Copie et ajoute la à ton compte GitHub :"
       yellow "$(cat "${GITHUB_DEBIAN_RSA_PATH}.pub")"
-      echo "Si tu veux écraser l’ancienne clé par une nouvelle, utilise la commande bin/debug"
+      echo "Si tu veux écraser l’ancienne clé privée par une nouvelle, utilise la commande bin/debug"
 fi
 
 # Recopie de la clé ssh github dans Windows
