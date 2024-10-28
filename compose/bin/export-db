@@ -2,27 +2,39 @@
 set -o errexit
 
 # Arguments:
-# $1 : (Optionnel) mysqldump_win_path : Chemin Windows où déposer le fichier backup.
+# $1 : (Optionnel) : destination d'exportation
+# $2 : (Optionnel|Requirement: $1="windows") :  Chemin Windows où déposer le fichier backup.
 
 source bin/wsl-fn
+source bin/export-db-fn
 
-if [ "$1" ]; then
-  mysqldump_win_path="$1"
+# If an argument is passed, use it and don't open menu
+if [ "$1" == "windows" ]; then
+    export_windows_file "$2"
+elif [ "$1" == "recette" ]; then
+    export_replace_recette
 else
-  echo "Veuillez coller le chemin Windows où déposer le fichier de backup"
-  read -r -p "(ex : D:\projects\magento\mysql\backups) : " mysqldump_win_path
+
+  # Menu pour choisir l'action
+  echo ""
+  echo "Que souhaitez-vous faire ?"
+  echo "1) Exporter base Docker vers un fichier de backup sur Windows"
+  echo "2) Exporter base Docker et l'importer dans base Recette"
+  read -r -p "Entrez votre choix [1 ou 2] : " choice
+
+  case $choice in
+    1)
+      export_windows_file "$2"
+      ;;
+
+    2)
+      export_replace_recette
+      ;;
+
+    *)
+      echo "Choix invalide. Veuillez entrer 1 ou 2."
+      exit 1
+      ;;
+  esac
+
 fi
-
-wsl_mysqldump_win_path=$(convertWinPathToWslPath "$mysqldump_win_path")
-
-# Vérifier si le chemin existe
-if [ ! -d "$wsl_mysqldump_win_path" ]; then
-    echo "Le chemin spécifié n'existe pas."
-    exit 1
-fi
-
-echo "Génération du backup et copie du fichier dans Windows"
-file_name="backup_docker_$(date +%Y%m%d_%H%M%S).sql"
-bin/n98-magerun2 db:dump --stdout > "$wsl_mysqldump_win_path/$file_name" 2>/dev/null
-
-echo "Le fichier est prêt dans $mysqldump_win_path/$file_name"

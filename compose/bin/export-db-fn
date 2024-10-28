@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/dev-setup-config.env
+source bin/setup-ssh-fn
+source bin/wsl-fn
+
+export_replace_recette() {
+  if [ -z "$RECETTE_IP" ]; then
+    bin/setup-recette
+    source env/dev-setup-config.env # Mise à jour des variables d’environnement
+  fi
+
+  # Sauvegarde de précaution de la db recette courante avant de l’écraser par celle de docker
+  bin/backup-db "recette"
+
+  DATE=$(date +"%Y%m%d_%H%M%S")
+  DUMP_FILE="db_export_recette_$DATE.sql"
+  LOCAL_DIR="$TRANSFER_PATH/db"
+
+  # bin/setup-ssh-fn
+  run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
+
+  # Generate mysqldump locally and transfer to remote server
+  echo "Génération du dump docker et transfert vers le serveur recette..."
+  bin/n98-magerun2 db:dump --stdout > "$LOCAL_DIR/$DUMP_FILE" 2>/dev/null
+
+  # Upload the dump file to the remote server
+  scp "$LOCAL_DIR/$DUMP_FILE" "$RECETTE_USER@$RECETTE_IP:/tmp/$DUMP_FILE"
+
+# Supprimer l'ancienne base de données et créer une nouvelle base de données sur le serveur recette
+  ssh "$RECETTE_USER@$RECETTE_IP" "mysql -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' -e 'DROP DATABASE IF EXISTS $RECETTE_DB_NAME; CREATE DATABASE $RECETTE_DB_NAME;'"
+
+  # Import the dump file on the remote server
+  ssh "$RECETTE_USER@$RECETTE_IP" "mysql -u $RECETTE_DB_USER -p'$RECETTE_DB_PASS' $RECETTE_DB_NAME < /tmp/$DUMP_FILE"
+
+
+  # Apply database updates to match recette environnement
+  echo "DB Update : Mise à jour des URLs boutiques M2 dans core_config_data"
+  ssh "$RECETTE_USER@$RECETTE_IP" "mysql -u '$RECETTE_DB_USER' -p'$RECETTE_DB_PASS' '$RECETTE_DB_NAME' -e \"
+    UPDATE core_config_data
+    SET value = REGEXP_REPLACE(value, '($DN)+', 'recette.dev.ludilabel')
+    WHERE path LIKE 'web/unsecure/base_url' AND value LIKE '%$DN%';
+  \""
+
+  echo "Running bin/magento cache:clean on remote server"
+  ssh "$RECETTE_USER@$RECETTE_IP" "cd '$RECETTE_BIN_PATH' && bin/magento cache:clean"
+
+
+  # Clean up: Remove the dump file from the remote server
+  ssh "$RECETTE_USER@$RECETTE_IP" "rm /tmp/$DUMP_FILE"
+
+  echo "Exportation vers le serveur recette terminée."
+}
+
+export_windows_file() {
+    # Arguments:
+    # $1 : (Optionnel) mysqldump_win_path : Chemin Windows où déposer le fichier backup.
+
+    if [ "$1" ]; then
+        mysqldump_win_path="$1"
+    else
+        echo "Veuillez coller le chemin Windows où déposer le fichier de backup"
+        read -r -p "(ex : D:\projects\magento\mysql\backups) : " mysqldump_win_path
+    fi
+
+    wsl_mysqldump_win_path=$(convertWinPathToWslPath "$mysqldump_win_path")
+
+    # Vérifier si le chemin existe
+    if [ ! -d "$wsl_mysqldump_win_path" ]; then
+        echo "Le chemin spécifié n'existe pas."
+        exit 1
+    fi
+
+    echo "Génération du backup et copie du fichier dans Windows"
+    file_name="db_export_file_$(date +%Y%m%d_%H%M%S).sql"
+    bin/n98-magerun2 db:dump --stdout > "$wsl_mysqldump_win_path/$file_name" 2>/dev/null
+
+    echo "Le fichier est prêt dans $mysqldump_win_path/$file_name"
+}
