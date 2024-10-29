@@ -93,7 +93,7 @@ else
         ssh "$PREPROD_USER@$PREPROD_IP" "cd \"$PREPROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 0 && bin/magento cache:clean config"
       fi
 
-      git push "ssh://$PREPROD_USER@$PREPROD_IP/srv/gitrepos/magento2.git" master
+      git --git-dir="$OS_SRC/.git" --work-tree="$OS_SRC" push "ssh://$PREPROD_USER@$PREPROD_IP/srv/gitrepos/magento2.git" master
 
       if [ "$mode_choice" == "manual" ]; then
         ssh "$PREPROD_USER@$PREPROD_IP" "cd \"$PREPROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
@@ -112,7 +112,7 @@ else
         ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 0 && bin/magento cache:clean config"
       fi
 
-      git push "ssh://$PROD_USER@$PROD_IP/srv/gitrepos/magento2.git" master
+      git --git-dir="$OS_SRC/.git" --work-tree="$OS_SRC" push "ssh://$PROD_USER@$PROD_IP/srv/gitrepos/magento2.git" master
 
       if [ "$mode_choice" == "manual" ]; then
         ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
