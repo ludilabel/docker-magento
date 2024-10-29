@@ -21,7 +21,7 @@ mkdir -p "$TRANSFER_PATH/prod/pub"
 
 
 echo "Téléchargement des fichiers /media de prod sur la Debian WSL2 (long...)"
-rsync -az --info=progress2 -e "ssh" $PROD_USER@$PROD_IP:$PROD_MEDIA_PATH "$TRANSFER_PATH/prod/pub"
+rsync -az --info=progress2 --delete -e "ssh" $PROD_USER@$PROD_IP:$PROD_MEDIA_PATH "$TRANSFER_PATH/prod/pub"
 
 echo "Copie des fichiers Debian dans le service Docker (long...)"
 docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/media
