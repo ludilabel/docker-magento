@@ -25,8 +25,9 @@ elif [ "$1" == "prod" ]; then
     deploy_choice="prod"
 else
     # Display menu if no valid parameter is passed
-    echo "Quelle base de données souhaitez-vous sauvegarder ?"
+    echo "Quel déploiement souhaitez-vous faire ?"
     echo "1) Recette"
+    echo "2) Preprod"
     echo "2) Prod"
     read -r -p "Entrez votre choix [1, 2 ou 3] : " choice
 
@@ -74,10 +75,10 @@ else
 
     # le process de déploiement est identique entre preprod et prod
     echo ""
-    echo "Utiliser sur preprod le mode de déploiement qu’on prévoie d'utiliser sur prod"
-    read -p "Choose deployment mode ('manual' or 'auto'): " mode_choice
+    echo "Pensez à utiliser le même mode de déploiement qu’on soit sur preprod ou prod"
+    read -p "Choix du mode de déploiement ('manuel' ou 'auto'): " mode_choice
 
-    if [ "$mode_choice" != "manual" ] && [ "$mode_choice" != "auto" ]; then
+    if [ "$mode_choice" != "manuel" ] && [ "$mode_choice" != "auto" ]; then
         echo "Error: Invalid input. Please choose 'manual' or 'auto'."
         exit 1
     fi
@@ -89,13 +90,13 @@ else
         source env/dev-setup-config.env # Mise à jour des variables d’environnement
       fi
 
-      if [ "$mode_choice" == "manual" ]; then
+      if [ "$mode_choice" == "manuel" ]; then
         ssh "$PREPROD_USER@$PREPROD_IP" "cd \"$PREPROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 0 && bin/magento cache:clean config"
       fi
 
       git --git-dir="$OS_SRC/.git" --work-tree="$OS_SRC" push "ssh://$PREPROD_USER@$PREPROD_IP/srv/gitrepos/magento2.git" master
 
-      if [ "$mode_choice" == "manual" ]; then
+      if [ "$mode_choice" == "manuel" ]; then
         ssh "$PREPROD_USER@$PREPROD_IP" "cd \"$PREPROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
       fi
 
@@ -108,13 +109,13 @@ else
         source env/dev-setup-config.env # Mise à jour des variables d’environnement
       fi
 
-      if [ "$mode_choice" == "manual" ]; then
+      if [ "$mode_choice" == "manuel" ]; then
         ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 0 && bin/magento cache:clean config"
       fi
 
       git --git-dir="$OS_SRC/.git" --work-tree="$OS_SRC" push "ssh://$PROD_USER@$PROD_IP/srv/gitrepos/magento2.git" master
 
-      if [ "$mode_choice" == "manual" ]; then
+      if [ "$mode_choice" == "manuel" ]; then
         ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
       fi
 
