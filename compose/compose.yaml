@@ -22,6 +22,7 @@ services:
       - appdata:/var/www/html
       - sockdata:/sock
       - ssldata:/etc/nginx/certs
+      - sslCA:/root/.local/share/mkcert
     restart: always
     # important que les fichiers des bind mount ci-dessus existent avant le composer up
     # à défaut, on se retrouve avec des placeholders dossier générés par Docker
@@ -164,3 +165,4 @@ volumes:
   rabbitmqdata:
   sockdata:
   ssldata:
+  sslCA:

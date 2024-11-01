@@ -3,6 +3,16 @@ set -o errexit
 
 source bin/wsl-fn
 
+# Debian
+echo "Installation de l'autorité de certifications sur la Debian"
+echo "Pour pouvoir jouer depuis le shell Debian des commandes CURLs sur le site Magento local"
+
+mkdir -p /usr/local/share/ca-certificates/docker-magento/
+echo "Recopie du fichier rootCA.pem"
+sudo docker cp "$(bin/docker-compose ps -q app|awk '{print $1}')":/root/.local/share/mkcert/rootCA.pem /usr/local/share/ca-certificates/docker-magento/rootCA.crt
+sudo update-ca-certificates
+
+# Windows
 echo "Veuillez coller un chemin Windows quelconque où retrouver le fichier rootCA.crt (version Windows) à installer"
 read -r -p "(ex : D:\projets\Magento2\nginx) : " destination_win_path
 
