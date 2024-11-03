@@ -76,7 +76,8 @@ else
     # le process de déploiement est identique entre preprod et prod
     echo ""
     echo "Pensez à utiliser le même mode de déploiement qu’on soit sur preprod ou prod"
-    read -p "Choix du mode de déploiement ('manuel' ou 'auto'): " mode_choice
+    prompt="$(green "Choix du mode de déploiement (")$(yellow "'manuel'")$(green " ou ")$(yellow "'auto'")$(green "): ")"
+    read -p "$(echo -e "$prompt")" mode_choice
 
     if [ "$mode_choice" != "manuel" ] && [ "$mode_choice" != "auto" ]; then
         echo "Error: Invalid input. Please choose 'manual' or 'auto'."

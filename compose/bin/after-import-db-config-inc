@@ -9,7 +9,7 @@ green "Exécution de toutes les commandes bin/* qui sont nécessaires après un 
 echo "Importation des données app/etc/config.php et app/etc/env.php en BDD"
 bin/magento app:config:import
 
-# Mise à jour des URLs des boutiques
+# Application des URLs boutiques de l'environnement docker-magento
 echo "$(green "Running bin/setup-domain...")"
 bin/setup-domain
 
@@ -20,15 +20,15 @@ bin/clinotty bin/magento config:set web/url/redirect_to_base 0 --scope="default"
 bin/magento config:set catalog/search/elasticsearch7_server_hostname elasticsearch
 bin/magento config:set amasty_elastic/connection/server_hostname elasticsearch
 
-# Utiliser Labelmaker 2 de Recette dans l'environnement Docker
-# Mise à jour des URLs client L2  - labelmaker/url/domain
+# On veut utiliser le Labelmaker 2 de Recette dans l'environnement Docker
+# labelmaker/url/domain
 bin/mysql -e "
   UPDATE core_config_data
   SET value = REPLACE(value, 'rc', 'recette.dev')
   WHERE path = 'labelmaker/url/domain';
 "
 
-# Mise à jour des URLs api L2 dans core_config_data - labelmaker/api/domain
+# labelmaker/api/domain
 bin/mysql -e "
   UPDATE core_config_data
   SET value = REPLACE(value, 'rc', 'recette.dev')
@@ -37,6 +37,10 @@ bin/mysql -e "
 
 # mfzerodwt - Désactivation de enabled
 bin/magento config:set mfzerodwt/general/enabled 0
+
+# Désactivation par défaut du merge et minify css
+bin/magento config:set dev/css/merge_css_files 0
+bin/magento config:set dev/css/minify_files 0
 
 # Désactivation par défaut de certains caches pour l'environnement de dev
 bin/magento cache:disable full_page block_html
