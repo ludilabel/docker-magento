@@ -36,12 +36,21 @@ export_replace_recette() {
 
 
   # Apply database updates to match recette environnement
-  echo "DB Update : Mise à jour des URLs boutiques M2 dans core_config_data"
-  ssh "$RECETTE_USER@$RECETTE_IP" "mysql -u '$RECETTE_DB_USER' -p'$RECETTE_DB_PASS' '$RECETTE_DB_NAME' -e \"
-    UPDATE core_config_data
-    SET value = REGEXP_REPLACE(value, '($DN)+', 'recette.dev.ludilabel')
-    WHERE path LIKE 'web/unsecure/base_url' AND value LIKE '%$DN%';
-  \""
+    echo "DB Update : Mise à jour des URLs boutiques M2 dans core_config_data"
+    ssh "$RECETTE_USER@$RECETTE_IP" "mysql -u '$RECETTE_DB_USER' -p'$RECETTE_DB_PASS' '$RECETTE_DB_NAME' -e \"
+      UPDATE core_config_data
+      SET value = REGEXP_REPLACE(value, '($DN)+', 'recette.dev.ludilabel')
+      WHERE path LIKE 'web/unsecure/base_url' AND value LIKE '%$DN%';
+    \""
+
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd '$RECETTE_BIN_PATH' && bin/magento config:set web/url/redirect_to_base 1 --scope="default" > /dev/null"
+
+    # Configuration pour que Elasticsearch 8 d’Amasty parle avec le serveur Elasticsearch de Docker
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd '$RECETTE_BIN_PATH' && bin/magento config:set catalog/search/elasticsearch7_server_hostname 127.0.0.1"
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd '$RECETTE_BIN_PATH' && bin/magento config:set amasty_elastic/connection/server_hostname localhost"
+
+    # Activation de tous les caches pour l'environnement de recette
+    ssh "$RECETTE_USER@$RECETTE_IP" "cd '$RECETTE_BIN_PATH' && bin/magento cache:enable"
 
   echo "Running bin/magento cache:clean on remote server"
   ssh "$RECETTE_USER@$RECETTE_IP" "cd '$RECETTE_BIN_PATH' && bin/magento cache:clean"
