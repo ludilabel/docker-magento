@@ -80,7 +80,7 @@ else
     read -p "$(echo -e "$prompt")" mode_choice
 
     if [ "$mode_choice" != "manuel" ] && [ "$mode_choice" != "auto" ]; then
-        echo "Error: Invalid input. Please choose 'manual' or 'auto'."
+        echo "Error: Invalid input. Please choose 'manuel' or 'auto'."
         exit 1
     fi
 
