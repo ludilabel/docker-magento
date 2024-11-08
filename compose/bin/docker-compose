@@ -8,18 +8,32 @@ else
   DOCKER_COMPOSE="docker-compose"
 fi
 
-COMPOSE_FILES=("compose.yaml" "compose.healthcheck.yaml")
+COMPOSE_FILES=("compose.yaml")
+
+# Iterate over all arguments to check for "healthcheck"
+ARGS=()
+for arg in "$@"; do
+  case $arg in
+    "healthcheck")
+      COMPOSE_FILES+=("compose.healthcheck.yaml")
+      ;;
+    *)
+      ARGS+=("$arg")  # Store other arguments to pass to docker-compose
+      ;;
+  esac
+done
+
 
 # If --no-dev is passed to this script, we won't load the compose.dev.yaml file,
 # but this argument should be removed so it isn't passed to docker compose.
-if [ "$1" == "--no-dev" ]; then
+#if [ "$1" == "--no-dev" ]; then
   # Remove the "--no-dev" argument so it isn't passed to docker compose
-  shift 1
+#  shift 1
 # else
   # The "--no-dev" argument wasn't passed in, so let's load the dev config.
   # Ludilabel setup uses dev-ssh instead
   # COMPOSE_FILES+=("compose.dev-ssh.yaml")
-fi
+#fi
 
 # Loop over the list of compose files, and prefix them with -f.
 # This ensures paths with spaces aren't split when passed as parameters.
@@ -32,4 +46,4 @@ done
 # dans le contexte de la Debian WSL2 car c'est elle qui exécute les commandes Docker
 export OS_NGINX_CONF="$OS_SRC/nginx.conf.docker.sample"
 
-${DOCKER_COMPOSE} "${COMPOSE_FILES_PREFIXED[@]}" "$@"
+${DOCKER_COMPOSE} "${COMPOSE_FILES_PREFIXED[@]}" "${ARGS[@]}"
