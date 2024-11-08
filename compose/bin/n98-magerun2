@@ -9,6 +9,10 @@ if ! bin/cliq ls bin/n98-magerun2.phar; then
   bin/cliq chmod +x n98-magerun2.phar
   bin/cliq mkdir -p bin
   bin/cliq mv n98-magerun2.phar bin
+
+  # copie du fichier phar dans les fichiers sources Windows car nécessaire pour mapping chemins pendant session xdebug
+  bin/copyfromcontainer bin/n98-magerun2.phar
 fi
 
-bin/cli bin/n98-magerun2.phar "$@"
+# on désactive l'importation des core commandes car bin/magento list dysfonctionne avec paramètre XDEBUG_TRIGGER
+bin/cli bin/n98-magerun2.phar --root-dir=/var/www/html --skip-core-commands "$@"
