@@ -53,3 +53,11 @@ sed -i "/##SERVER_NAME_PLACEHOLDER##/a \
 ${server_name_block}\
 \
 " "$FILE"
+
+# Mise à jour de la configuration chargée dans Nginx
+DOCKER_SERVICE="app"
+CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
+docker exec "$CONTAINER_ID" nginx -s reload
+
+echo "Redémarrage du conteneur Docker nginx..."
+bin/restart app
