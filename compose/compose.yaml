@@ -13,17 +13,19 @@
 
 services:
   app:
-    image: markoshust/magento-nginx:1.22-0
+    build: ../images/nginx/1.22
     ports:
       - "80:8000"
       - "443:8443"
     volumes: &appvolumes
-      - ${OS_NGINX_CONF}:/var/www/html/nginx.conf
+      - ./env/setup/nginx.conf.magento.multistores.docker.conf:/etc/nginx/conf.d/magento_nginx_multistores.conf
+      - ./env/setup/nginx.conf.magento.docker.conf:/etc/nginx/magento_nginx.conf
       - appdata:/var/www/html
       - sockdata:/sock
       - ssldata:/etc/nginx/certs
       - sslCA:/root/.local/share/mkcert
     restart: always
+    #- ${OS_NGINX_CONF}:/var/www/html/nginx.conf # exemple d'utilisation d'une variable globale d'environnement
     # important que les fichiers des bind mount ci-dessus existent avant le composer up
     # à défaut, on se retrouve avec des placeholders dossier générés par Docker
     #extra_hosts: &appextrahosts

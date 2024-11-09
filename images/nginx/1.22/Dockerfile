@@ -23,7 +23,9 @@ RUN cd /usr/local/bin/ \
   && chmod +x mkcert
 
 COPY ./conf/nginx.conf /etc/nginx/
-COPY ./conf/default.conf /etc/nginx/conf.d/
+# fichier remplacé par /etc/nginx/conf.d/magento_nginx_multistores.conf
+# il est construit dynamiquement avec URLs des boutiques définies lors du bin/setup-domain
+#COPY ./conf/default.conf /etc/nginx/conf.d/
 
 RUN mkdir -p /etc/nginx/html /var/www/html \
   && chown -R app:app /etc/nginx /var/www /var/cache/nginx /var/run/nginx.pid /sock

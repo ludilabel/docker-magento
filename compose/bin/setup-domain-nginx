@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -o errexit
+# dépend de bin/setup-domain-dn
+
+# Arguments :
+
+source env/dev-setup-config.env
+source env/setup/magento-stores.env
+source bin/terminal-colors
+source bin/wsl-fn
+
+# listes de données dans env/magento-stores.env
+# boutiques Magento 2
+declare -A store_codes
+for entry in ${TLD_STORE_MAP}; do
+  store_codes[${entry%%:*}]=${entry##*:}
+done
+
+# Initialize arrays for the map and server_name blocks
+map_block="map \$http_host \$MAGE_RUN_CODE {\n    default ludilabel;\n"
+server_name_block="  server_name"
+
+# Loop through each top-level domain and prepare the corresponding entries
+for TLD in "${!store_codes[@]}"; do
+    map_block+="    $DN.$TLD ${store_codes[$TLD]};\n"
+    server_name_block+=" $DN.$TLD"
+done
+
+# Close the map block
+map_block+="}"
+
+# Close the server_name directive
+server_name_block+=";"
+
+FILE="env/setup/nginx.conf.magento.multistores.docker.conf"
+
+# Step 1: Remove content between ##MAP_PLACEHOLDER## and ##/MAP_PLACEHOLDER##
+sed -i '/##MAP_PLACEHOLDER##/,/##\/MAP_PLACEHOLDER##/{//!d;}' "$FILE"
+
+# Replace ##MAP_PLACEHOLDER## with the map block
+sed -i "/##MAP_PLACEHOLDER##/a \
+\
+${map_block}\
+\
+" "$FILE"
+
+# Step 3: Remove content between ##SERVER_NAME_PLACEHOLDER## and ##/SERVER_NAME_PLACEHOLDER##
+sed -i '/##SERVER_NAME_PLACEHOLDER##/,/##\/SERVER_NAME_PLACEHOLDER##/{//!d;}' "$FILE"
+
+# Replace ##SERVER_NAME_PLACEHOLDER## with the server_name directive
+sed -i "/##SERVER_NAME_PLACEHOLDER##/a \
+\
+${server_name_block}\
+\
+" "$FILE"
