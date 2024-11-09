@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
+source bin/terminal-colors
+
 S=$(bin/clinotty cat /usr/local/etc/php/php.ini | grep -iGc 'xdebug.mode = off');
 
 xdebug_status() {
     if [[ $S == 1 ]]; then
-        echo "Xdebug debug mode is disabled."
+        yellow "Xdebug debug mode is disabled."
     else
-        echo "Xdebug debug mode is enabled."
+        yellow "Xdebug debug mode is enabled."
     fi
 }
 
@@ -51,5 +53,8 @@ elif [[ $firstArgLetter == "t" ]]; then
 elif [[ $firstArgLetter == "s" ]]; then
     xdebug_status
 else
-    printf "Please specify either 'disable', 'enable', 'status' or 'toggle' as an argument.\nEx: bin/xdebug status\n"
+    echo ""
+    xdebug_status
+    printf "Please specify either 'disable', 'enable', 'status' or 'toggle' as an argument."
+    printf "\n\n"
 fi
