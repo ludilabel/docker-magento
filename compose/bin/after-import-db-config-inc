@@ -35,6 +35,9 @@ bin/mysql -e "
 # Désactivation du module zero-downtime
 bin/magento config:set mfzerodwt/general/enabled 0
 
+# Désactivation du full page cache varnish
+bin/magento config:set system/full_page_cache/caching_application 1
+
 # Désactivation par défaut du merge et minify css
 bin/magento config:set dev/css/merge_css_files 0
 bin/magento config:set dev/css/minify_files 0
