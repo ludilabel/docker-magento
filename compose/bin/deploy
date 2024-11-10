@@ -28,7 +28,7 @@ else
     echo "Quel déploiement souhaitez-vous faire ?"
     echo "1) Recette"
     echo "2) Preprod"
-    echo "2) Prod"
+    echo "3) Prod"
     read -r -p "Entrez votre choix [1, 2 ou 3] : " choice
 
     case $choice in
@@ -75,7 +75,7 @@ else
 
     # le process de déploiement est identique entre preprod et prod
     echo ""
-    echo "Pensez à utiliser le même mode de déploiement qu’on soit sur preprod ou prod"
+    echo "Pensez à utiliser le même mode de déploiement sur preprod et prod"
     prompt="$(green "Choix du mode de déploiement (")$(yellow "'manuel'")$(green " ou ")$(yellow "'auto'")$(green "): ")"
     read -p "$(echo -e "$prompt")" mode_choice
 
