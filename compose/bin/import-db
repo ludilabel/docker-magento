@@ -21,9 +21,9 @@ else
   # Sinon on donne le choix au développeur
   echo ""
   echo "Quelle base de données souhaitez-vous importer ?"
-  echo "1) Depuis le fichier backup de prod"
-  echo "2) Depuis un des fichiers backup .sql qui transitent par la Debian"
-  echo "3) Depuis un fichier backup .sql dans Windows"
+  echo "1) Depuis le backup quotidien de prod"
+  echo "2) Depuis un des fichiers backup .sql stockés sur la Debian (menu)"
+  echo "3) Depuis un fichier backup .sql provenant de Windows"
   read -r -p "Entrez votre choix [1, 2 ou 3] : " choice
 
   case $choice in
@@ -35,6 +35,10 @@ else
       ;;
     3)
       import_from_windows
+      ;;
+    *)
+      echo "Choix invalide. Veuillez entrer 1, 2 ou 3."
+      exit 1
       ;;
   esac
 fi

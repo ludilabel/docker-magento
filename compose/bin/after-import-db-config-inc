@@ -32,7 +32,7 @@ bin/mysql -e "
   WHERE path = 'labelmaker/api/domain';
 "
 
-# mfzerodwt - Désactivation de enabled
+# Désactivation du module zero-downtime
 bin/magento config:set mfzerodwt/general/enabled 0
 
 # Désactivation par défaut du merge et minify css
@@ -41,6 +41,9 @@ bin/magento config:set dev/css/minify_files 0
 
 # Désactivation par défaut de certains caches pour l'environnement de dev
 bin/magento cache:disable full_page block_html
+
+# Désactivation par défaut de smtp Brevo et activation de mailcatcher pour intercepter les e-mails transactionnels
+bin/mailcatcher enable
 
 if [ "$USAGE_MODE" != "install" ]; then
   bin/clinotty bin/magento setup:upgrade
