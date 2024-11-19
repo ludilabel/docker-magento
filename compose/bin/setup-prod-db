@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# Enable debugging
+# set -x
+source env/dev-setup-config.env
+source bin/terminal-colors
+
+# Arguments : (cf. app/etc/env.php pour recette)
+# $1 : prod_db_user (Optionnel) nom utilisateur Mariadb du serveur prod
+# $2 : prod_db_name (Optionnel) nom de la base de données du serveur prod
+# $3 : prod_db_pass (Optionnel) mot de passe de la base de données du serveur prod
+
+if [ "$1" ]; then
+  prod_db_user="$1"
+else
+  if [ "$PROD_DB_USER" ]; then
+      prod_db_user="$PROD_DB_USER"
+      echo "Le nom d'utilisateur de la base de données est déjà configuré : $(yellow "$PROD_DB_USER")"
+  else
+    echo "Veuillez saisir le nom d'utilisateur de la base de données de prod"
+    read -r -p "(ex : magento_user) : " prod_db_user
+  fi
+
+fi
+
+if [ "$2" ]; then
+  prod_db_name="$2"
+else
+  if [ "$PROD_DB_NAME" ]; then
+      prod_db_name="$PROD_DB_NAME"
+      echo "Le nom de la base de données est déjà configuré : $(yellow "$PROD_DB_NAME")"
+  else
+      echo "Veuillez saisir le nom de la base de données de prod"
+      read -r -p "(ex : magento) : " prod_db_name
+  fi
+fi
+
+if [ "$3" ]; then
+  prod_db_pass="$3"
+else
+    if [ "$PROD_DB_PASS" ]; then
+        prod_db_pass="$PROD_DB_PASS"
+        echo "Le mot de passe de la base de données est déjà configuré : $(yellow "$PROD_DB_PASS")"
+    else
+        echo "Veuillez coller le mot de passe de la base de données prod"
+        read -r -p "(ex : fkjdfifsqdKJdiLKj) : " prod_db_pass
+    fi
+
+fi
+
+
+# Mise a jour des variables de configuration dans le fichier env/dev-setup-config.env
+if [ "$PROD_DB_USER" ]; then
+  if [ "$1" ]; then
+    sed -i "s|^PROD_DB_USER=.*|PROD_DB_USER=\"$prod_db_user\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PROD_DB_USER à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_DB_USER=\"$prod_db_user\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PROD_DB_NAME" ]; then
+  if [ "$2" ]; then
+    sed -i "s|^PROD_DB_NAME=.*|PROD_DB_NAME=\"$prod_db_name\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PROD_DB_NAME à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_DB_NAME=\"$prod_db_name\"" >> env/dev-setup-config.env
+fi
+
+if [ "$PROD_DB_PASS" ]; then
+  if [ "$3" ]; then
+    sed -i "s|^PROD_DB_PASS=.*|PROD_DB_PASS=\"$prod_db_pass\"|" env/dev-setup-config.env
+  fi
+else
+    echo "Ajout de la variable PROD_DB_PASS à la fin du fichier env/dev-setup-config.env."
+    echo "PROD_DB_PASS=\"$prod_db_pass\"" >> env/dev-setup-config.env
+fi
