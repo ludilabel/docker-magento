@@ -24,7 +24,8 @@ else
   echo "1) Depuis le backup quotidien de prod"
   echo "2) Depuis un des fichiers backup .sql stockés sur la Debian (menu)"
   echo "3) Depuis un fichier backup .sql provenant de Windows"
-  read -r -p "Entrez votre choix [1, 2 ou 3] : " choice
+  echo "4) Depuis la prod directement (attention à l'impact sur les sites)"
+  read -r -p "Entrez votre choix [1, 2, 3 ou 4] : " choice
 
   case $choice in
     1)
@@ -36,8 +37,11 @@ else
     3)
       import_from_windows
       ;;
+    4)
+      import_from_prod_live
+      ;;
     *)
-      echo "Choix invalide. Veuillez entrer 1, 2 ou 3."
+      echo "Choix invalide. Veuillez entrer 1, 2, 3 ou 4."
       exit 1
       ;;
   esac
