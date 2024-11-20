@@ -5,4 +5,5 @@ echo "Creation d'une autorité de certification locale"
 bin/docker-compose exec -T -u root app mkcert -install
 
 # transférer le fichier à un dossier windows du développeur
+echo "Recopie de l'autorité de certification sur la Debian et Windows"
 bin/setup-ssl-ca-win-debian-copie
