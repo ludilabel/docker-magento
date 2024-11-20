@@ -64,8 +64,8 @@ do
             echo "Hypothèse : vous avez renseigné des informations erronées"
             echo "Solution : resaisir toutes les informations"
             read -r -p "serveur IP : " prod_ip
-            read -r -p "serveur chemin absolu dossier racine : " prod_bin_path
-            read -r -p "serveur chemin absolu dossier media : " prod_media_path
+            read -r -p "serveur chemin absolu du dossier racine Magento 2 : " prod_bin_path
+            read -r -p "serveur chemin absolu du dossier media : " prod_media_path
             bin/setup-prod-server "$prod_ip" "$prod_bin_path" "$prod_media_path"
 
             read -r -p "utilisateur BDD : " prod_db_user
@@ -73,8 +73,11 @@ do
             read -r -p "Mot de passe BDD : " prod_db_pass
             bin/setup-prod-db "$prod_db_user" "$prod_db_name" "$prod_db_pass"
 
+            read -r -p "Chemin absolu du fichier de backup quotidien bdd prod : " prod_db_pathname
+            bin/setup-prod-db-backup "$prod_db_pathname"
+
             read -r -p "serveur utilisateur SSH : " prod_user
-            read -r -p "chemin Windows qui contient clé id_rsa (OpenSSH) pour connexion SSH : " win_id_rsa_path
+            read -r -p "chemin Windows qui contient la clé id_rsa (OpenSSH) pour connexion SSH au serveur prod : " win_id_rsa_path
             bin/setup-prod-ssh "$prod_user" "$win_id_rsa_path"
 
             break
