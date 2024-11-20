@@ -45,5 +45,4 @@ for TLD in "${!store_codes[@]}"; do
 done
 
 # scope default
-echo "Modification de la configuration M2 pour pouvoir accéder aux autres boutiques que FR"
 bin/clinotty bin/magento config:set web/unsecure/base_url "https://$DN.fr/" --scope=default  > /dev/null
