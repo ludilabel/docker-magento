@@ -40,20 +40,24 @@ import_from_debian() {
 
   # Get the chosen file path
   selected_file="${files[$((file_choice - 1))]}"
+  base_name=$(basename "$selected_file" .sql)
 
-  echo "Importation de la base dans le service Docker (long...)"
-  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$selected_file"
+  if [ "$consult_mode" = true ]; then
+      echo "Création et importation dans une nouvelle base nommée $base_name (long...)"
+      bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS $base_name; CREATE DATABASE $base_name;"
+      bin/clinotty mysql -h db -u root -pmagento $base_name < "$selected_file"
+  else
+      echo "Importation de la base dans magento (long...)"
+      bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
+      bin/clinotty mysql -h db -u root -pmagento magento < "$selected_file"
+  fi
 }
 
 import_from_windows() {
-  local sql_file="$1"
 
-  # If no argument is provided, prompt the user for a Windows file path
-  if [ -z "$sql_file" ]; then
-    echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
-    read -r -p "(ex : D:\\projets\\magento\\import\\recette_dump.sql) : " sql_file
-  fi
+  # prompt the user for a Windows file path
+  echo "Veuillez coller un chemin Windows de fichier de sauvegarde SQL"
+  read -r -p "(ex : D:\\projets\\magento\\import\\recette_dump.sql) : " sql_file
 
   # Convert Windows path to WSL path
   wsl_sql_file=$(convertWinPathToWslPath "$sql_file")
@@ -65,14 +69,20 @@ import_from_windows() {
   fi
 
   FILENAME=$(basename "$wsl_sql_file")
+  base_name=$(basename "$FILENAME" .sql)
 
   echo "Téléchargement du fichier backup sur la Debian"
   rsync -av "$wsl_sql_file" "$TRANSFER_PATH/db"
 
-  echo "Importation de la base dans le service Docker (long...)"
-  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/db/$FILENAME"
-
+  if [ "$consult_mode" = true ]; then
+      echo "Création et importation dans une nouvelle base nommée $base_name (long...)"
+      bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS $base_name; CREATE DATABASE $base_name;"
+      bin/clinotty mysql -h db -u root -pmagento $base_name < "$TRANSFER_PATH/db/$FILENAME"
+  else
+      echo "Importation de la base dans magento (long...)"
+      bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
+      bin/clinotty mysql -h db -u root -pmagento magento < "$TRANSFER_PATH/db/$FILENAME"
+  fi
 }
 
 import_from_prod() {
@@ -100,9 +110,18 @@ import_from_prod() {
     # Remove the compressed .zst file after decompression
     rm "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE"
 
-    echo "Importation de la base dans le service Docker (long...)"
-    bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-    bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
+    # Extract the base name from the decompressed SQL file
+    base_name=$(basename "$DECOMPRESSED_SQL_FILE" .sql)
+
+    if [ "$consult_mode" = true ]; then
+        echo "Création et importation dans une nouvelle base nommée $base_name (long...)"
+        bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS $base_name; CREATE DATABASE $base_name;"
+        bin/clinotty mysql -h db -u root -pmagento $base_name < "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
+    else
+        echo "Importation de la base dans magento (long...)"
+        bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
+        bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
+    fi
 }
 
 import_from_prod_live() {
@@ -129,7 +148,16 @@ import_from_prod_live() {
   # Clean up: Remove the dump file from the remote server
   ssh "$PROD_USER@$PROD_IP" "rm /tmp/$DUMP_FILE"
 
-  echo "Importation de la base dans le service Docker (long...)"
-  bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
-  bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DUMP_FILE"
+  # Extract the base name from the dump file
+  base_name=$(basename "$DUMP_FILE" .sql)
+
+  if [ "$consult_mode" = true ]; then
+      echo "Création et importation dans une nouvelle base nommée $base_name (long...)"
+      bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS $base_name; CREATE DATABASE $base_name;"
+      bin/clinotty mysql -h db -u root -pmagento $base_name < "$LOCAL_DIR/$DUMP_FILE"
+  else
+      echo "Importation de la base dans magento (long...)"
+      bin/clinotty mysql -h db -u root -pmagento -e "DROP DATABASE IF EXISTS magento; CREATE DATABASE magento;"
+      bin/clinotty mysql -h db -u root -pmagento magento < "$LOCAL_DIR/$DUMP_FILE"
+  fi
 }
