@@ -6,6 +6,7 @@ set -o errexit
 # $2 (optionnel|requirement deploy_choice="recette") : "branch-name"
 
 source env/dev-setup-config.env
+source bin/setup-ssh-fn
 source bin/terminal-colors
 
 # Determine which database to back up
@@ -55,6 +56,9 @@ if [ "$deploy_choice" == "recette" ]; then
       source env/dev-setup-config.env # Mise à jour des variables d’environnement
     fi
 
+    # bin/setup-ssh-fn
+    run_ssh_agent_and_register_key "$RECETTE_DEBIAN_RSA_PATH"
+
     green "activation du mode maintenance"
     ssh "$RECETTE_USER@$RECETTE_IP" "cd \"$RECETTE_BIN_PATH\" && bin/magento maintenance:enable"
 
@@ -86,6 +90,9 @@ else
 
     if [ "$deploy_choice" == "preprod" ]; then
 
+      # bin/setup-ssh-fn
+      run_ssh_agent_and_register_key "$PREPROD_DEBIAN_RSA_PATH"
+
       if [ -z "$PREPROD_IP" ]; then
         bin/setup-preprod
         source env/dev-setup-config.env # Mise à jour des variables d’environnement
@@ -104,6 +111,9 @@ else
       echo "Déploiement sur Preprod terminé."
 
     elif [ "$deploy_choice" == "prod" ]; then
+
+      # bin/setup-ssh-fn
+      run_ssh_agent_and_register_key "$PROD_DEBIAN_RSA_PATH"
 
       if [ -z "$PROD_IP" ]; then
         bin/setup-prod
