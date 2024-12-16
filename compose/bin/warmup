@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/dev-setup-config.env
+source bin/setup-ssh-fn
+source bin/terminal-colors
+
+# bin/setup-ssh-fn
+run_ssh_agent_and_register_key "$PROD_DEBIAN_RSA_PATH"
+
+#ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento fpc:warmer:generate"
+ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento fpc:warmer:generate && bin/magento fpc:warmer:process"
