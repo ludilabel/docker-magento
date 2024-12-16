@@ -38,6 +38,10 @@ RUN apt-get update && apt-get install -y \
     vim \
     zip \
     zlib1g-dev \
+    jpegoptim \
+    optipng \
+    gifsicle \
+    webp \
   && rm -rf /var/lib/apt/lists/*
 
 RUN pecl channel-update pecl.php.net && pecl install \
