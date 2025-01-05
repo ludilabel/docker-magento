@@ -15,14 +15,18 @@ if [ "$1" == "consult" ]; then
     green "Importation d’une base de donnée en mode consultation"
     consult_mode=true
   else
-    echo "Votre base de données Docker va être remplacée"
-    read -p "Voulez-vous la sauvegarder ? (oui/non) : " reponse
+    # Le script est aussi appelé lors de la toute première installation
+    # contexte dans lequel il n'y a pas de base de donnée précédente à sauvegarder
+    if [ "$USAGE_MODE" != "install"]; then
+      echo "Votre base de données Docker va être remplacée"
+      read -p "Voulez-vous la sauvegarder ? (oui/non) : " reponse
 
-    # Vérifier la réponse de l'utilisateur
-    if [[ "$reponse" == "non" ]]; then
-        echo "Pas de sauvegarde de la base existante."
-      else
-        bin/backup-db "docker"
+      # Vérifier la réponse de l'utilisateur
+      if [[ "$reponse" == "non" ]]; then
+          echo "Pas de sauvegarde de la base existante."
+        else
+          bin/backup-db "docker"
+      fi
     fi
 fi
 
