@@ -6,7 +6,7 @@ source bin/setup-ssh-fn
 source bin/wsl-fn
 
 export_replace_recette() {
-  if [ -z "$RECETTE_IP" ]; then
+  if [ -z "$RECETTE_IP" ] || [ -z "$RECETTE_USER" ] || [ -z "$RECETTE_DB_USER" ] || [ -z "$RECETTE_DB_PASS" ] || [ -z "$RECETTE_DB_NAME" ] || [ -z "$RECETTE_BIN_PATH" ] || [ -z "$RECETTE_DEBIAN_RSA_PATH" ]; then
     bin/setup-recette
     source env/dev-setup-config.env # Mise à jour des variables d’environnement
   fi

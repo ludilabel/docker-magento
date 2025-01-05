@@ -87,7 +87,7 @@ import_from_windows() {
 
 import_from_prod() {
     # le fichier backup est provisoirement déposé sur prod
-    if [ -z "$PROD_IP" ]; then
+    if [ -z "$PROD_IP" ] || [ -z "$PROD_USER" ] || [ -z "$PROD_BACKUP_DB_PATHNAME" ] || [ -z "$PROD_DEBIAN_RSA_PATH" ]; then
       bin/setup-prod
       source env/dev-setup-config.env # mise à jour des variables d’environnement
     fi
@@ -126,7 +126,7 @@ import_from_prod() {
 
 import_from_prod_live() {
 
-  if [ -z "$PROD_IP" ]; then
+  if [ -z "$PROD_IP" ] || [ -z "$PROD_USER" ] || [ -z "$PROD_DB_USER" ] || [ -z "$PROD_DB_PASS" ] || [ -z "$PROD_DB_NAME" ] || [ -z "$PROD_DEBIAN_RSA_PATH" ]; then
     bin/setup-prod
     source env/dev-setup-config.env # mise à jour des variables d’environnement
   fi

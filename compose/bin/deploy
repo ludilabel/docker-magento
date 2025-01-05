@@ -51,7 +51,7 @@ fi
 # déploiements
 if [ "$deploy_choice" == "recette" ]; then
 
-    if [ -z "$RECETTE_IP" ]; then
+    if [ -z "$RECETTE_IP" ] || [ -z "$RECETTE_USER" ] || [ -z "$RECETTE_BIN_PATH" ] || [ -z "$RECETTE_DEBIAN_RSA_PATH" ]; then
       bin/setup-recette
       source env/dev-setup-config.env # Mise à jour des variables d’environnement
     fi
@@ -93,7 +93,7 @@ else
       # bin/setup-ssh-fn
       run_ssh_agent_and_register_key "$PREPROD_DEBIAN_RSA_PATH"
 
-      if [ -z "$PREPROD_IP" ]; then
+      if [ -z "$PREPROD_IP" ] || [ -z "$PREPROD_USER" ] || [ -z "$PREPROD_BIN_PATH" ]; then
         bin/setup-preprod
         source env/dev-setup-config.env # Mise à jour des variables d’environnement
       fi
@@ -115,7 +115,7 @@ else
       # bin/setup-ssh-fn
       run_ssh_agent_and_register_key "$PROD_DEBIAN_RSA_PATH"
 
-      if [ -z "$PROD_IP" ]; then
+      if [ -z "$PROD_IP" ] || [ -z "$PROD_USER" ] || [ -z "$PROD_BIN_PATH" ]; then
         bin/setup-prod
         source env/dev-setup-config.env # Mise à jour des variables d’environnement
       fi

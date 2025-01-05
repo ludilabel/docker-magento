@@ -5,7 +5,7 @@
 source env/dev-setup-config.env
 source bin/setup-ssh-fn
 
-if [ -z "$PROD_IP" ]; then
+if [ -z "$PROD_IP" ] || [ -z "$PROD_USER" ] || [ -z "$PROD_MEDIA_PATH" ] || [ -z "$PROD_DEBIAN_RSA_PATH" ]; then
   bin/setup-prod
   source env/dev-setup-config.env # Mise à jour des variables d’environnement
 fi
