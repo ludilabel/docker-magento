@@ -18,8 +18,8 @@ services:
       - "80:8000"
       - "443:8443"
     volumes: &appvolumes
-      - ./env/setup/nginx.conf.magento.multistores.docker.conf:/etc/nginx/conf.d/magento_nginx_multistores.conf
       - ./env/setup/nginx.conf.magento.docker.conf:/etc/nginx/magento_nginx.conf
+      - ./env/setup/nginx.conf.magento.multistores.docker.conf:/etc/nginx/conf.d/magento_nginx_multistores.conf
       - appdata:/var/www/html
       - sockdata:/sock
       - ssldata:/etc/nginx/certs
