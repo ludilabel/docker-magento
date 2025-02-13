@@ -17,7 +17,7 @@ if [ "$1" == "consult" ]; then
   else
     # Le script est aussi appelé lors de la toute première installation
     # contexte dans lequel il n'y a pas de base de donnée précédente à sauvegarder
-    if [ "$USAGE_MODE" != "install"]; then
+    if [ "$USAGE_MODE" != "install" ]; then
       echo "Votre base de données Docker va être remplacée"
       read -p "Voulez-vous la sauvegarder ? (oui/non) : " reponse
 
