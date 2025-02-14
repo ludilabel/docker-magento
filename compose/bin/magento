@@ -2,7 +2,7 @@
 bin/cli bin/magento "$@"
 
 if [ $? -eq 0 ]; then
-  if [[ "$1" == "setup:upgrade" || "$1" == "s:u" ]]; then
+  if [[ "$1" == "setup:upgrade" || "$1" == "s:u" || "$1" == "module:enable" || "$1" == "module:disable" ]]; then
     bin/copyfromcontainer app/etc/config.php
   fi
 fi
