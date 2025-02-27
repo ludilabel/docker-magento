@@ -31,6 +31,8 @@ bin/mysql -e "
   SET value = REPLACE(value, 'rc', 'recette.dev')
   WHERE path = 'labelmaker/api/domain';
 "
+# Désactivation du module Ludilabel_Shippingbo
+bin/magento config:set shippingbo/api/enabled 0
 
 # Désactivation du module zero-downtime
 bin/magento config:set mfzerodwt/general/enabled 0
