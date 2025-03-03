@@ -40,6 +40,10 @@ import_from_debian() {
 
   # Get the chosen file path
   selected_file="${files[$((file_choice - 1))]}"
+
+  # Remove DEFINER
+  sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$selected_file"
+
   base_name=$(basename "$selected_file" .sql)
 
   if [ "$consult_mode" = true ]; then
@@ -73,6 +77,9 @@ import_from_windows() {
 
   echo "Téléchargement du fichier backup sur la Debian"
   rsync -av "$wsl_sql_file" "$TRANSFER_PATH/db"
+
+  # Remove DEFINER
+  sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$TRANSFER_PATH/db/$FILENAME"
 
   if [ "$consult_mode" = true ]; then
       echo "Création et importation dans une nouvelle base nommée $base_name (long...)"
@@ -109,6 +116,9 @@ import_from_prod() {
 
     # Remove the compressed .zst file after decompression
     rm "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE"
+
+    # Remove DEFINER
+    sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
 
     # Extract the base name from the decompressed SQL file
     base_name=$(basename "$DECOMPRESSED_SQL_FILE" .sql)
@@ -147,6 +157,9 @@ import_from_prod_live() {
 
   # Clean up: Remove the dump file from the remote server
   ssh "$PROD_USER@$PROD_IP" "rm /tmp/$DUMP_FILE"
+
+  # Remove DEFINER
+  sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$LOCAL_DIR/$DUMP_FILE"
 
   # Extract the base name from the dump file
   base_name=$(basename "$DUMP_FILE" .sql)
