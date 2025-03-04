@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# -s = Stops the container before removing it.
+# -f = Forces removal without confirmation.
+bin/docker-compose rm -sf "$@"
+
+# --no-cache ensures a fresh build.
+bin/docker-compose build --no-cache "$@"
+
+bin/start "$@"
+
