@@ -24,6 +24,7 @@ services:
       - sockdata:/sock
       - ssldata:/etc/nginx/certs
       - sslCA:/root/.local/share/mkcert
+      - nginxConf:/etc/nginx
     restart: always
     #- ${OS_NGINX_CONF}:/var/www/html/nginx.conf # exemple d'utilisation d'une variable globale d'environnement
     # important que les fichiers des bind mount ci-dessus existent avant le composer up
@@ -168,3 +169,4 @@ volumes:
   sockdata:
   ssldata:
   sslCA:
+  nginxConf:
