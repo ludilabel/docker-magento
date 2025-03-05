@@ -126,11 +126,23 @@ else
 
       git --git-dir="$OS_SRC/.git" --work-tree="$OS_SRC" push "ssh://$PROD_USER@$PROD_IP/srv/gitrepos/magento2.git" master
 
+      if [ "$mode_choice" == "auto" ]; then
+
+        yellow "Ajout de 15 secondes de delai avant d'executer les étapes post deploiement"
+        sleep 15
+        yellow "Delai de 15 secondes écoulé"
+
+        bin/deploy-rights
+        sleep 5
+        yellow "Déploiement sur Prod terminé."
+        bin/deploy-warmup
+
+      fi
+
+
       if [ "$mode_choice" == "manuel" ]; then
         ssh "$PROD_USER@$PROD_IP" "cd \"$PROD_BIN_PATH\" && bin/magento config:set mfzerodwt/general/enabled 1 && bin/magento cache:clean config"
       fi
-
-      echo "Déploiement sur Prod terminé."
 
     fi
 

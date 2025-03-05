@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -o errexit
+
+# Arguments:
+# $1 (optionnel) deploy_choice : "recette" or "preprod" or "prod"
+# $2 (optionnel|requirement deploy_choice="recette") : "branch-name"
+
+source env/dev-setup-config.env
+source bin/setup-ssh-fn
+source bin/terminal-colors
+
+
+# bin/setup-ssh-fn
+run_ssh_agent_and_register_key "$PROD_DEBIAN_RSA_PATH"
+
+# Droits fichiers pour sécurité
+echo "Application des droits sécurisés sur fichiers et dossiers sources"
+ssh -q -o LogLevel=ERROR "$PROD_USER@$PROD_IP" > /dev/null 2>&1 << 'EOF'
+    TARGET_DIR="/srv/www/prod/magento/www"
+    cd "$TARGET_DIR"
+    find var vendor pub/static pub/media app/etc \( -type f -or -type d \) -exec chmod u+w {} +
+    chmod u+x bin/magento
+EOF
+
+
+# Droits fichiers pour accès images email et apptrian
+echo "Droits ouverts pour images appelées par les emails"
+echo "Droits spéciaux pour le module apptrian/image-optimizer"
+ ssh -q -o LogLevel=ERROR "$PROD_USER@$PROD_IP" > /dev/null 2>&1 << 'EOF'
+    TARGET_DIR="/srv/www/prod/magento/www"
+    cd "$TARGET_DIR"
+    chmod -R 777 pub/media/email
+    find vendor/apptrian/image-optimizer/bin -type f -exec chmod +x {} +
+EOF
