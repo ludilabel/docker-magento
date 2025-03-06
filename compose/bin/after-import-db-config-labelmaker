@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -o errexit
+
+source env/setup/magento-stores.env
+
+declare -A store_codes
+for entry in ${TLD_STORE_MAP}; do
+  store_codes[${entry%%:*}]=${entry##*:}
+done
+
+# First configuration case
+CONFIG_PATH_1="labelmaker/url/domain"
+BASE_URL_1="https://labelmaker.recette.dev.ludilabel.fr/labelmaker"
+
+# Second configuration case
+CONFIG_PATH_2="labelmaker/api/domain"
+BASE_URL_2="https://labelmaker.recette.dev.ludilabel.fr"
+
+bin/magento config:set "$CONFIG_PATH_1" "$BASE_URL_1"
+bin/magento config:set "$CONFIG_PATH_2" "$BASE_URL_2"
+
+# Loop through the associative array and apply both configurations
+for tld in "${!store_codes[@]}"; do
+    store_code="${store_codes[$tld]}"
+
+    # First config: Replace "fr" in BASE_URL_1 with the actual TLD
+    CONFIG_VALUE_1="${BASE_URL_1/fr/$tld}"
+    bin/magento config:set "$CONFIG_PATH_1" "$CONFIG_VALUE_1" --scope=stores --scope-code="$store_code"
+
+    # Second config: Replace "fr" in BASE_URL_2 with the actual TLD
+    CONFIG_VALUE_2="${BASE_URL_2/fr/$tld}"
+    bin/magento config:set "$CONFIG_PATH_2" "$CONFIG_VALUE_2" --scope=stores --scope-code="$store_code"
+done
+

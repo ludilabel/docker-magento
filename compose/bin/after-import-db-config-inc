@@ -17,20 +17,9 @@ bin/setup-domain
 bin/magento config:set catalog/search/elasticsearch7_server_hostname elasticsearch
 bin/magento config:set amasty_elastic/connection/server_hostname elasticsearch
 
-# On veut utiliser le Labelmaker 2 de Recette dans l'environnement Docker
-# labelmaker/url/domain
-bin/mysql -e "
-  UPDATE core_config_data
-  SET value = REPLACE(value, 'rc', 'recette.dev')
-  WHERE path = 'labelmaker/url/domain';
-"
+# Labelmaker 2 de Recette dans l'environnement Docker
+source bin/after-import-db-config-labelmaker
 
-# labelmaker/api/domain
-bin/mysql -e "
-  UPDATE core_config_data
-  SET value = REPLACE(value, 'rc', 'recette.dev')
-  WHERE path = 'labelmaker/api/domain';
-"
 # Désactivation du module Ludilabel_Shippingbo
 bin/magento config:set shippingbo/api/enabled 0
 
