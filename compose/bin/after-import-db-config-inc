@@ -20,6 +20,11 @@ bin/magento config:set amasty_elastic/connection/server_hostname elasticsearch
 # Labelmaker 2 de Recette dans l'environnement Docker
 source bin/after-import-db-config-labelmaker
 
+# Désactivation du module Stripe
+bin/magento config:set payment/stripe_payments_basic/stripe_mode "test"
+bin/magento config:set payment/stripe_payments/active 0
+bin/magento config:set payment/stripe_payments_express/global_enabled 0
+
 # Désactivation du module Ludilabel_Shippingbo
 bin/magento config:set shippingbo/api/enabled 0
 
