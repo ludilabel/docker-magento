@@ -41,11 +41,8 @@ import_from_debian() {
   # Get the chosen file path
   selected_file="${files[$((file_choice - 1))]}"
 
-  # Vérification et suppression de la ligne problématique si elle existe
-  if grep -q "\/\*M!999999\\- enable the sandbox mode \*\/" "$TRANSFER_PATH/db/$FILENAME"; then
-      echo "Removing sandbox mode line from dump file..."
-      sed -i '/\/\*M!999999\\- enable the sandbox mode \*\//d' "$TRANSFER_PATH/db/$FILENAME"
-  fi
+  # Remove enable the sandbox mode
+  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
 
   # Remove DEFINER
   sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$selected_file"
@@ -84,11 +81,8 @@ import_from_windows() {
   echo "Téléchargement du fichier backup sur la Debian"
   rsync -av "$wsl_sql_file" "$TRANSFER_PATH/db"
 
-  # Vérification et suppression de la ligne problématique si elle existe
-  if grep -q "\/\*M!999999\\- enable the sandbox mode \*\/" "$TRANSFER_PATH/db/$FILENAME"; then
-      echo "Removing sandbox mode line from dump file..."
-      sed -i '/\/\*M!999999\\- enable the sandbox mode \*\//d' "$TRANSFER_PATH/db/$FILENAME"
-  fi
+  # Remove enable the sandbox mode
+  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
 
   # Remove DEFINER
   sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$TRANSFER_PATH/db/$FILENAME"
@@ -129,11 +123,8 @@ import_from_prod() {
     # Remove the compressed .zst file after decompression
     rm "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE"
 
-  # Vérification et suppression de la ligne problématique si elle existe
-  if grep -q "\/\*M!999999\\- enable the sandbox mode \*\/" "$TRANSFER_PATH/db/$FILENAME"; then
-      echo "Removing sandbox mode line from dump file..."
-      sed -i '/\/\*M!999999\\- enable the sandbox mode \*\//d' "$TRANSFER_PATH/db/$FILENAME"
-  fi
+    # Remove enable the sandbox mode
+    sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
 
     # Remove DEFINER
     sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
@@ -176,11 +167,8 @@ import_from_prod_live() {
   # Clean up: Remove the dump file from the remote server
   ssh "$PROD_USER@$PROD_IP" "rm /tmp/$DUMP_FILE"
 
-  # Vérification et suppression de la ligne problématique si elle existe
-  if grep -q "\/\*M!999999\\- enable the sandbox mode \*\/" "$TRANSFER_PATH/db/$FILENAME"; then
-      echo "Removing sandbox mode line from dump file..."
-      sed -i '/\/\*M!999999\\- enable the sandbox mode \*\//d' "$TRANSFER_PATH/db/$FILENAME"
-  fi
+  # Remove enable the sandbox mode
+  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
 
   # Remove DEFINER
   sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$LOCAL_DIR/$DUMP_FILE"
