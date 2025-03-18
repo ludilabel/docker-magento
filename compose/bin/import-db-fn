@@ -82,7 +82,7 @@ import_from_windows() {
   rsync -av "$wsl_sql_file" "$TRANSFER_PATH/db"
 
   # Remove enable the sandbox mode
-  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
+  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$TRANSFER_PATH/db/$FILENAME"
 
   # Remove DEFINER
   sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$TRANSFER_PATH/db/$FILENAME"
@@ -124,7 +124,7 @@ import_from_prod() {
     rm "$LOCAL_DIR/$COMPRESSED_BACKUP_FILE"
 
     # Remove enable the sandbox mode
-    sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
+    sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
 
     # Remove DEFINER
     sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$LOCAL_DIR/$DECOMPRESSED_SQL_FILE"
@@ -168,7 +168,7 @@ import_from_prod_live() {
   ssh "$PROD_USER@$PROD_IP" "rm /tmp/$DUMP_FILE"
 
   # Remove enable the sandbox mode
-  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$selected_file"
+  sed 's/\/\*M!999999\\- enable the sandbox mode \*\///g' -i "$LOCAL_DIR/$DUMP_FILE"
 
   # Remove DEFINER
   sed 's/\sDEFINER=`[^`]*`@`[^`]*`//g' -i "$LOCAL_DIR/$DUMP_FILE"
