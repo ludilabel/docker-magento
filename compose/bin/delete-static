@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# v1 : import de /media du serveur prod
-#
 
 source env/dev-setup-config.env
 
@@ -11,9 +9,8 @@ fi
 DOCKER_SERVICE="phpfpm"
 CONTAINER_ID=$(bin/docker-compose ps -q $DOCKER_SERVICE | awk '{print $1}')
 
-docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/static/adminhtml/*
-docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/static/frontend/*
+docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/static/adminhtml/
+docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/static/frontend/
 docker exec "$CONTAINER_ID" rm -rf /var/www/html/pub/static/deployed_version.txt
+docker exec "$CONTAINER_ID" rm -rf /var/www/html/var/view_preprocessed/pub/static/
 echo "Deleting static files...OK"
-docker exec "$CONTAINER_ID" rm -rf /var/www/html/var/view_preprocessed/pub/*
-echo "Deleting view_preprocessed files...OK"
