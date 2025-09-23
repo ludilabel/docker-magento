@@ -32,6 +32,9 @@ bin/magento config:set system/full_page_cache/caching_application 1
 # Passer la licence des modules Amasty en mode developer
 bin/magento config:set amasty_base/instance_registration/production_mode 0
 
+# Désactivation du SMTP via Brevo
+bin/magento config:set brevo_core/general/isSmtpEnabled 0
+
 # Passer Stripe en mode test
 bin/magento config:set payment/stripe_payments_basic/stripe_mode "test"
 
