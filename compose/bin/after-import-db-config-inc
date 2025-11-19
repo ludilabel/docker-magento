@@ -35,6 +35,9 @@ bin/magento config:set amasty_base/instance_registration/production_mode 0
 # Désactivation du SMTP via Brevo
 bin/magento config:set brevo_core/general/isSmtpEnabled 0
 
+# Désactivation de Referral Candy
+bin/magento config:set referralcandy/rc_general/enabled 0
+
 # Passer Stripe en mode test
 bin/magento config:set payment/stripe_payments_basic/stripe_mode "test"
 
