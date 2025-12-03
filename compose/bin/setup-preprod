@@ -3,14 +3,14 @@ set -o errexit
 
 
 # luditodo : lorsque preprod02 sera en place, il faudra refaire la configuration pour ne plus pointer sur prod www02
-echo "PRE-MEL : en attendant la mise en place de preprod02, nous allons saisir les informations de prod www02"
+#echo "PRE-MEL : en attendant la mise en place de preprod02, nous allons saisir les informations de prod www02"
 
 echo "Running bin/setup-preprod-server"
 bin/setup-preprod-server
 
 # pas utilisé pour l’instant
-#echo "Running bin/setup-preprod-db"
-#bin/setup-preprod-db
+echo "Running bin/setup-preprod-db"
+bin/setup-preprod-db
 
 echo "Running bin/setup-preprod-ssh"
 bin/setup-preprod-ssh
