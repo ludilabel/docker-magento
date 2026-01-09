@@ -5,5 +5,7 @@ if [ $? -eq 0 ]; then
   if [[ "$1" == "install" || "$1" == "update" || "$1" == "require" ]]; then
     bin/copyfromcontainer composer.json
     bin/copyfromcontainer composer.lock
+    bin/copyfromcontainer patches.json
+    bin/copyfromcontainer patches.lock.json
   fi
 fi
