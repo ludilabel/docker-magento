@@ -10,11 +10,11 @@ done
 
 # First configuration case
 CONFIG_PATH_1="labelmaker/url/domain"
-BASE_URL_1="https://labelmaker.recette.dev.ludilabel.fr/labelmaker"
+BASE_URL_1="https://labelmaker.local.ludilabel.fr/labelmaker"
 
 # Second configuration case
 CONFIG_PATH_2="labelmaker/api/domain"
-BASE_URL_2="https://labelmaker.recette.dev.ludilabel.fr"
+BASE_URL_2="https://labelmaker.local.ludilabel.fr"
 
 bin/magento config:set "$CONFIG_PATH_1" "$BASE_URL_1"
 bin/magento config:set "$CONFIG_PATH_2" "$BASE_URL_2"
